@@ -1,0 +1,13 @@
+[package]
+name = "ocrus-layout"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ocrus-core = { workspace = true }
+ndarray = { workspace = true }
+serde = { workspace = true }
+wide = "1.1.1"
+imageproc = { workspace = true }
+image = { workspace = true }

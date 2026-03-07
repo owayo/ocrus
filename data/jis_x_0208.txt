@@ -1,0 +1,11 @@
+# JIS X 0208 Character Reference
+# This file is for reference only. The actual charset is generated
+# programmatically in Charset::from_jis() using Unicode ranges.
+#
+# Ranges covered:
+# - ASCII printable: U+0021..U+007E
+# - CJK Symbols and Punctuation: U+3000..U+303F
+# - Hiragana: U+3041..U+3096
+# - Katakana: U+30A1..U+30FA
+# - CJK Unified Ideographs: U+4E00..U+9FFF
+# - Fullwidth Forms: U+FF01..U+FF5E

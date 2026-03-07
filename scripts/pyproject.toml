@@ -1,0 +1,37 @@
+[project]
+name = "ocrus-scripts"
+version = "0.1.0"
+description = "Test data generation scripts for ocrus OCR engine"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[project.optional-dependencies]
+train = [
+    "paddlepaddle>=3.3.0",
+    "paddle2onnx>=2.1.0",
+    "onnx",
+    "pyyaml",
+    "requests",
+    "tqdm",
+    "lmdb",
+    "pyclipper",
+    "rapidfuzz",
+    "albumentations",
+    "imgaug",
+    "onnx_graphsurgeon",
+]
+quantize = ["onnxruntime>=1.24.3"]
+
+[project.scripts]
+generate-test-chars = "ocrus_scripts.generate_test_chars:main"
+finetune = "ocrus_scripts.finetune:main"
+export-onnx = "ocrus_scripts.export_onnx:main"
+checkpoint-to-onnx = "ocrus_scripts.checkpoint_to_onnx:main"
+quantize = "ocrus_scripts.quantize:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ocrus_scripts"]

@@ -1,0 +1,72 @@
+[workspace]
+members = [
+    "crates/ocrus-core",
+    "crates/ocrus-preproc",
+    "crates/ocrus-layout",
+    "crates/ocrus-recognizer",
+    "crates/ocrus-runtime",
+    "crates/ocrus-cli",
+    "crates/ocrus-dataset",
+]
+resolver = "3"
+
+[package]
+name = "ocrus-bench"
+version.workspace = true
+edition.workspace = true
+publish = false
+
+[dev-dependencies]
+criterion = { workspace = true }
+ocrus-preproc = { workspace = true }
+ocrus-layout = { workspace = true }
+ocrus-recognizer = { workspace = true }
+image = { workspace = true }
+ndarray = { workspace = true }
+
+[[bench]]
+name = "preproc"
+harness = false
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/owa/ocrus"
+
+[workspace.dependencies]
+ocrus-core = { path = "crates/ocrus-core" }
+ocrus-preproc = { path = "crates/ocrus-preproc" }
+ocrus-layout = { path = "crates/ocrus-layout" }
+ocrus-recognizer = { path = "crates/ocrus-recognizer" }
+ocrus-runtime = { path = "crates/ocrus-runtime" }
+ocrus-dataset = { path = "crates/ocrus-dataset" }
+
+# Font / Augmentation
+ab_glyph = "0.2.32"
+imageproc = "0.26.1"
+rand = "0.10.0"
+
+# Serialization
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+
+# Error handling
+thiserror = "2.0.18"
+anyhow = "1.0.102"
+
+# Image processing
+image = "0.25.9"
+ndarray = "0.17.2"
+
+# Inference
+ort = "2.0.0-rc.12"
+
+# Parallelism
+rayon = "1.11.0"
+
+# CLI
+clap = { version = "4.5.60", features = ["derive", "env"] }
+
+# Benchmark
+criterion = { version = "0.8.2", features = ["html_reports"] }

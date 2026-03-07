@@ -1,0 +1,16 @@
+[package]
+name = "ocrus-dataset"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ocrus-core = { workspace = true }
+ab_glyph = { workspace = true }
+imageproc = { workspace = true }
+image = { workspace = true }
+rayon = { workspace = true }
+rand = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
