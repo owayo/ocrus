@@ -222,7 +222,9 @@ fn golden_conv_bn_relu_pool_flatten_linear() {
     // Conv2d layer
     let mut conv_weights_bytes = f32_to_bytes(&conv_w);
     conv_weights_bytes.extend_from_slice(&f32_to_bytes(&conv_b));
-    let conv_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let conv_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::Conv2d,
         param_offset: 0,
         param_size: conv_weights_bytes.len() as u64,
@@ -238,7 +240,9 @@ fn golden_conv_bn_relu_pool_flatten_linear() {
         1.0, 1.0, // var
     ];
     let bn_bytes = f32_to_bytes(&bn_weights);
-    let bn_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let bn_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::BatchNorm,
         param_offset: 0,
         param_size: bn_bytes.len() as u64,
@@ -246,7 +250,9 @@ fn golden_conv_bn_relu_pool_flatten_linear() {
     };
 
     // ReLU
-    let relu_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let relu_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::ReLU,
         param_offset: 0,
         param_size: 0,
@@ -254,7 +260,9 @@ fn golden_conv_bn_relu_pool_flatten_linear() {
     };
 
     // AvgPool 2x2 stride 2
-    let pool_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let pool_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::AvgPool2d,
         param_offset: 0,
         param_size: 0,
@@ -262,7 +270,9 @@ fn golden_conv_bn_relu_pool_flatten_linear() {
     };
 
     // Flatten 1..3
-    let flat_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let flat_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::Flatten,
         param_offset: 0,
         param_size: 0,
@@ -272,7 +282,9 @@ fn golden_conv_bn_relu_pool_flatten_linear() {
     // Linear
     let mut lin_weights_bytes = f32_to_bytes(&lin_w);
     lin_weights_bytes.extend_from_slice(&f32_to_bytes(&lin_b));
-    let lin_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let lin_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::Linear,
         param_offset: 0,
         param_size: lin_weights_bytes.len() as u64,
@@ -330,21 +342,27 @@ fn golden_depthwise_hardswish_maxpool() {
     // Build .ocnn and compare
     let mut dw_bytes = f32_to_bytes(&dw_w);
     dw_bytes.extend_from_slice(&f32_to_bytes(&dw_b));
-    let dw_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let dw_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::ConvDepthwise,
         param_offset: 0,
         param_size: dw_bytes.len() as u64,
         config: [2, 2, 3, 3, 1, 1, 1, 1, 1, 0], // channels, cin(unused), kh, kw, sh, sw, ph, pw, has_bias
     };
 
-    let hs_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let hs_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::HardSwish,
         param_offset: 0,
         param_size: 0,
         config: [0; 10],
     };
 
-    let pool_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let pool_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::MaxPool2d,
         param_offset: 0,
         param_size: 0,
@@ -378,7 +396,9 @@ fn golden_depthwise_hardswish_maxpool() {
 fn engine_run_batch_consistency() {
     // run_batch splits output assuming 3D (N, T, C) shape (OCR CTC output).
     // Build a model that produces 3D output: ReLU -> Reshape(N, T, C)
-    let relu_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let relu_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::ReLU,
         param_offset: 0,
         param_size: 0,
@@ -386,7 +406,9 @@ fn engine_run_batch_consistency() {
     };
     // Reshape (N, 1, 1, 4) -> (N, 2, 2) to simulate CTC-like output
     // Flatten(2,3) on (N,1,1,4) -> (N,1,4) to produce 3D output for run_batch splitting
-    let flat_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let flat_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::Flatten,
         param_offset: 0,
         param_size: 0,
@@ -428,7 +450,9 @@ fn engine_run_batch_consistency() {
 #[test]
 fn engine_run_batch_different_widths() {
     // Batch with different widths should pad correctly
-    let relu_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let relu_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::ReLU,
         param_offset: 0,
         param_size: 0,
@@ -456,13 +480,17 @@ fn engine_deterministic_repeated_runs() {
     let mut weights = f32_to_bytes(&conv_w);
     weights.extend_from_slice(&f32_to_bytes(&conv_b));
 
-    let conv_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let conv_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::Conv2d,
         param_offset: 0,
         param_size: weights.len() as u64,
         config: [1, 1, 3, 3, 1, 1, 1, 1, 1, 0],
     };
-    let relu_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let relu_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::ReLU,
         param_offset: 0,
         param_size: 0,
@@ -487,19 +515,25 @@ fn engine_deterministic_repeated_runs() {
 fn engine_transpose_reshape_pipeline() {
     // Test Reshape -> Transpose -> Flatten pipeline
     // Input: (1, 6) -> Reshape to (1, 2, 3) -> Transpose(1,2) -> (1, 3, 2) -> Flatten(1,2) -> (1, 6)
-    let reshape_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let reshape_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::Reshape,
         param_offset: 0,
         param_size: 0,
         config: [3, 1, 2, 3, 0, 0, 0, 0, 0, 0], // ndim=3, shape=[1,2,3]
     };
-    let transpose_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let transpose_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::Transpose,
         param_offset: 0,
         param_size: 0,
         config: [1, 2, 0, 0, 0, 0, 0, 0, 0, 0], // dim0=1, dim1=2
     };
-    let flatten_desc = LayerDescriptor { num_inputs: 0, inputs: [0; 4],
+    let flatten_desc = LayerDescriptor {
+        num_inputs: 0,
+        inputs: [0; 4],
         layer_type: LayerType::Flatten,
         param_offset: 0,
         param_size: 0,

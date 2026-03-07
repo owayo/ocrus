@@ -100,6 +100,7 @@ pub fn slice_tensor(
 }
 
 /// Squeeze: remove dimensions of size 1 at the given axes.
+/// Can produce 0D scalar tensors (empty shape) when all dims are squeezed.
 pub fn squeeze(t: &mut NdTensor<f32>, axes: &[usize]) {
     let mut new_shape: Vec<usize> = Vec::new();
     for (i, &dim) in t.shape.iter().enumerate() {
@@ -109,10 +110,9 @@ pub fn squeeze(t: &mut NdTensor<f32>, axes: &[usize]) {
             new_shape.push(dim);
         }
     }
-    if new_shape.is_empty() {
-        new_shape.push(1);
-    }
-    t.reshape(&new_shape);
+    // Allow 0D scalar: shape=[], strides=[], data.len()==1
+    t.shape = new_shape.clone();
+    t.strides = crate::tensor::compute_strides(&new_shape);
 }
 
 /// Unsqueeze: insert dimensions of size 1 at the given axes.

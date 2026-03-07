@@ -296,7 +296,7 @@ impl<T: Clone + Default + fmt::Debug> fmt::Debug for NdTensor<T> {
 }
 
 /// Compute row-major strides from shape.
-fn compute_strides(shape: &[usize]) -> Vec<usize> {
+pub fn compute_strides(shape: &[usize]) -> Vec<usize> {
     let mut strides = vec![1; shape.len()];
     for i in (0..shape.len().saturating_sub(1)).rev() {
         strides[i] = strides[i + 1] * shape[i + 1];

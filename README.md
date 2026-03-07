@@ -182,7 +182,7 @@ git clone https://github.com/PaddlePaddle/PaddleOCR.git /tmp/PaddleOCR
 
 # Install Python training dependencies
 cd scripts
-uv pip install --python 3.12 -e '.[train]'
+uv sync --extra train
 ```
 
 ### Step 1: Generate Training Data
@@ -267,11 +267,11 @@ curl -L -o models/pretrained/PP-OCRv5_server_rec_pretrained.pdparams \
 ```bash
 # CPU only (default)
 cd scripts
-uv pip install --python 3.12 paddlepaddle==3.3.0
+uv sync --extra train
 
 # GPU (CUDA)
 cd scripts
-uv pip install --python 3.12 paddlepaddle-gpu==3.3.0
+uv sync --extra train-gpu
 ```
 
 #### Training Config
@@ -356,7 +356,7 @@ uv run export-onnx \
 
 ```bash
 cd scripts
-uv pip install -e '.[quantize]'
+uv sync --extra quantize
 
 uv run quantize \
   --input rec_finetuned.onnx \

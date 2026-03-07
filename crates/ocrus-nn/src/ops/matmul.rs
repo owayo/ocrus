@@ -29,6 +29,7 @@ pub fn matmul(a: &NdTensor<f32>, b: &NdTensor<f32>) -> NdTensor<f32> {
             }
             out
         }
+        (4, 4) => matmul_4d(a, b),
         _ => panic!("matmul: unsupported shapes {:?} x {:?}", a.shape, b.shape),
     }
 }
@@ -63,6 +64,33 @@ fn matmul_batched(a: &NdTensor<f32>, b: &NdTensor<f32>) -> NdTensor<f32> {
             k,
             n,
         );
+    }
+    out
+}
+
+fn matmul_4d(a: &NdTensor<f32>, b: &NdTensor<f32>) -> NdTensor<f32> {
+    let (b0, b1) = (a.shape[0], a.shape[1]);
+    assert_eq!(b.shape[0], b0, "matmul 4d: dim0 mismatch");
+    assert_eq!(b.shape[1], b1, "matmul 4d: dim1 mismatch");
+    let m = a.shape[2];
+    let k = a.shape[3];
+    let n = b.shape[3];
+    assert_eq!(b.shape[2], k, "matmul 4d: inner dims mismatch");
+    let mut out = NdTensor::zeros(&[b0, b1, m, n]);
+    for i0 in 0..b0 {
+        for i1 in 0..b1 {
+            let a_off = (i0 * b1 + i1) * m * k;
+            let b_off = (i0 * b1 + i1) * k * n;
+            let o_off = (i0 * b1 + i1) * m * n;
+            gemm(
+                &a.data[a_off..a_off + m * k],
+                &b.data[b_off..b_off + k * n],
+                &mut out.data[o_off..o_off + m * n],
+                m,
+                k,
+                n,
+            );
+        }
     }
     out
 }

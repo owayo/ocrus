@@ -42,6 +42,7 @@ pub enum LayerType {
     Sqrt = 26,
     LayerNorm = 27,
     Gather = 29,
+    Shape = 30,
 }
 
 impl LayerType {
@@ -74,6 +75,7 @@ impl LayerType {
             26 => Some(Self::Sqrt),
             27 => Some(Self::LayerNorm),
             29 => Some(Self::Gather),
+            30 => Some(Self::Shape),
             _ => None,
         }
     }

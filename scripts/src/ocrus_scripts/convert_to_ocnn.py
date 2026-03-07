@@ -43,6 +43,7 @@ LAYER_TYPES = {
     "Sqrt": 26,
     "LayerNorm": 27,
     "Gather": 29,
+    "Shape": 30,
 }
 
 LAYER_DESCRIPTOR_SIZE = 80
@@ -86,11 +87,6 @@ def convert_onnx_to_ocnn(onnx_path: str, output_path: str):
 
     for node in graph.node:
         if node.op_type == "Constant":
-            non_compute_nodes.append(node.op_type)
-            continue
-        if node.op_type == "Shape":
-            for out in node.output:
-                shape_outputs.add(out)
             non_compute_nodes.append(node.op_type)
             continue
         compute_nodes.append(node)
@@ -332,13 +328,19 @@ def _convert_node_v2(
 
     if op == "Conv":
         return _convert_conv_v2(
-            node, initializers, constant_op_values,
-            output_to_layer, weight_offset,
+            node,
+            initializers,
+            constant_op_values,
+            output_to_layer,
+            weight_offset,
         )
     elif op == "BatchNormalization":
         return _convert_batchnorm_v2(
-            node, initializers, constant_op_values,
-            output_to_layer, weight_offset,
+            node,
+            initializers,
+            constant_op_values,
+            output_to_layer,
+            weight_offset,
         )
     elif op in ("Relu", "HardSwish", "Sigmoid", "Sqrt"):
         inputs = [_resolve(node.input[0])]
@@ -347,8 +349,11 @@ def _convert_node_v2(
         return _convert_pool_v2(node, op, output_to_layer)
     elif op == "Gemm":
         return _convert_gemm_v2(
-            node, initializers, constant_op_values,
-            output_to_layer, weight_offset,
+            node,
+            initializers,
+            constant_op_values,
+            output_to_layer,
+            weight_offset,
         )
     elif op == "Reshape":
         return _convert_reshape_v2(
@@ -390,8 +395,11 @@ def _convert_node_v2(
         )
     elif op == "Concat":
         return _convert_concat_v2(
-            node, output_to_layer, constant_table,
-            shape_outputs, weight_offset,
+            node,
+            output_to_layer,
+            constant_table,
+            shape_outputs,
+            weight_offset,
         )
     elif op == "Slice":
         return _convert_slice_v2(
@@ -404,11 +412,21 @@ def _convert_node_v2(
         )
     elif op == "Squeeze":
         return _convert_squeeze_v2(
-            node, initializers, constant_op_values, output_to_layer
+            node,
+            initializers,
+            constant_op_values,
+            output_to_layer,
+            constant_table,
+            shape_outputs,
         )
     elif op == "Unsqueeze":
         return _convert_unsqueeze_v2(
-            node, initializers, constant_op_values, output_to_layer
+            node,
+            initializers,
+            constant_op_values,
+            output_to_layer,
+            constant_table,
+            shape_outputs,
         )
     elif op == "ReduceMean":
         return _convert_reducemean_v2(node, output_to_layer)
@@ -416,6 +434,19 @@ def _convert_node_v2(
         inputs_ref = [_resolve(node.input[0]), _resolve(node.input[1])]
         return (
             _make_descriptor(LAYER_TYPES["Pow"], 2, 0, 0, [], inputs_ref),
+            None,
+        )
+    elif op == "Shape":
+        inputs_ref = [_resolve(node.input[0])]
+        return (
+            _make_descriptor(
+                LAYER_TYPES["Shape"],
+                1,
+                0,
+                0,
+                [],
+                inputs_ref,
+            ),
             None,
         )
     elif op == "Gather":
@@ -486,7 +517,16 @@ def _convert_conv_v2(
     strides = list(attrs["strides"].ints) if "strides" in attrs else [1, 1]
     pads = list(attrs["pads"].ints) if "pads" in attrs else [0, 0, 0, 0]
 
-    is_depthwise = group_val == cin and cout == cin
+    # auto_pad: 0=NOTSET, 1=SAME_UPPER, 2=SAME_LOWER
+    auto_pad = 0
+    if "auto_pad" in attrs:
+        ap = attrs["auto_pad"].s.decode()
+        if ap == "SAME_UPPER":
+            auto_pad = 1
+        elif ap == "SAME_LOWER":
+            auto_pad = 2
+
+    is_depthwise = group_val == cout and cin == 1
     layer_type = LAYER_TYPES["ConvDepthwise"] if is_depthwise else LAYER_TYPES["Conv"]
 
     bias_name = node.input[2] if len(node.input) > 2 and node.input[2] else None
@@ -509,8 +549,9 @@ def _convert_conv_v2(
         strides[0],
         strides[1],
         pads[0],
-        pads[2],
+        pads[1],
         int(has_bias),
+        auto_pad,
     ]
 
     # Resolve data input
@@ -528,18 +569,10 @@ def _convert_conv_v2(
 def _convert_batchnorm_v2(
     node, initializers, constant_op_values, output_to_layer, weight_offset
 ):
-    gamma = _get_constant_array(
-        node.input[1], initializers, constant_op_values
-    )
-    beta = _get_constant_array(
-        node.input[2], initializers, constant_op_values
-    )
-    mean = _get_constant_array(
-        node.input[3], initializers, constant_op_values
-    )
-    var = _get_constant_array(
-        node.input[4], initializers, constant_op_values
-    )
+    gamma = _get_constant_array(node.input[1], initializers, constant_op_values)
+    beta = _get_constant_array(node.input[2], initializers, constant_op_values)
+    mean = _get_constant_array(node.input[3], initializers, constant_op_values)
+    var = _get_constant_array(node.input[4], initializers, constant_op_values)
 
     if gamma is None:
         return None
@@ -580,7 +613,27 @@ def _convert_pool_v2(node, op, output_to_layer):
     strides = list(attrs["strides"].ints) if "strides" in attrs else [2, 2]
     pads = list(attrs["pads"].ints) if "pads" in attrs else [0, 0, 0, 0]
 
-    config = [kernel[0], kernel[1], strides[0], strides[1], pads[0], pads[2]]
+    # auto_pad: 0=NOTSET, 1=SAME_UPPER, 2=SAME_LOWER
+    auto_pad = 0
+    if "auto_pad" in attrs:
+        ap = attrs["auto_pad"].s.decode()
+        if ap == "SAME_UPPER":
+            auto_pad = 1
+        elif ap == "SAME_LOWER":
+            auto_pad = 2
+
+    ceil_mode = attrs["ceil_mode"].i if "ceil_mode" in attrs else 0
+
+    config = [
+        kernel[0],
+        kernel[1],
+        strides[0],
+        strides[1],
+        pads[0],
+        pads[1],
+        auto_pad,
+        ceil_mode,
+    ]
     layer_type = (
         LAYER_TYPES["MaxPool"] if op == "MaxPool" else LAYER_TYPES["AveragePool"]
     )
@@ -594,18 +647,12 @@ def _convert_pool_v2(node, op, output_to_layer):
 def _convert_gemm_v2(
     node, initializers, constant_op_values, output_to_layer, weight_offset
 ):
-    weight = _get_constant_array(
-        node.input[1], initializers, constant_op_values
-    )
+    weight = _get_constant_array(node.input[1], initializers, constant_op_values)
     if weight is None:
         return None
 
     out_f, in_f = weight.shape
-    bias_name = (
-        node.input[2]
-        if len(node.input) > 2 and node.input[2]
-        else None
-    )
+    bias_name = node.input[2] if len(node.input) > 2 and node.input[2] else None
     bias = (
         _get_constant_array(bias_name, initializers, constant_op_values)
         if bias_name
@@ -699,9 +746,7 @@ def _convert_concat_v2(
 
     inputs_ref = []
     for inp_name in node.input:
-        r = _resolve_input(
-            inp_name, constant_table, output_to_layer, shape_outputs
-        )
+        r = _resolve_input(inp_name, constant_table, output_to_layer, shape_outputs)
         inputs_ref.append(r if r is not None else 0)
 
     num_inputs = len(inputs_ref)
@@ -711,7 +756,11 @@ def _convert_concat_v2(
         return (
             _make_descriptor(
                 LAYER_TYPES["Concat"],
-                num_inputs, 0, 0, config, inputs_ref,
+                num_inputs,
+                0,
+                0,
+                config,
+                inputs_ref,
             ),
             None,
         )
@@ -719,9 +768,7 @@ def _convert_concat_v2(
     # >4 inputs: first 4 in descriptor, rest in weight data
     first4 = inputs_ref[:4]
     extra = inputs_ref[4:]
-    extra_bytes = b"".join(
-        struct.pack("<i", v) for v in extra
-    )
+    extra_bytes = b"".join(struct.pack("<i", v) for v in extra)
     return (
         _make_descriptor(
             LAYER_TYPES["Concat"],
@@ -828,9 +875,19 @@ def _convert_slice_v2(
     )
 
 
-def _convert_squeeze_v2(node, initializers, constant_op_values, output_to_layer):
+def _convert_squeeze_v2(
+    node,
+    initializers,
+    constant_op_values,
+    output_to_layer,
+    constant_table=None,
+    shape_outputs=None,
+):
+    ct = constant_table or {}
+    so = shape_outputs or set()
+
     def _resolve(name):
-        return _resolve_input(name, {}, output_to_layer, set())
+        return _resolve_input(name, ct, output_to_layer, so)
 
     inp_ref = _resolve(node.input[0])
     inputs = [inp_ref if inp_ref is not None else 0]
@@ -854,9 +911,19 @@ def _convert_squeeze_v2(node, initializers, constant_op_values, output_to_layer)
     )
 
 
-def _convert_unsqueeze_v2(node, initializers, constant_op_values, output_to_layer):
+def _convert_unsqueeze_v2(
+    node,
+    initializers,
+    constant_op_values,
+    output_to_layer,
+    constant_table=None,
+    shape_outputs=None,
+):
+    ct = constant_table or {}
+    so = shape_outputs or set()
+
     def _resolve(name):
-        return _resolve_input(name, {}, output_to_layer, set())
+        return _resolve_input(name, ct, output_to_layer, so)
 
     inp_ref = _resolve(node.input[0])
     inputs = [inp_ref if inp_ref is not None else 0]

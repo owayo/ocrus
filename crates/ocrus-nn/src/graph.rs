@@ -5,6 +5,77 @@ use crate::tensor::NdTensor;
 use ocrus_core::OcrusError;
 use ocrus_core::error::Result;
 
+/// Compute SAME_UPPER padding for a single spatial dimension.
+/// Returns (pad_begin, pad_end).
+fn same_upper_pad(in_size: usize, kernel: usize, stride: usize) -> (usize, usize) {
+    let out_size = (in_size + stride - 1) / stride;
+    let total_pad = ((out_size - 1) * stride + kernel).saturating_sub(in_size);
+    let pad_begin = total_pad / 2;
+    let pad_end = total_pad - pad_begin;
+    (pad_begin, pad_end)
+}
+
+/// Pad a 4D tensor (N,C,H,W) with zeros on the spatial dimensions.
+/// Asymmetric padding: (pad_top, pad_bottom, pad_left, pad_right).
+fn pad_input(
+    input: &NdTensor<f32>,
+    pad_top: usize,
+    pad_bottom: usize,
+    pad_left: usize,
+    pad_right: usize,
+) -> NdTensor<f32> {
+    if pad_top == 0 && pad_bottom == 0 && pad_left == 0 && pad_right == 0 {
+        return input.clone();
+    }
+    let (n, c, h, w) = (
+        input.shape[0],
+        input.shape[1],
+        input.shape[2],
+        input.shape[3],
+    );
+    let new_h = h + pad_top + pad_bottom;
+    let new_w = w + pad_left + pad_right;
+    let mut out = NdTensor::zeros(&[n, c, new_h, new_w]);
+    for batch in 0..n {
+        for ch in 0..c {
+            let src_off = (batch * c + ch) * h * w;
+            let dst_off = (batch * c + ch) * new_h * new_w;
+            for row in 0..h {
+                let src_start = src_off + row * w;
+                let dst_start = dst_off + (row + pad_top) * new_w + pad_left;
+                out.data[dst_start..dst_start + w]
+                    .copy_from_slice(&input.data[src_start..src_start + w]);
+            }
+        }
+    }
+    out
+}
+
+/// Apply SAME_UPPER padding to input, returning (padded_input, 0, 0) so
+/// Conv/Pool can run with pad_h=0, pad_w=0.
+fn apply_auto_pad(
+    input: &NdTensor<f32>,
+    auto_pad: u32,
+    kh: usize,
+    kw: usize,
+    sh: usize,
+    sw: usize,
+) -> Option<NdTensor<f32>> {
+    if auto_pad == 0 {
+        return None;
+    }
+    let in_h = input.shape[2];
+    let in_w = input.shape[3];
+    let (ph_begin, ph_end) = same_upper_pad(in_h, kh, sh);
+    let (pw_begin, pw_end) = same_upper_pad(in_w, kw, sw);
+    if auto_pad == 2 {
+        // SAME_LOWER: swap begin/end
+        Some(pad_input(input, ph_end, ph_begin, pw_end, pw_begin))
+    } else {
+        Some(pad_input(input, ph_begin, ph_end, pw_begin, pw_end))
+    }
+}
+
 /// Execute the model graph, dispatching v1 (sequential) vs v2 (DAG).
 pub fn execute(
     model: &OcnnModel,
@@ -143,12 +214,18 @@ fn execute_layer_v2(
             Ok(t)
         }
         LayerType::Conv2d => {
-            let input = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
+            let input_raw = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
             let weights = model.layer_weights_f32(layer);
             let c = &layer.config;
             let (cout, cin, kh, kw) = (c[0] as usize, c[1] as usize, c[2] as usize, c[3] as usize);
             let (sh, sw, ph, pw) = (c[4] as usize, c[5] as usize, c[6] as usize, c[7] as usize);
             let has_bias = c[8] != 0;
+            let auto_pad = c[9];
+
+            // Apply SAME_UPPER/SAME_LOWER padding if needed
+            let padded = apply_auto_pad(input_raw, auto_pad, kh, kw, sh, sw);
+            let input = padded.as_ref().unwrap_or(input_raw);
+            let (ph, pw) = if auto_pad != 0 { (0, 0) } else { (ph, pw) };
 
             let w_size = cout * cin * kh * kw;
             let w_tensor = NdTensor::from_vec(weights[..w_size].to_vec(), &[cout, cin, kh, kw]);
@@ -180,12 +257,17 @@ fn execute_layer_v2(
             }
         }
         LayerType::ConvDepthwise => {
-            let input = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
+            let input_raw = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
             let weights = model.layer_weights_f32(layer);
             let c = &layer.config;
             let (channels, kh, kw) = (c[0] as usize, c[2] as usize, c[3] as usize);
             let (sh, sw, ph, pw) = (c[4] as usize, c[5] as usize, c[6] as usize, c[7] as usize);
             let has_bias = c[8] != 0;
+            let auto_pad = c[9];
+
+            let padded = apply_auto_pad(input_raw, auto_pad, kh, kw, sh, sw);
+            let input = padded.as_ref().unwrap_or(input_raw);
+            let (ph, pw) = if auto_pad != 0 { (0, 0) } else { (ph, pw) };
 
             let w_size = channels * kh * kw;
             let w_tensor = NdTensor::from_vec(weights[..w_size].to_vec(), &[channels, 1, kh, kw]);
@@ -230,30 +312,32 @@ fn execute_layer_v2(
             Ok(t)
         }
         LayerType::MaxPool2d => {
-            let input = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
+            let input_raw = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
             let c = &layer.config;
-            Ok(ops::pool::max_pool2d(
-                input,
-                c[0] as usize,
-                c[1] as usize,
-                c[2] as usize,
-                c[3] as usize,
-                c[4] as usize,
-                c[5] as usize,
-            ))
+            let (kh, kw, sh, sw) = (c[0] as usize, c[1] as usize, c[2] as usize, c[3] as usize);
+            let auto_pad = c[6];
+            let padded = apply_auto_pad(input_raw, auto_pad, kh, kw, sh, sw);
+            let input = padded.as_ref().unwrap_or(input_raw);
+            let (ph, pw) = if auto_pad != 0 {
+                (0, 0)
+            } else {
+                (c[4] as usize, c[5] as usize)
+            };
+            Ok(ops::pool::max_pool2d(input, kh, kw, sh, sw, ph, pw))
         }
         LayerType::AvgPool2d => {
-            let input = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
+            let input_raw = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
             let c = &layer.config;
-            Ok(ops::pool::avg_pool2d(
-                input,
-                c[0] as usize,
-                c[1] as usize,
-                c[2] as usize,
-                c[3] as usize,
-                c[4] as usize,
-                c[5] as usize,
-            ))
+            let (kh, kw, sh, sw) = (c[0] as usize, c[1] as usize, c[2] as usize, c[3] as usize);
+            let auto_pad = c[6];
+            let padded = apply_auto_pad(input_raw, auto_pad, kh, kw, sh, sw);
+            let input = padded.as_ref().unwrap_or(input_raw);
+            let (ph, pw) = if auto_pad != 0 {
+                (0, 0)
+            } else {
+                (c[4] as usize, c[5] as usize)
+            };
+            Ok(ops::pool::avg_pool2d(input, kh, kw, sh, sw, ph, pw))
         }
         LayerType::Linear => {
             let input = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
@@ -279,8 +363,29 @@ fn execute_layer_v2(
                 resolve_input(layer, 0, layer_idx, graph_input, registers, constants).clone();
             let c = &layer.config;
             let ndim = c[0] as usize;
-            let raw_shape: Vec<u32> = (0..ndim).map(|i| c[1 + i]).collect();
-            ops::reshape::reshape_dynamic(&mut t, &raw_shape);
+            if ndim == 0 && layer.num_inputs >= 2 {
+                // Dynamic shape: read from inputs[1] tensor
+                let shape_tensor =
+                    resolve_input(layer, 1, layer_idx, graph_input, registers, constants);
+                let raw_shape: Vec<u32> = shape_tensor
+                    .data
+                    .iter()
+                    .map(|&v| {
+                        let iv = v as i64;
+                        if iv < 0 {
+                            u32::MAX
+                        } else if iv == 0 {
+                            0
+                        } else {
+                            iv as u32
+                        }
+                    })
+                    .collect();
+                ops::reshape::reshape_dynamic(&mut t, &raw_shape);
+            } else {
+                let raw_shape: Vec<u32> = (0..ndim).map(|i| c[1 + i]).collect();
+                ops::reshape::reshape_dynamic(&mut t, &raw_shape);
+            }
             Ok(t)
         }
         LayerType::Flatten => {
@@ -339,7 +444,12 @@ fn execute_layer_v2(
         }
         LayerType::Softmax => {
             let input = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
-            let axis = layer.config[0] as usize;
+            let raw_axis = layer.config[0] as i32;
+            let axis = if raw_axis < 0 {
+                (input.ndim() as i32 + raw_axis) as usize
+            } else {
+                raw_axis as usize
+            };
             Ok(ops::activation::softmax(input, axis))
         }
         LayerType::Sqrt => {
@@ -352,9 +462,15 @@ fn execute_layer_v2(
         // === v2 tensor manipulation ops ===
         LayerType::Concat => {
             let num = layer.num_inputs as usize;
-            let axis = layer.config[0] as usize;
+            let raw_axis = layer.config[0] as i32;
             if num <= 4 {
                 let inputs = resolve_inputs(layer, layer_idx, graph_input, registers, constants);
+                let ndim = inputs[0].ndim();
+                let axis = if raw_axis < 0 {
+                    (ndim as i32 + raw_axis) as usize
+                } else {
+                    raw_axis as usize
+                };
                 let refs: Vec<&NdTensor<f32>> = inputs.iter().collect();
                 Ok(ops::tensor_ops::concat(&refs, axis))
             } else {
@@ -382,6 +498,12 @@ fn execute_layer_v2(
                     };
                     all_inputs.push(t);
                 }
+                let ndim = all_inputs[0].ndim();
+                let axis = if raw_axis < 0 {
+                    (ndim as i32 + raw_axis) as usize
+                } else {
+                    raw_axis as usize
+                };
                 let refs: Vec<&NdTensor<f32>> = all_inputs.iter().collect();
                 Ok(ops::tensor_ops::concat(&refs, axis))
             }
@@ -389,7 +511,12 @@ fn execute_layer_v2(
         LayerType::Slice => {
             let input = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
             let c = &layer.config;
-            let axis = c[0] as usize;
+            let raw_axis = c[0] as i32;
+            let axis = if raw_axis < 0 {
+                (input.ndim() as i32 + raw_axis) as usize
+            } else {
+                raw_axis as usize
+            };
             let start = c[1] as i32 as i64;
             let end = c[2] as i32 as i64;
             let step = if c[3] == 0 { 1i64 } else { c[3] as i32 as i64 };
@@ -400,7 +527,17 @@ fn execute_layer_v2(
                 resolve_input(layer, 0, layer_idx, graph_input, registers, constants).clone();
             let c = &layer.config;
             let num_axes = c[0] as usize;
-            let axes: Vec<usize> = (0..num_axes).map(|i| c[1 + i] as usize).collect();
+            let ndim = t.ndim();
+            let axes: Vec<usize> = (0..num_axes)
+                .map(|i| {
+                    let a = c[1 + i] as i32;
+                    if a < 0 {
+                        (ndim as i32 + a) as usize
+                    } else {
+                        a as usize
+                    }
+                })
+                .collect();
             ops::tensor_ops::squeeze(&mut t, &axes);
             Ok(t)
         }
@@ -409,7 +546,17 @@ fn execute_layer_v2(
                 resolve_input(layer, 0, layer_idx, graph_input, registers, constants).clone();
             let c = &layer.config;
             let num_axes = c[0] as usize;
-            let axes: Vec<usize> = (0..num_axes).map(|i| c[1 + i] as usize).collect();
+            let out_ndim = t.ndim() + num_axes;
+            let axes: Vec<usize> = (0..num_axes)
+                .map(|i| {
+                    let a = c[1 + i] as i32;
+                    if a < 0 {
+                        (out_ndim as i32 + a) as usize
+                    } else {
+                        a as usize
+                    }
+                })
+                .collect();
             ops::tensor_ops::unsqueeze(&mut t, &axes);
             Ok(t)
         }
@@ -419,8 +566,18 @@ fn execute_layer_v2(
             let input = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
             let c = &layer.config;
             let num_axes = c[0] as usize;
-            let axes: Vec<usize> = (0..num_axes).map(|i| c[1 + i] as usize).collect();
-            let keepdims = c[num_axes + 1] != 0;
+            let ndim = input.ndim();
+            let axes: Vec<usize> = (0..num_axes)
+                .map(|i| {
+                    let a = c[1 + i] as i32;
+                    if a < 0 {
+                        (ndim as i32 + a) as usize
+                    } else {
+                        a as usize
+                    }
+                })
+                .collect();
+            let keepdims = c[9] != 0;
             Ok(ops::reduce::reduce_mean(input, &axes, keepdims))
         }
 
@@ -435,10 +592,23 @@ fn execute_layer_v2(
             ))
         }
 
+        // === v2 shape ===
+        LayerType::Shape => {
+            let input = resolve_input(layer, 0, layer_idx, graph_input, registers, constants);
+            let shape_data: Vec<f32> = input.shape.iter().map(|&d| d as f32).collect();
+            let len = shape_data.len();
+            Ok(NdTensor::from_vec(shape_data, &[len]))
+        }
+
         // === v2 gather ===
         LayerType::Gather => {
             let inputs = resolve_inputs(layer, layer_idx, graph_input, registers, constants);
-            let axis = layer.config[0] as usize;
+            let raw_axis = layer.config[0] as i32;
+            let axis = if raw_axis < 0 {
+                (inputs[0].ndim() as i32 + raw_axis) as usize
+            } else {
+                raw_axis as usize
+            };
             Ok(ops::gather::gather(&inputs[0], &inputs[1], axis))
         }
     }

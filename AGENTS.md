@@ -105,7 +105,7 @@ Fine-tune PP-OCRv5 recognition model to improve accuracy on weak characters.
 cd scripts
 
 # Install training dependencies
-uv pip install -e '.[train]'
+uv sync --extra train
 
 # 1. Generate training data (Rust, fast)
 ocrus dataset generate --output /tmp/training_data \
