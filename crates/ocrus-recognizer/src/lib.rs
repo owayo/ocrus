@@ -1,3 +1,4 @@
+pub mod cascade;
 pub mod charset;
 pub mod ctc_beam;
 pub mod ctc_greedy;
@@ -6,6 +7,7 @@ pub mod glyph_cache;
 pub mod model;
 pub mod segment;
 
+pub use cascade::CascadeRecognizer;
 pub use ctc_beam::ctc_beam_decode;
 pub use ctc_greedy::ctc_greedy_decode;
 pub use ctc_greedy::ctc_greedy_decode_masked;

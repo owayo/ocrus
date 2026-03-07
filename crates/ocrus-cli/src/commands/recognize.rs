@@ -6,11 +6,12 @@ use ndarray::s;
 use rayon::prelude::*;
 
 use ocrus_core::{
-    CharsetMode, EngineConfig, EngineConfigBuilder, OcrMode, OcrResult, Page, TextLine,
+    CharsetMode, EngineConfig, EngineConfigBuilder, OcrMode, OcrResult, Page, RubyAnnotation,
+    TextLine,
 };
 use ocrus_layout::{
     TextOrientation, assess_quality, detect_columns_vertical, detect_lines_ccl,
-    detect_lines_projection, detect_orientation, should_use_fast_path,
+    detect_lines_projection, detect_orientation, separate_ruby, should_use_fast_path,
 };
 use ocrus_preproc::{binarize_adaptive, normalize_line, normalize_line_vertical, to_grayscale};
 use ocrus_recognizer::charset::Charset;
@@ -61,6 +62,20 @@ pub fn run(args: RecognizeArgs) -> Result<()> {
                 ccl_lines
             }
         }
+    };
+
+    // Ruby separation: detect and separate ruby annotations from body text
+    let (line_bboxes, ruby_info) = if engine_config.ruby_separation {
+        let mut new_bboxes = Vec::new();
+        let mut ruby_map: Vec<Vec<ocrus_core::BBox>> = Vec::new();
+        for bbox in &line_bboxes {
+            let sep = separate_ruby(&binary, bbox, orientation);
+            new_bboxes.push(sep.body_bbox);
+            ruby_map.push(sep.ruby_bboxes);
+        }
+        (new_bboxes, Some(ruby_map))
+    } else {
+        (line_bboxes, None)
     };
 
     if line_bboxes.is_empty() {
