@@ -86,8 +86,7 @@ fn batchnorm_simd_scalar_consistency() {
     ];
     batchnorm_inplace(&mut t, &params);
 
-    for ch in 0..2 {
-        let p = &params[ch];
+    for (ch, p) in params.iter().enumerate() {
         let scale = p.gamma / (p.running_var + p.eps).sqrt();
         let bias = p.beta - p.running_mean * scale;
         for i in 0..11 {
@@ -168,8 +167,8 @@ fn golden_conv_bn_relu_pool_flatten_linear() {
     // Channel 0: identity center, Channel 1: all 1/9
     let mut conv_w = vec![0.0f32; 18]; // 2*1*3*3
     conv_w[4] = 1.0; // center of first 3x3 filter
-    for i in 9..18 {
-        conv_w[i] = 1.0 / 9.0; // second filter: average
+    for val in &mut conv_w[9..18] {
+        *val = 1.0 / 9.0; // second filter: average
     }
     let conv_b = vec![0.0, 0.0];
     let conv_weight = NdTensor::from_vec(conv_w.clone(), &[2, 1, 3, 3]);
@@ -377,47 +376,51 @@ fn golden_depthwise_hardswish_maxpool() {
 
 #[test]
 fn engine_run_batch_consistency() {
-    // Verify run_batch produces same results as individual runs
-    // Use same-width inputs to avoid padding interference
+    // run_batch splits output assuming 3D (N, T, C) shape (OCR CTC output).
+    // Build a model that produces 3D output: ReLU -> Reshape(N, T, C)
     let relu_desc = LayerDescriptor {
         layer_type: LayerType::ReLU,
         param_offset: 0,
         param_size: 0,
         config: [0; 10],
     };
-    let model = make_model(&[(relu_desc, &[])]);
+    // Reshape (N, 1, 1, 4) -> (N, 2, 2) to simulate CTC-like output
+    // Flatten(2,3) on (N,1,1,4) -> (N,1,4) to produce 3D output for run_batch splitting
+    let flat_desc = LayerDescriptor {
+        layer_type: LayerType::Flatten,
+        param_offset: 0,
+        param_size: 0,
+        config: [2, 3, 0, 0, 0, 0, 0, 0, 0, 0], // start=2, end=3
+    };
+    let model = make_model(&[(relu_desc, &[]), (flat_desc, &[])]);
     let engine = NnEngine::new().unwrap();
 
     let t1 = Tensor::new(vec![-1.0, 2.0, -3.0, 0.5], vec![1, 1, 1, 4]);
     let t2 = Tensor::new(vec![4.0, -5.0, 6.0, -0.5], vec![1, 1, 1, 4]);
 
-    // Individual runs
-    let r1 = engine.run(&model, &[t1.clone()]).unwrap();
-    let r2 = engine.run(&model, &[t2.clone()]).unwrap();
+    // Individual runs: output shape (1, 1, 4)
+    let r1 = engine.run(&model, std::slice::from_ref(&t1)).unwrap();
+    let r2 = engine.run(&model, std::slice::from_ref(&t2)).unwrap();
+    assert_eq!(r1[0].shape, vec![1, 1, 4]);
 
-    // Batch run (same width, no padding needed)
+    // Batch run (same width, no padding)
     let batch_results = engine.run_batch(&model, &[t1, t2]).unwrap();
     assert_eq!(batch_results.len(), 2);
-
-    eprintln!("r1[0]: {:?} shape={:?}", r1[0].data, r1[0].shape);
-    eprintln!("r2[0]: {:?} shape={:?}", r2[0].data, r2[0].shape);
-    eprintln!(
-        "batch[0]: {:?} shape={:?}",
-        batch_results[0][0].data, batch_results[0][0].shape
-    );
-    eprintln!(
-        "batch[1]: {:?} shape={:?}",
-        batch_results[1][0].data, batch_results[1][0].shape
-    );
+    assert_eq!(batch_results[0][0].shape, vec![1, 1, 4]);
+    assert_eq!(batch_results[1][0].shape, vec![1, 1, 4]);
 
     for i in 0..4 {
         assert!(
             (batch_results[0][0].data[i] - r1[0].data[i]).abs() < 1e-7,
-            "batch[0] mismatch at {i}"
+            "batch[0] mismatch at {i}: got {}, expected {}",
+            batch_results[0][0].data[i],
+            r1[0].data[i]
         );
         assert!(
             (batch_results[1][0].data[i] - r2[0].data[i]).abs() < 1e-7,
-            "batch[1] mismatch at {i}"
+            "batch[1] mismatch at {i}: got {}, expected {}",
+            batch_results[1][0].data[i],
+            r2[0].data[i]
         );
     }
 }
@@ -472,9 +475,9 @@ fn engine_deterministic_repeated_runs() {
     let input_data: Vec<f32> = (0..16).map(|x| x as f32 * 0.1 - 0.5).collect();
     let input = Tensor::new(input_data.clone(), vec![1, 1, 4, 4]);
 
-    let r1 = engine.run(&model, &[input.clone()]).unwrap();
-    let r2 = engine.run(&model, &[input.clone()]).unwrap();
-    let r3 = engine.run(&model, &[input]).unwrap();
+    let r1 = engine.run(&model, std::slice::from_ref(&input)).unwrap();
+    let r2 = engine.run(&model, std::slice::from_ref(&input)).unwrap();
+    let r3 = engine.run(&model, std::slice::from_ref(&input)).unwrap();
 
     assert_eq!(r1[0].data, r2[0].data);
     assert_eq!(r2[0].data, r3[0].data);

@@ -180,6 +180,6 @@ mod engine_tests {
 
     #[test]
     fn test_nn_engine_default() {
-        let _engine = NnEngine::default();
+        let _engine = NnEngine;
     }
 }
