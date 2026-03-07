@@ -1,5 +1,15 @@
 # ocrus - Lightning-fast Japanese OCR
 
+## Concept
+
+**Pure Rust で完結する高速日本語 OCR。外部ランタイム依存ゼロ。**
+
+- ONNX Runtime (ort) などの外部推論ライブラリに依存しない
+- 自作推論エンジン `ocrus-nn` で PP-OCRv5 モデルを純 Rust で実行
+- `.ocnn` バイナリモデルフォーマット（mmap 対応、Conv+BN+ReLU 融合）
+- SIMD (`wide` crate) による前処理・推論の高速化
+- ビルドに C/C++ コンパイラや cmake を必要としない
+
 ## Architecture
 
 Cargo workspace with 7 crates:
