@@ -8,7 +8,7 @@ use ocrus_core::error::Result;
 /// Compute SAME_UPPER padding for a single spatial dimension.
 /// Returns (pad_begin, pad_end).
 fn same_upper_pad(in_size: usize, kernel: usize, stride: usize) -> (usize, usize) {
-    let out_size = (in_size + stride - 1) / stride;
+    let out_size = in_size.div_ceil(stride);
     let total_pad = ((out_size - 1) * stride + kernel).saturating_sub(in_size);
     let pad_begin = total_pad / 2;
     let pad_end = total_pad - pad_begin;

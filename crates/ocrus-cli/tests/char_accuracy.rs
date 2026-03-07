@@ -265,16 +265,21 @@ fn char_accuracy_test() {
     let log_file = std::fs::File::create(&log_path).expect("Failed to create log file");
 
     use simplelog::{
-        ColorChoice, CombinedLogger, Config, LevelFilter, TermLogger, TerminalMode, WriteLogger,
+        ColorChoice, CombinedLogger, ConfigBuilder, LevelFilter, TermLogger, TerminalMode,
+        WriteLogger,
     };
+    let log_config = ConfigBuilder::new()
+        .set_time_offset_to_local()
+        .unwrap_or_else(|b| b)
+        .build();
     CombinedLogger::init(vec![
         TermLogger::new(
             LevelFilter::Info,
-            Config::default(),
+            log_config.clone(),
             TerminalMode::Mixed,
             ColorChoice::Auto,
         ),
-        WriteLogger::new(LevelFilter::Info, Config::default(), log_file),
+        WriteLogger::new(LevelFilter::Info, log_config, log_file),
     ])
     .expect("Failed to init logger");
 
