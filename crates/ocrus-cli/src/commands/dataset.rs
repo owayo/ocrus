@@ -1,7 +1,9 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
-use ocrus_dataset::{AugmentConfig, CharFailure, DatasetConfig, generate, generate_from_failures};
+use ocrus_dataset::{
+    AugmentConfig, CharFailure, DatasetConfig, FontStyle, generate, generate_from_failures,
+};
 
 use super::{DatasetFailuresArgs, DatasetGenerateArgs};
 
@@ -11,6 +13,22 @@ pub fn run_generate(args: &DatasetGenerateArgs) -> Result<()> {
         .split(',')
         .map(|s| s.trim().to_string())
         .collect();
+
+    let font_styles: Option<Vec<FontStyle>> = args.font_styles.as_ref().map(|s| {
+        s.split(',')
+            .filter_map(|style| match style.trim().to_lowercase().as_str() {
+                "mincho" => Some(FontStyle::Mincho),
+                "gothic" => Some(FontStyle::Gothic),
+                "script" => Some(FontStyle::Script),
+                "monospace" => Some(FontStyle::Monospace),
+                "other" => Some(FontStyle::Other),
+                _ => {
+                    eprintln!("Warning: unknown font style '{style}', skipping");
+                    None
+                }
+            })
+            .collect()
+    });
 
     let config = DatasetConfig {
         output_dir: args.output.clone(),
@@ -24,6 +42,7 @@ pub fn run_generate(args: &DatasetGenerateArgs) -> Result<()> {
         augment: AugmentConfig::default(),
         samples_per_char: args.samples_per_char,
         val_ratio: args.val_ratio,
+        font_styles,
     };
 
     let stats = generate(&config)?;

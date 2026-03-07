@@ -8,28 +8,29 @@ Cargo workspace with 7 crates:
 |-------|------|
 | `ocrus-core` | Data models, config, errors, EngineConfig API |
 | `ocrus-preproc` | Image preprocessing (SIMD grayscale, Otsu/Sauvola binarize, normalize) |
-| `ocrus-layout` | Layout analysis (projection, CCL, vertical, quality gate) |
-| `ocrus-recognizer` | CTC recognition (greedy + beam search, JIS charset, dict correction) |
-| `ocrus-runtime` | Inference backend abstraction (ONNX Runtime, batch inference) |
-| `ocrus-dataset` | Training data generation (font rendering, augmentation, rayon parallel) |
+| `ocrus-layout` | Layout analysis (projection, CCL, vertical, quality gate, ruby separation) |
+| `ocrus-recognizer` | CTC recognition (greedy + beam search, JIS charset, dict correction, cascade) |
+| `ocrus-nn` | Pure Rust inference engine (.ocnn format, SIMD ops, mmap model loading) |
+| `ocrus-dataset` | Training data generation (font rendering, augmentation, font style filtering) |
 | `ocrus-cli` | CLI entry point |
 
 ## Dependency Graph
 
 ```
-ocrus-cli → ocrus-core, ocrus-preproc, ocrus-layout, ocrus-recognizer, ocrus-runtime, memmap2, rayon
+ocrus-cli → ocrus-core, ocrus-preproc, ocrus-layout, ocrus-recognizer, ocrus-nn, memmap2, rayon
 ocrus-preproc → ocrus-core, wide, image
 ocrus-layout → ocrus-core, wide, serde, imageproc, image
-ocrus-recognizer → ocrus-core, ocrus-runtime, daachorse, img_hash
-ocrus-runtime → ocrus-core
+ocrus-recognizer → ocrus-core, ocrus-nn, daachorse, img_hash
+ocrus-nn → ocrus-core, memmap2, wide
 ```
 
 ## Pipeline
 
 ```
 image(mmap) → grayscale(SIMD) → binarize(Otsu/Sauvola adaptive) → quality gate
-  → orientation detect → layout(projection/CCL/vertical) → normalize(SIMD+rayon)
-  → batch inference → CTC decode(greedy + beam fallback + logit mask) → dict correction → output
+  → orientation detect → layout(projection/CCL/vertical) → ruby separation(optional)
+  → normalize(SIMD+rayon) → batch inference(ocrus-nn) → cascade(optional)
+  → CTC decode(greedy + beam fallback + logit mask) → dict correction → output
 ```
 
 ## CLI Usage
@@ -40,6 +41,8 @@ ocrus recognize image.png --charset jis        # JIS X 0208 charset (fewer false
 ocrus recognize image.png --dict corrections.txt  # Dictionary-based post-correction
 ocrus recognize image.png --mode fastest       # Skip quality gate, use batch inference
 ocrus recognize image.png --mode accurate      # Full quality pipeline
+ocrus recognize image.png --ruby               # Ruby (furigana) separation
+ocrus recognize image.png --cascade model.ocnn # Cascade recognition
 ocrus bench image.png                          # Run benchmarks
 ```
 
@@ -47,8 +50,10 @@ ocrus bench image.png                          # Run benchmarks
 
 - **SIMD preprocessing**: `wide` crate for grayscale, binarize, normalize, projection (8-16x parallel)
 - **Quality Gate**: Automatic image quality assessment (contrast, binarization, skew) for adaptive pipeline
-- **Batch inference**: Multiple lines in single ONNX run (padded to max width)
-- **INT8/FP16 quantization**: Via `ModelOptions.quantization`
+- **Ruby separation**: CCL-based furigana detection and separation from body text
+- **Cascade recognition**: Character segmentation → classifier → CTC fallback for speed
+- **Custom inference**: Pure Rust `ocrus-nn` engine with .ocnn mmap model format
+- **Batch inference**: Multiple lines in single run (padded to max width)
 - **JIS X 0208 charset**: Logit masking for Japanese-specific character set
 - **Dictionary correction**: Aho-Corasick based post-processing via `daachorse`
 - **Zero-copy I/O**: `memmap2` for memory-mapped image loading
@@ -69,8 +74,12 @@ ocrus bench image.png                          # Run benchmarks
 ```bash
 # Generate training data (all categories, all fonts)
 ocrus dataset generate --output ./training_data \
-  --categories hiragana,katakana,jis_level1 \
+  --categories hiragana,katakana,joyo_kanji,jis_level1 \
   --samples-per-char 5
+
+# Filter by font style
+ocrus dataset generate --output ./training_data \
+  --categories hiragana,katakana --font-styles mincho,gothic
 
 # Generate from failure list (re-train weak characters)
 ocrus dataset from-failures --failures ./test_results/failures.json \
@@ -131,9 +140,10 @@ cargo bench          # Benchmarks
 Models are not included in the repo. Run `models/download.sh` to download.
 Default model directory: `~/.ocrus/models/` (override with `OCRUS_MODEL_DIR`)
 
-- `rec.onnx` - PP-OCRv5 Chinese/Japanese rec model (ONNX, ~80MB)
+- `rec.ocnn` - PP-OCRv5 recognition model (.ocnn format, pure Rust inference)
 - `dict.txt` - Character dictionary (18,383 chars)
 - Input shape: `(1, 3, 48, W)`, normalize: `(px/255 - 0.5) / 0.5`
+- ONNX→.ocnn conversion: `scripts/src/ocrus_scripts/convert_to_ocnn.py`
 - Source: huggingface.co/monkt/paddleocr-onnx
 - Pretrained weights for fine-tuning: `models/pretrained/PP-OCRv5_server_rec_pretrained.pdparams` (214MB)
 

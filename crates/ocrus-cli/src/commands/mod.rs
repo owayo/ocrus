@@ -57,6 +57,9 @@ pub struct DatasetGenerateArgs {
     /// Character data directory
     #[arg(long)]
     pub char_data_dir: Option<PathBuf>,
+    /// Font styles to include (comma-separated: mincho,gothic,script,monospace,other)
+    #[arg(long)]
+    pub font_styles: Option<String>,
 }
 
 #[derive(Parser)]

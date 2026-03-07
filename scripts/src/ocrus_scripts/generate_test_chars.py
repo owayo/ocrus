@@ -3,7 +3,9 @@
 
 from pathlib import Path
 
-OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "test_chars"
+OUTPUT_DIR = (
+    Path(__file__).resolve().parent.parent.parent.parent / "data" / "test_chars"
+)
 
 
 def _is_cjk_ideograph(c: str) -> bool:
@@ -31,6 +33,40 @@ def _generate_halfwidth_alnum() -> str:
         chars += chr(c)
     for c in range(ord("0"), ord("9") + 1):
         chars += chr(c)
+    return chars
+
+
+def _generate_halfwidth_symbols() -> str:
+    """Generate half-width symbol characters.
+
+    Returns:
+        Concatenated string of common half-width symbols.
+
+    """
+    symbols = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+    return symbols
+
+
+def _generate_fullwidth_symbols() -> str:
+    """Generate full-width symbols and Japanese punctuation.
+
+    Returns:
+        Concatenated string of full-width symbols and Japanese punctuation.
+
+    """
+    chars = ""
+    # Full-width symbols U+FF01-U+FF0F, U+FF1A-U+FF20, U+FF3B-U+FF40, U+FF5B-U+FF5E
+    for start, end in [
+        (0xFF01, 0xFF0F),
+        (0xFF1A, 0xFF20),
+        (0xFF3B, 0xFF40),
+        (0xFF5B, 0xFF5E),
+    ]:
+        chars += "".join(chr(c) for c in range(start, end + 1))
+    # Japanese punctuation
+    chars += "、。「」『』【】〒〜・ー々〇〈〉《》〔〕〖〗"
+    # Additional common Japanese symbols
+    chars += "…‥¥※♪†‡§¶"
     return chars
 
 
@@ -69,6 +105,83 @@ def _generate_katakana() -> str:
 
     """
     return "".join(chr(c) for c in range(0x30A1, 0x30F6 + 1))
+
+
+def _generate_joyo_kanji() -> str:
+    """Generate 常用漢字 (Joyo Kanji) 2010 revision - 2136 characters.
+
+    Fetches the official list from Wikipedia's 常用漢字一覧 page.
+    Falls back to reading the existing file if the fetch fails.
+
+    Returns:
+        Concatenated string of all 2136 Joyo Kanji.
+
+    Raises:
+        RuntimeError: If fetch fails and no fallback file exists.
+
+    """
+    import re
+    import urllib.request
+
+    existing = OUTPUT_DIR / "joyo_kanji.txt"
+
+    try:
+        url = (
+            "https://ja.wikipedia.org/w/api.php"
+            "?action=parse"
+            "&page=%E5%B8%B8%E7%94%A8%E6%BC%A2%E5%AD%97"
+            "%E4%B8%80%E8%A6%A7&prop=text&format=json"
+        )
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        resp = urllib.request.urlopen(req, timeout=30)  # noqa: S310
+        import json
+
+        data = json.loads(resp.read().decode("utf-8"))
+        html = data["parse"]["text"]["*"]
+
+        rows = re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.DOTALL)
+        joyo: dict[int, str] = {}
+        for row in rows:
+            cells = re.findall(r"<td[^>]*>(.*?)</td>", row, re.DOTALL)
+            if not cells:
+                continue
+            num_text = re.sub(r"<[^>]+>", "", cells[0]).strip()
+            try:
+                num = int(num_text)
+            except ValueError:
+                continue
+            if not 1 <= num <= 2136:
+                continue
+            for c in re.findall(r'title="wikt:(.)"', row):
+                if "\u4e00" <= c <= "\u9fff":
+                    joyo[num] = c
+                    break
+            if num not in joyo:
+                # Handle CJK Extension chars (e.g. 𠮟 U+20B9F -> 叱)
+                for c in re.findall(r'title="wikt:(.)"', row):
+                    if ord(c) >= 0x20000:
+                        # Use the BMP alternative listed after it
+                        alt = re.findall(r'title="wikt:(.)"', row)
+                        for a in alt:
+                            if "\u4e00" <= a <= "\u9fff":
+                                joyo[num] = a
+                                break
+                        break
+
+        if len(joyo) == 2136:
+            return "".join(joyo[i] for i in range(1, 2137))
+
+    except Exception:
+        pass
+
+    # Fallback: read existing file
+    if existing.exists():
+        content = existing.read_text(encoding="utf-8").strip()
+        if len(content) >= 2100:
+            return content
+
+    msg = "Could not generate joyo kanji list (fetch failed, no fallback)"
+    raise RuntimeError(msg)
 
 
 def _generate_jis_x0208_kanji() -> tuple[str, str]:
@@ -163,9 +276,13 @@ def main() -> None:
     files = {}
 
     files["halfwidth_alnum.txt"] = _generate_halfwidth_alnum()
+    files["halfwidth_symbols.txt"] = _generate_halfwidth_symbols()
     files["fullwidth_alnum.txt"] = _generate_fullwidth_alnum()
+    files["fullwidth_symbols.txt"] = _generate_fullwidth_symbols()
     files["hiragana.txt"] = _generate_hiragana()
     files["katakana.txt"] = _generate_katakana()
+
+    files["joyo_kanji.txt"] = _generate_joyo_kanji()
 
     level1, level2 = _generate_jis_x0208_kanji()
     files["jis_level1.txt"] = level1

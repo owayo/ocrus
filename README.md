@@ -25,7 +25,10 @@
 - Adaptive binarization (Otsu + Sauvola fallback)
 - Automatic image quality assessment for adaptive pipeline
 - Layout analysis: projection, connected component labeling, vertical text detection
-- Batch ONNX inference with padding
+- Ruby (furigana) separation via CCL-based size heuristic
+- Cascade recognition: character segmentation → classifier → CTC fallback
+- Custom inference engine (`ocrus-nn`): pure Rust, no ONNX Runtime dependency
+- `.ocnn` binary model format (mmap-friendly, Conv+BN+ReLU fusion)
 - CTC decode: greedy + beam search fallback for low-confidence lines
 - JIS X 0208 charset logit masking
 - Aho-Corasick dictionary post-correction
@@ -33,13 +36,12 @@
 - Parallel line normalization with rayon
 - Glyph cache with perceptual hashing
 - JSON and plain text output
-- Training data generation (Rust, rayon-parallel)
+- Training data generation with font style filtering (Rust, rayon-parallel)
 - Fine-tuning support (PP-OCRv5, PaddleOCR)
 
 ## Requirements
 
 - Rust 2024 edition (1.85+)
-- ONNX Runtime (downloaded automatically by `ort` crate)
 
 ## Installation
 
@@ -79,6 +81,12 @@ ocrus recognize image.png --mode fastest
 
 # Accurate mode (full quality pipeline)
 ocrus recognize image.png --mode accurate
+
+# Ruby (furigana) separation
+ocrus recognize image.png --ruby
+
+# Cascade recognition (requires cascade classifier model)
+ocrus recognize image.png --cascade path/to/cascade_model.ocnn
 ```
 
 ### Benchmarks
@@ -93,13 +101,17 @@ ocrus bench image.png -n 100
 # Generate training data from system fonts
 ocrus dataset generate --output ./training_data --categories hiragana,katakana
 
+# Filter by font style
+ocrus dataset generate --output ./training_data \
+  --categories hiragana,katakana --font-styles mincho,gothic
+
 # Generate from test failure results
 ocrus dataset from-failures --failures ./failures.json --output ./training_data
 ```
 
 ## Model Setup
 
-Download OCR models (PP-OCRv5, ONNX converted):
+Download OCR models and convert to `.ocnn` format:
 
 ```bash
 ./models/download.sh
@@ -107,8 +119,15 @@ Download OCR models (PP-OCRv5, ONNX converted):
 
 Models are installed to `~/.ocrus/models/` by default. Override with `OCRUS_MODEL_DIR`.
 
-- `rec.onnx` — PP-OCRv5 recognition model (~80MB)
+- `rec.ocnn` — PP-OCRv5 recognition model (pure Rust inference, no ONNX Runtime)
 - `dict.txt` — Character dictionary (18,383 chars)
+
+To convert an ONNX model to `.ocnn` format:
+
+```bash
+cd scripts
+uv run python src/ocrus_scripts/convert_to_ocnn.py --input rec.onnx --output rec.ocnn
+```
 
 ## Architecture
 
@@ -119,7 +138,7 @@ flowchart LR
     C --> D[Quality Gate]
     D --> E[Layout<br/>Projection/CCL]
     E --> F[Normalize<br/>SIMD+rayon]
-    F --> G[Batch Inference<br/>ONNX Runtime]
+    F --> G[Batch Inference<br/>ocrus-nn]
     G --> H[CTC Decode<br/>Greedy/Beam]
     H --> I[Dict Correction]
     I --> J[Output]
@@ -131,11 +150,11 @@ flowchart LR
 |-------|------|
 | `ocrus-core` | Data models, config, errors, EngineConfig API |
 | `ocrus-preproc` | Image preprocessing (SIMD grayscale, Otsu/Sauvola binarize, normalize) |
-| `ocrus-layout` | Layout analysis (projection, CCL, vertical, quality gate) |
-| `ocrus-recognizer` | CTC recognition (greedy + beam search, JIS charset, dict correction) |
-| `ocrus-runtime` | Inference backend abstraction (ONNX Runtime, batch inference) |
+| `ocrus-layout` | Layout analysis (projection, CCL, vertical, quality gate, ruby separation) |
+| `ocrus-recognizer` | CTC recognition (greedy + beam search, JIS charset, dict correction, cascade) |
+| `ocrus-nn` | Pure Rust inference engine (.ocnn format, SIMD ops, mmap model loading) |
 | `ocrus-cli` | CLI entry point |
-| `ocrus-dataset` | Training data generation (font rendering, augmentation, rayon parallel) |
+| `ocrus-dataset` | Training data generation (font rendering, augmentation, font style filtering) |
 
 ## Fine-tuning
 
@@ -173,7 +192,31 @@ ocrus dataset from-failures \
   --samples 10
 ```
 
-Available categories: `hiragana`, `katakana`, `jis_level1`, `jis_level2`, `halfwidth_alnum`, `fullwidth_alnum`
+Available character categories:
+
+| Category | Content | Count |
+|----------|---------|-------|
+| `halfwidth_alnum` | Half-width alphanumeric (A-Z, a-z, 0-9) | 62 |
+| `halfwidth_symbols` | Half-width symbols (!@#$%&... etc.) | ~32 |
+| `fullwidth_alnum` | Full-width alphanumeric (Ａ-Ｚ, ａ-ｚ, ０-９) | 62 |
+| `fullwidth_symbols` | Full-width symbols, Japanese punctuation (、。「」…) | ~50 |
+| `hiragana` | Hiragana (あ-ん) | 83 |
+| `katakana` | Katakana (ア-ン) | 86 |
+| `joyo_kanji` | 常用漢字 (2010 revision) | 2,136 |
+| `jis_level1` | JIS X 0208 Level 1 kanji | 2,965 |
+| `jis_level2` | JIS X 0208 Level 2 kanji | 3,390 |
+| `jis_level3` | JIS X 0213 Level 3 kanji | 1,259 |
+| `jis_level4` | JIS X 0213 Level 4 kanji | 2,436 |
+
+Available font styles (for `--font-styles`):
+
+| Style | Description | Match patterns |
+|-------|-------------|----------------|
+| `mincho` | 明朝体 / Serif | mincho, 明朝, serif, song, batang |
+| `gothic` | ゴシック体 / Sans-serif | gothic, ゴシック, sans, kaku, maru |
+| `script` | 筆書体 / Script / Brush | script, brush, 筆, gyosho, kaisho |
+| `monospace` | 等幅 / Monospace | mono, courier, consolas, menlo |
+| `other` | その他 / Unclassified | (default) |
 
 Output format:
 ```
