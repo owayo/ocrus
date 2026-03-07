@@ -266,11 +266,19 @@ fn char_accuracy_test() {
     let mut log_file = std::fs::File::create(&log_path).expect("Failed to create log file");
     println!("Log file: {}", log_path.display());
 
+    let test_start = std::time::Instant::now();
+
     macro_rules! log {
         ($($arg:tt)*) => {{
             let msg = format!($($arg)*);
-            println!("{}", msg);
-            writeln!(log_file, "{}", msg).ok();
+            let elapsed = test_start.elapsed();
+            let secs = elapsed.as_secs();
+            let h = secs / 3600;
+            let m = (secs % 3600) / 60;
+            let s = secs % 60;
+            let ts = format!("[{h:02}:{m:02}:{s:02}]");
+            println!("{ts} {msg}");
+            writeln!(log_file, "{ts} {msg}").ok();
         }};
     }
 
