@@ -40,6 +40,20 @@ if [ -n "$LITE_MODEL_URL" ]; then
     fi
 fi
 
+# Convert ONNX → .ocnn format
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)/scripts"
+if [ ! -f "$MODEL_DIR/rec.ocnn" ] && [ -f "$MODEL_DIR/rec.onnx" ]; then
+    echo "Converting rec.onnx → rec.ocnn..."
+    cd "$SCRIPT_DIR"
+    uv run python src/ocrus_scripts/convert_to_ocnn.py \
+        --input "$MODEL_DIR/rec.onnx" \
+        --output "$MODEL_DIR/rec.ocnn"
+    echo "Conversion complete."
+elif [ -f "$MODEL_DIR/rec.ocnn" ]; then
+    echo "rec.ocnn already exists, skipping conversion."
+fi
+
+echo ""
 echo "Done. Models installed to: $MODEL_DIR"
 echo ""
 echo "Files:"
