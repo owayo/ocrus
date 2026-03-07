@@ -35,3 +35,6 @@ test_results/
 .ruff_cache
 __pycache__
 
+# Log output
+logs/
+

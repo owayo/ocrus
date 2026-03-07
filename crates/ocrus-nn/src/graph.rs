@@ -125,10 +125,29 @@ fn execute_dag(
         .collect();
 
     for (i, layer) in model.layers.iter().enumerate() {
-        let result =
-            execute_layer_v2(model, layer, i, &input, &registers, &constants).map_err(|e| {
-                OcrusError::Runtime(format!("Layer {i} ({:?}) failed: {e}", layer.layer_type))
-            })?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            execute_layer_v2(model, layer, i, &input, &registers, &constants)
+        }))
+        .map_err(|panic| {
+            let msg = panic
+                .downcast_ref::<String>()
+                .map(|s| s.as_str())
+                .or_else(|| panic.downcast_ref::<&str>().copied())
+                .unwrap_or("unknown panic");
+            let input_shapes: Vec<_> = (0..(layer.num_inputs as usize).min(4))
+                .map(|idx| {
+                    let r = resolve_input(layer, idx, i, &input, &registers, &constants);
+                    format!("{:?}", r.shape)
+                })
+                .collect();
+            OcrusError::Runtime(format!(
+                "Layer {i} ({:?}) panicked: {msg} | inputs={input_shapes:?}",
+                layer.layer_type
+            ))
+        })?
+        .map_err(|e| {
+            OcrusError::Runtime(format!("Layer {i} ({:?}) failed: {e}", layer.layer_type))
+        })?;
         registers[i] = Some(result);
     }
 

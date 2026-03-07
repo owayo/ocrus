@@ -1,3 +1,4 @@
+use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use ab_glyph::{FontRef, PxScale};
@@ -253,6 +254,26 @@ fn char_accuracy_test() {
         dict_path.display()
     );
 
+    // Setup log file in logs/ directory
+    let logs_dir = workspace_root.join("logs");
+    std::fs::create_dir_all(&logs_dir).ok();
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    let timestamp = now;
+    let log_path = logs_dir.join(format!("char_accuracy_{timestamp}.log"));
+    let mut log_file = std::fs::File::create(&log_path).expect("Failed to create log file");
+    println!("Log file: {}", log_path.display());
+
+    macro_rules! log {
+        ($($arg:tt)*) => {{
+            let msg = format!($($arg)*);
+            println!("{}", msg);
+            writeln!(log_file, "{}", msg).ok();
+        }};
+    }
+
     let engine = NnEngine::new().expect("Failed to create NnEngine");
     let model = engine
         .load_model(&model_path)
@@ -269,7 +290,7 @@ fn char_accuracy_test() {
             "Quantized model not found at {}",
             qpath.display()
         );
-        println!("A/B test enabled: FP32 vs INT8 ({})", qpath.display());
+        log!("A/B test enabled: FP32 vs INT8 ({})", qpath.display());
         engine
             .load_model(qpath)
             .expect("Failed to load quantized model")
@@ -296,13 +317,13 @@ fn char_accuracy_test() {
             }
         };
 
-        println!("\n=== Font: {} ===", font_entry.name);
+        log!("\n=== Font: {} ===", font_entry.name);
 
         for &category in CATEGORIES {
             let chars = match load_category_chars(&workspace_root, category) {
                 Some(c) => c,
                 None => {
-                    println!("  {category}: (no data)");
+                    log!("  {category}: (no data)");
                     continue;
                 }
             };
@@ -366,7 +387,7 @@ fn char_accuracy_test() {
                     0.0
                 };
                 let diff = pct_q - pct;
-                println!(
+                log!(
                     "  {category:20} FP32={cat_correct:>5}/{cat_total:<5} ({pct:.1}%)  \
                      INT8={cat_correct_q:>5}/{cat_total_q:<5} ({pct_q:.1}%)  \
                      diff={diff:+.1}pp"
@@ -376,7 +397,7 @@ fn char_accuracy_test() {
                 entry_q.0 += cat_correct_q;
                 entry_q.1 += cat_total_q;
             } else {
-                println!("  {category:20} {cat_correct:>5}/{cat_total:<5} ({pct:.1}%)");
+                log!("  {category:20} {cat_correct:>5}/{cat_total:<5} ({pct:.1}%)");
             }
 
             let entry = overall.entry(category.to_string()).or_insert((0, 0));
@@ -389,12 +410,12 @@ fn char_accuracy_test() {
     std::fs::create_dir_all(&results_dir).ok();
     let failures_json = serde_json::to_string_pretty(&all_failures).unwrap();
     std::fs::write(results_dir.join("failures.json"), &failures_json).unwrap();
-    println!(
+    log!(
         "\nExported {} failures to test_results/failures.json",
         all_failures.len()
     );
 
-    println!("\n=== Overall Accuracy ===");
+    log!("\n=== Overall Accuracy ===");
     for &category in CATEGORIES {
         if let Some(&(correct, total)) = overall.get(category) {
             let pct = if total > 0 {
@@ -410,13 +431,13 @@ fn char_accuracy_test() {
                     0.0
                 };
                 let diff = pct_q - pct;
-                println!(
+                log!(
                     "  {category:20} FP32={correct:>5}/{total:<5} ({pct:.1}%)  \
                      INT8={correct_q:>5}/{total_q:<5} ({pct_q:.1}%)  \
                      diff={diff:+.1}pp"
                 );
             } else {
-                println!("  {category:20} {correct:>5}/{total:<5} ({pct:.1}%)");
+                log!("  {category:20} {correct:>5}/{total:<5} ({pct:.1}%)");
             }
         }
     }
@@ -432,9 +453,11 @@ fn char_accuracy_test() {
         } else {
             f64::NAN
         };
-        println!("\n=== Inference Timing ({inference_count} batches) ===");
-        println!("  FP32 total: {fp32_ms:.1}ms  avg: {fp32_avg:.2}ms/batch");
-        println!("  INT8 total: {int8_ms:.1}ms  avg: {int8_avg:.2}ms/batch");
-        println!("  Speedup:    {speedup:.2}x");
+        log!("\n=== Inference Timing ({inference_count} batches) ===");
+        log!("  FP32 total: {fp32_ms:.1}ms  avg: {fp32_avg:.2}ms/batch");
+        log!("  INT8 total: {int8_ms:.1}ms  avg: {int8_avg:.2}ms/batch");
+        log!("  Speedup:    {speedup:.2}x");
     }
+
+    log!("\nLog saved to: {}", log_path.display());
 }
