@@ -127,14 +127,20 @@ uv run quantize --input rec_finetuned.onnx --output rec_int8.onnx
 
 ```bash
 # Run character accuracy test across all fonts (slow, ~10min)
-cargo test -p ocrus-cli --test char_accuracy -- --ignored
+cargo test -p ocrus-cli --test char_accuracy -- --ignored --nocapture
 
 # A/B test FP32 vs INT8 quantized model
 OCRUS_QUANTIZED_MODEL=path/to/rec_int8.onnx \
-  cargo test -p ocrus-cli --test char_accuracy -- --ignored
+  cargo test -p ocrus-cli --test char_accuracy -- --ignored --nocapture
 ```
 
-Results are exported to `test_results/failures.json` for targeted re-training.
+Results are exported to:
+- `logs/char_accuracy_*.log` — Full test log (accuracy per font/category, timing)
+- `test_results/failures.json` — Failed characters for targeted re-training
+
+## AI Agent Rules
+
+- 長時間かかるコマンド（E2Eテスト、モデル変換など）はAI側で実行せず、ユーザーに実行を依頼すること。AIセッション終了時にコマンドも終了してしまうため。
 
 ## Development
 
