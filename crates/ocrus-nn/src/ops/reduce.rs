@@ -32,8 +32,8 @@ pub fn reduce_mean(t: &NdTensor<f32>, axes: &[usize], keepdims: bool) -> NdTenso
     for flat in 0..t.data.len() {
         // Compute multi-dim index
         let mut rem = flat;
-        for d in 0..ndim {
-            idx[d] = rem / t.strides[d];
+        for (d, slot) in idx.iter_mut().enumerate() {
+            *slot = rem / t.strides[d];
             rem %= t.strides[d];
         }
 

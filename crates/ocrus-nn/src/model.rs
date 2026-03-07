@@ -308,6 +308,21 @@ impl OcnnModel {
             std::slice::from_raw_parts(ptr, count)
         }
     }
+
+    /// Get weight data for a layer as i32 slice (for extra input references in Concat >4)
+    pub fn layer_weights_i32(&self, layer: &LayerDescriptor) -> &[i32] {
+        let offset = layer.param_offset as usize;
+        let count = layer.param_size as usize / 4;
+        assert!(
+            offset + count * 4 <= self.weights_len,
+            "Weight access out of bounds"
+        );
+        // SAFETY: data is within mmap bounds
+        unsafe {
+            let ptr = self.weights_base.add(offset) as *const i32;
+            std::slice::from_raw_parts(ptr, count)
+        }
+    }
 }
 
 /// Build .ocnn v1 binary data in memory (for tests and conversion tools).
@@ -438,9 +453,11 @@ mod tests {
     fn test_parse_empty_model() {
         let relu_desc = LayerDescriptor {
             layer_type: LayerType::ReLU,
+            num_inputs: 0,
             param_offset: 0,
             param_size: 0,
             config: [0; 10],
+            inputs: [0; 4],
         };
         let data = build_ocnn(&[(relu_desc, &[])]);
         let model = OcnnModel::from_mmap(make_mmap(&data)).unwrap();
@@ -455,9 +472,11 @@ mod tests {
 
         let desc = LayerDescriptor {
             layer_type: LayerType::Linear,
+            num_inputs: 0,
             param_offset: 0,
             param_size: weight_bytes.len() as u64,
             config: [2, 2, 0, 0, 0, 0, 0, 0, 0, 0],
+            inputs: [0; 4],
         };
         let data = build_ocnn(&[(desc, &weight_bytes)]);
         let model = OcnnModel::from_mmap(make_mmap(&data)).unwrap();
@@ -484,15 +503,19 @@ mod tests {
     fn test_multi_layer() {
         let relu = LayerDescriptor {
             layer_type: LayerType::ReLU,
+            num_inputs: 0,
             param_offset: 0,
             param_size: 0,
             config: [0; 10],
+            inputs: [0; 4],
         };
         let hs = LayerDescriptor {
             layer_type: LayerType::HardSwish,
+            num_inputs: 0,
             param_offset: 0,
             param_size: 0,
             config: [0; 10],
+            inputs: [0; 4],
         };
         let data = build_ocnn(&[(relu, &[]), (hs, &[])]);
         let model = OcnnModel::from_mmap(make_mmap(&data)).unwrap();

@@ -105,21 +105,22 @@ def convert_onnx_to_ocnn(onnx_path: str, output_path: str):
     # Collect all constant data (initializers + Constant ops not used as inline weights)
     # We need to identify which initializers are used as inline weights
     inline_weight_tensors: set[str] = set()
+    all_weights = {**initializers, **constant_op_values}
     for node in compute_nodes:
         if node.op_type in ("Conv", "ConvDepthwise"):
             # weight and bias are inline
-            if len(node.input) > 1:
+            if len(node.input) > 1 and node.input[1] in all_weights:
                 inline_weight_tensors.add(node.input[1])
-            if len(node.input) > 2 and node.input[2]:
+            if len(node.input) > 2 and node.input[2] and node.input[2] in all_weights:
                 inline_weight_tensors.add(node.input[2])
         elif node.op_type == "BatchNormalization":
             for i in range(1, 5):
-                if i < len(node.input):
+                if i < len(node.input) and node.input[i] in all_weights:
                     inline_weight_tensors.add(node.input[i])
         elif node.op_type == "Gemm":
-            if len(node.input) > 1:
+            if len(node.input) > 1 and node.input[1] in all_weights:
                 inline_weight_tensors.add(node.input[1])
-            if len(node.input) > 2 and node.input[2]:
+            if len(node.input) > 2 and node.input[2] and node.input[2] in all_weights:
                 inline_weight_tensors.add(node.input[2])
 
     # Build constant table: tensor_name -> constant_index
@@ -330,16 +331,25 @@ def _convert_node_v2(
         return r if r is not None else 0
 
     if op == "Conv":
-        return _convert_conv_v2(node, initializers, output_to_layer, weight_offset)
+        return _convert_conv_v2(
+            node, initializers, constant_op_values,
+            output_to_layer, weight_offset,
+        )
     elif op == "BatchNormalization":
-        return _convert_batchnorm_v2(node, initializers, output_to_layer, weight_offset)
+        return _convert_batchnorm_v2(
+            node, initializers, constant_op_values,
+            output_to_layer, weight_offset,
+        )
     elif op in ("Relu", "HardSwish", "Sigmoid", "Sqrt"):
         inputs = [_resolve(node.input[0])]
         return _make_descriptor(LAYER_TYPES[op], 1, 0, 0, [], inputs), None
     elif op in ("MaxPool", "AveragePool"):
         return _convert_pool_v2(node, op, output_to_layer)
     elif op == "Gemm":
-        return _convert_gemm_v2(node, initializers, output_to_layer, weight_offset)
+        return _convert_gemm_v2(
+            node, initializers, constant_op_values,
+            output_to_layer, weight_offset,
+        )
     elif op == "Reshape":
         return _convert_reshape_v2(
             node,
@@ -379,7 +389,10 @@ def _convert_node_v2(
             None,
         )
     elif op == "Concat":
-        return _convert_concat_v2(node, output_to_layer, constant_table, shape_outputs)
+        return _convert_concat_v2(
+            node, output_to_layer, constant_table,
+            shape_outputs, weight_offset,
+        )
     elif op == "Slice":
         return _convert_slice_v2(
             node,
@@ -458,9 +471,11 @@ def _get_constant_array(
 # --- v2 converters ---
 
 
-def _convert_conv_v2(node, initializers, output_to_layer, weight_offset):
+def _convert_conv_v2(
+    node, initializers, constant_op_values, output_to_layer, weight_offset
+):
     attrs = {a.name: a for a in node.attribute}
-    weight = initializers.get(node.input[1])
+    weight = _get_constant_array(node.input[1], initializers, constant_op_values)
     if weight is None:
         return None
 
@@ -474,8 +489,13 @@ def _convert_conv_v2(node, initializers, output_to_layer, weight_offset):
     is_depthwise = group_val == cin and cout == cin
     layer_type = LAYER_TYPES["ConvDepthwise"] if is_depthwise else LAYER_TYPES["Conv"]
 
-    has_bias = len(node.input) > 2 and node.input[2] and node.input[2] in initializers
-    bias = initializers[node.input[2]] if has_bias else None
+    bias_name = node.input[2] if len(node.input) > 2 and node.input[2] else None
+    bias = (
+        _get_constant_array(bias_name, initializers, constant_op_values)
+        if bias_name
+        else None
+    )
+    has_bias = bias is not None
 
     weight_data = weight.astype(np.float32).tobytes()
     if bias is not None:
@@ -505,11 +525,21 @@ def _convert_conv_v2(node, initializers, output_to_layer, weight_offset):
     )
 
 
-def _convert_batchnorm_v2(node, initializers, output_to_layer, weight_offset):
-    gamma = initializers.get(node.input[1])
-    beta = initializers.get(node.input[2])
-    mean = initializers.get(node.input[3])
-    var = initializers.get(node.input[4])
+def _convert_batchnorm_v2(
+    node, initializers, constant_op_values, output_to_layer, weight_offset
+):
+    gamma = _get_constant_array(
+        node.input[1], initializers, constant_op_values
+    )
+    beta = _get_constant_array(
+        node.input[2], initializers, constant_op_values
+    )
+    mean = _get_constant_array(
+        node.input[3], initializers, constant_op_values
+    )
+    var = _get_constant_array(
+        node.input[4], initializers, constant_op_values
+    )
 
     if gamma is None:
         return None
@@ -561,14 +591,27 @@ def _convert_pool_v2(node, op, output_to_layer):
     return _make_descriptor(layer_type, 1, 0, 0, config, inputs), None
 
 
-def _convert_gemm_v2(node, initializers, output_to_layer, weight_offset):
-    weight = initializers.get(node.input[1])
+def _convert_gemm_v2(
+    node, initializers, constant_op_values, output_to_layer, weight_offset
+):
+    weight = _get_constant_array(
+        node.input[1], initializers, constant_op_values
+    )
     if weight is None:
         return None
 
     out_f, in_f = weight.shape
-    has_bias = len(node.input) > 2 and node.input[2] and node.input[2] in initializers
-    bias = initializers[node.input[2]] if has_bias else None
+    bias_name = (
+        node.input[2]
+        if len(node.input) > 2 and node.input[2]
+        else None
+    )
+    bias = (
+        _get_constant_array(bias_name, initializers, constant_op_values)
+        if bias_name
+        else None
+    )
+    has_bias = bias is not None
 
     weight_data = weight.astype(np.float32).tobytes()
     if bias is not None:
@@ -648,30 +691,47 @@ def _convert_transpose_v2(node, output_to_layer):
     )
 
 
-def _convert_concat_v2(node, output_to_layer, constant_table, shape_outputs):
+def _convert_concat_v2(
+    node, output_to_layer, constant_table, shape_outputs, weight_offset
+):
     attrs = {a.name: a for a in node.attribute}
     axis = attrs["axis"].i if "axis" in attrs else 0
 
     inputs_ref = []
     for inp_name in node.input:
-        r = _resolve_input(inp_name, constant_table, output_to_layer, shape_outputs)
+        r = _resolve_input(
+            inp_name, constant_table, output_to_layer, shape_outputs
+        )
         inputs_ref.append(r if r is not None else 0)
 
     num_inputs = len(inputs_ref)
     config = [_i32_as_u32(axis)]
 
-    # Concat can have > 4 inputs; we only support up to 4 in the descriptor
-    if num_inputs > 4:
-        print(
-            f"Warning: Concat node '{node.name}' has {num_inputs} inputs, "
-            f"truncating to 4"
+    if num_inputs <= 4:
+        return (
+            _make_descriptor(
+                LAYER_TYPES["Concat"],
+                num_inputs, 0, 0, config, inputs_ref,
+            ),
+            None,
         )
-        num_inputs = 4
-        inputs_ref = inputs_ref[:4]
 
+    # >4 inputs: first 4 in descriptor, rest in weight data
+    first4 = inputs_ref[:4]
+    extra = inputs_ref[4:]
+    extra_bytes = b"".join(
+        struct.pack("<i", v) for v in extra
+    )
     return (
-        _make_descriptor(LAYER_TYPES["Concat"], num_inputs, 0, 0, config, inputs_ref),
-        None,
+        _make_descriptor(
+            LAYER_TYPES["Concat"],
+            num_inputs,
+            weight_offset,
+            len(extra_bytes),
+            config,
+            first4,
+        ),
+        extra_bytes,
     )
 
 

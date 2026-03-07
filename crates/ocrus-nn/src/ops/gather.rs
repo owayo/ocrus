@@ -6,7 +6,6 @@ pub fn gather(t: &NdTensor<f32>, indices: &NdTensor<f32>, axis: usize) -> NdTens
 
     // Output shape: replace t.shape[axis] with indices.shape
     // For simplicity, handle the common case: indices is 1D
-    let ndim = t.ndim();
     let outer: usize = t.shape[..axis].iter().product();
     let axis_size = t.shape[axis];
     let inner: usize = t.shape[axis + 1..].iter().product();

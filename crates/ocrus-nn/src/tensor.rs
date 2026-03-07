@@ -256,11 +256,11 @@ impl NdTensor<f32> {
         let strides_b = compute_strides(&pad_b);
 
         let mut idx = vec![0usize; ndim];
-        for flat in 0..total {
+        for (flat, out_val) in data.iter_mut().enumerate() {
             // Decompose flat index
             let mut rem = flat;
-            for d in 0..ndim {
-                idx[d] = rem / out_strides[d];
+            for (d, slot) in idx.iter_mut().enumerate() {
+                *slot = rem / out_strides[d];
                 rem %= out_strides[d];
             }
             // Map to input indices (clamp for broadcast dims)
@@ -272,7 +272,7 @@ impl NdTensor<f32> {
                 a_off += ai * strides_a[d];
                 b_off += bi * strides_b[d];
             }
-            data[flat] = op(a.data[a_off], b.data[b_off]);
+            *out_val = op(a.data[a_off], b.data[b_off]);
         }
 
         NdTensor::from_vec(data, &out_shape)

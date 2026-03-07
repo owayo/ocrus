@@ -152,9 +152,11 @@ mod engine_tests {
         // Model: ReLU only
         let relu = LayerDescriptor {
             layer_type: LayerType::ReLU,
+            num_inputs: 0,
             param_offset: 0,
             param_size: 0,
             config: [0; 10],
+            inputs: [0; 4],
         };
         let m = make_model(&[(relu, &[])]);
 
@@ -169,9 +171,11 @@ mod engine_tests {
         let engine = NnEngine::new().unwrap();
         let relu = LayerDescriptor {
             layer_type: LayerType::ReLU,
+            num_inputs: 0,
             param_offset: 0,
             param_size: 0,
             config: [0; 10],
+            inputs: [0; 4],
         };
         let m = make_model(&[(relu, &[])]);
         let outputs = engine.run(&m, &[]).unwrap();
