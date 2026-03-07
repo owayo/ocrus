@@ -13,13 +13,13 @@ use ocrus_layout::{
     TextOrientation, assess_quality, detect_columns_vertical, detect_lines_ccl,
     detect_lines_projection, detect_orientation, separate_ruby, should_use_fast_path,
 };
+use ocrus_nn::{NnEngine, Tensor};
 use ocrus_preproc::{binarize_adaptive, normalize_line, normalize_line_vertical, to_grayscale};
 use ocrus_recognizer::charset::Charset;
 use ocrus_recognizer::{
     CascadeRecognizer, DictCorrector, GlyphCache, ctc_beam_decode, ctc_greedy_decode,
     ctc_greedy_decode_masked,
 };
-use ocrus_runtime::{InferenceBackend, ModelOptions, OrtBackend, Tensor};
 
 use super::{CliCharset, CliMode, OutputFormat, RecognizeArgs};
 use crate::output;
@@ -91,7 +91,7 @@ pub fn run(args: RecognizeArgs) -> Result<()> {
     }
 
     // Load model and charset
-    let rec_model_path = engine_config.model_dir.join("rec.onnx");
+    let rec_model_path = engine_config.model_dir.join("rec.ocnn");
     let charset_path = engine_config.model_dir.join("dict.txt");
 
     if !rec_model_path.exists() {
@@ -124,13 +124,9 @@ pub fn run(args: RecognizeArgs) -> Result<()> {
         None => None,
     };
 
-    let backend = OrtBackend::new().context("Failed to initialize ONNX Runtime")?;
-    let model_opts = ModelOptions {
-        num_threads: engine_config.num_threads,
-        ..Default::default()
-    };
-    let model = backend
-        .load_model(&rec_model_path, &model_opts)
+    let engine = NnEngine::new().context("Failed to initialize NN engine")?;
+    let model = engine
+        .load_model(&rec_model_path)
         .context("Failed to load recognition model")?;
 
     // Cascade recognition (if cascade model specified)
@@ -187,13 +183,13 @@ pub fn run(args: RecognizeArgs) -> Result<()> {
     let outputs = if uncached_tensors.is_empty() {
         Vec::new()
     } else if use_fast_path && uncached_tensors.len() > 1 {
-        backend
+        engine
             .run_batch(&model, &uncached_tensors)
             .context("Batch inference failed")?
     } else {
         uncached_tensors
             .iter()
-            .map(|t| backend.run(&model, std::slice::from_ref(t)))
+            .map(|t| engine.run(&model, std::slice::from_ref(t)))
             .collect::<std::result::Result<Vec<_>, _>>()
             .context("Inference failed")?
     };

@@ -6,7 +6,6 @@ pub mod tensor;
 
 use std::path::Path;
 
-use ocrus_core::OcrusError;
 use ocrus_core::error::Result;
 
 /// Inference tensor (compatible with existing pipeline)

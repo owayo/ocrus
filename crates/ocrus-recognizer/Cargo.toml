@@ -6,7 +6,6 @@ license.workspace = true
 
 [dependencies]
 ocrus-core = { workspace = true }
-ocrus-runtime = { workspace = true }
 ndarray = { workspace = true }
 daachorse = "1.0.0"
 img_hash = "3.2"

@@ -13,7 +13,7 @@ ocrus-core = { workspace = true }
 ocrus-preproc = { workspace = true }
 ocrus-layout = { workspace = true }
 ocrus-recognizer = { workspace = true }
-ocrus-runtime = { workspace = true }
+ocrus-nn = { workspace = true }
 ocrus-dataset = { workspace = true }
 clap = { workspace = true }
 serde_json = { workspace = true }

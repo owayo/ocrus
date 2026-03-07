@@ -15,9 +15,9 @@ struct CharFailure {
 }
 
 use ocrus_layout::detect_lines_projection;
+use ocrus_nn::{NnEngine, Tensor};
 use ocrus_preproc::{binarize_adaptive, normalize_line, to_grayscale};
 use ocrus_recognizer::{charset::Charset, ctc_greedy_decode};
-use ocrus_runtime::{InferenceBackend, ModelHandle, ModelOptions, OrtBackend};
 
 const CATEGORIES: &[&str] = &[
     "halfwidth_alnum",
@@ -154,8 +154,8 @@ fn render_text_image(font: &FontRef<'_>, text: &str) -> DynamicImage {
 }
 
 fn recognize_image(
-    backend: &OrtBackend,
-    handle: &ModelHandle,
+    engine: &NnEngine,
+    model: &ocrus_nn::model::OcnnModel,
     charset: &Charset,
     img: &DynamicImage,
 ) -> String {
@@ -168,8 +168,8 @@ fn recognize_image(
         let bbox = ocrus_core::BBox::new(0, 0, gray.ncols() as u32, gray.nrows() as u32);
         let tensor = normalize_line(&gray, &bbox);
         let shape = tensor.shape().to_vec();
-        let input = ocrus_runtime::Tensor::new(tensor.into_raw_vec_and_offset().0, shape);
-        if let Ok(outputs) = backend.run(handle, &[input])
+        let input = Tensor::new(tensor.into_raw_vec_and_offset().0, shape);
+        if let Ok(outputs) = engine.run(model, &[input])
             && let Some(output) = outputs.first()
         {
             let timesteps = output.shape[1];
@@ -181,8 +181,8 @@ fn recognize_image(
         for line in &lines {
             let tensor = normalize_line(&gray, line);
             let shape = tensor.shape().to_vec();
-            let input = ocrus_runtime::Tensor::new(tensor.into_raw_vec_and_offset().0, shape);
-            if let Ok(outputs) = backend.run(handle, &[input])
+            let input = Tensor::new(tensor.into_raw_vec_and_offset().0, shape);
+            if let Ok(outputs) = engine.run(model, &[input])
                 && let Some(output) = outputs.first()
             {
                 let timesteps = output.shape[1];
@@ -239,12 +239,12 @@ fn char_accuracy_test() {
         .map(PathBuf::from)
         .unwrap_or_else(|_| dirs_home().join(".ocrus/models"));
 
-    let model_path = model_dir.join("rec.onnx");
+    let model_path = model_dir.join("rec.ocnn");
     let dict_path = model_dir.join("dict.txt");
 
     assert!(
         model_path.exists(),
-        "Model not found at {}. Run models/download.sh first.",
+        "Model not found at {}. Run models/download.sh or convert to .ocnn first.",
         model_path.display()
     );
     assert!(
@@ -253,10 +253,9 @@ fn char_accuracy_test() {
         dict_path.display()
     );
 
-    let backend = OrtBackend::new().expect("Failed to create OrtBackend");
-    let opts = ModelOptions::default();
-    let handle = backend
-        .load_model(&model_path, &opts)
+    let engine = NnEngine::new().expect("Failed to create NnEngine");
+    let model = engine
+        .load_model(&model_path)
         .expect("Failed to load model");
     let charset = Charset::from_file(&dict_path).expect("Failed to load charset");
 
@@ -264,15 +263,15 @@ fn char_accuracy_test() {
     let quantized_model_path = std::env::var("OCRUS_QUANTIZED_MODEL")
         .map(PathBuf::from)
         .ok();
-    let quantized_handle = quantized_model_path.as_ref().map(|qpath| {
+    let quantized_model = quantized_model_path.as_ref().map(|qpath| {
         assert!(
             qpath.exists(),
             "Quantized model not found at {}",
             qpath.display()
         );
         println!("A/B test enabled: FP32 vs INT8 ({})", qpath.display());
-        backend
-            .load_model(qpath, &opts)
+        engine
+            .load_model(qpath)
             .expect("Failed to load quantized model")
     });
 
@@ -319,7 +318,7 @@ fn char_accuracy_test() {
 
                 // FP32 inference
                 let t0 = std::time::Instant::now();
-                let recognized = recognize_image(&backend, &handle, &charset, &img);
+                let recognized = recognize_image(&engine, &model, &charset, &img);
                 total_fp32_elapsed += t0.elapsed();
                 inference_count += 1;
 
@@ -343,9 +342,9 @@ fn char_accuracy_test() {
                 }
 
                 // INT8 inference (A/B comparison)
-                if let Some(ref q_handle) = quantized_handle {
+                if let Some(ref q_model) = quantized_model {
                     let t0 = std::time::Instant::now();
-                    let recognized_q = recognize_image(&backend, q_handle, &charset, &img);
+                    let recognized_q = recognize_image(&engine, q_model, &charset, &img);
                     total_int8_elapsed += t0.elapsed();
 
                     let (correct_q, total_q) = char_accuracy(&batch_str, &recognized_q);

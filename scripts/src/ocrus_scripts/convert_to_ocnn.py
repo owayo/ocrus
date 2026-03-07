@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Convert ONNX model to .ocnn format for ocrus-nn inference engine."""
+
 import argparse
 import struct
 
@@ -24,9 +25,7 @@ LAYER_TYPES = {
 }
 
 
-def convert_onnx_to_ocnn(
-    onnx_path: str, output_path: str, fuse_bn: bool = True
-):
+def convert_onnx_to_ocnn(onnx_path: str, output_path: str, fuse_bn: bool = True):
     """Convert ONNX model to .ocnn binary format."""
     try:
         import onnx
@@ -49,7 +48,7 @@ def convert_onnx_to_ocnn(
 
     for node in graph.node:
         op = node.op_type
-        layer_info = convert_node(node, op, initializers, weight_offset)
+        layer_info = _convert_node(node, op, initializers, weight_offset)
         if layer_info is None:
             continue
 
@@ -68,7 +67,7 @@ def convert_onnx_to_ocnn(
 
         # Layer descriptors (64 bytes each)
         for desc in layers:
-            write_descriptor(f, desc)
+            _write_descriptor(f, desc)
 
         # Weight data
         for chunk in weight_chunks:
@@ -79,16 +78,17 @@ def convert_onnx_to_ocnn(
     print(f"  Weights: {weight_offset} bytes")
 
 
-def convert_node(node, op, initializers, weight_offset):
+def _convert_node(node, op, initializers, weight_offset):
     """Convert a single ONNX node to layer descriptor + weights.
 
     Returns:
         Tuple of (descriptor dict, weight bytes) or None if unsupported.
+
     """
     if op == "Conv":
-        return convert_conv(node, initializers, weight_offset)
+        return _convert_conv(node, initializers, weight_offset)
     elif op == "BatchNormalization":
-        return convert_batchnorm(node, initializers, weight_offset)
+        return _convert_batchnorm(node, initializers, weight_offset)
     elif op in ("Relu", "HardSwish"):
         config = [0] * 10
         return (
@@ -96,11 +96,11 @@ def convert_node(node, op, initializers, weight_offset):
             None,
         )
     elif op in ("MaxPool", "AveragePool"):
-        return convert_pool(node, op)
+        return _convert_pool(node, op)
     elif op == "Gemm":
-        return convert_gemm(node, initializers, weight_offset)
+        return _convert_gemm(node, initializers, weight_offset)
     elif op == "Reshape":
-        return convert_reshape(node, initializers)
+        return _convert_reshape(node, initializers)
     elif op == "Flatten":
         attrs = {a.name: a for a in node.attribute}
         axis = attrs.get("axis", None)
@@ -131,8 +131,7 @@ def convert_node(node, op, initializers, weight_offset):
     return None
 
 
-def convert_conv(node, initializers, weight_offset):
-    """Convert Conv node to layer descriptor and weight data."""
+def _convert_conv(node, initializers, weight_offset):
     attrs = {a.name: a for a in node.attribute}
     weight = initializers.get(node.input[1])
     if weight is None:
@@ -146,9 +145,7 @@ def convert_conv(node, initializers, weight_offset):
     pads = list(attrs["pads"].ints) if "pads" in attrs else [0, 0, 0, 0]
 
     is_depthwise = group_val == cin and cout == cin
-    layer_type = (
-        LAYER_TYPES["ConvDepthwise"] if is_depthwise else LAYER_TYPES["Conv"]
-    )
+    layer_type = LAYER_TYPES["ConvDepthwise"] if is_depthwise else LAYER_TYPES["Conv"]
 
     has_bias = len(node.input) > 2 and node.input[2] in initializers
     bias = initializers[node.input[2]] if has_bias else None
@@ -181,8 +178,7 @@ def convert_conv(node, initializers, weight_offset):
     )
 
 
-def convert_batchnorm(node, initializers, weight_offset):
-    """Convert BatchNormalization node to layer descriptor and weight data."""
+def _convert_batchnorm(node, initializers, weight_offset):
     gamma = initializers.get(node.input[1])
     beta = initializers.get(node.input[2])
     mean = initializers.get(node.input[3])
@@ -219,14 +215,9 @@ def convert_batchnorm(node, initializers, weight_offset):
     )
 
 
-def convert_pool(node, op):
-    """Convert MaxPool or AveragePool node to layer descriptor."""
+def _convert_pool(node, op):
     attrs = {a.name: a for a in node.attribute}
-    kernel = (
-        list(attrs["kernel_shape"].ints)
-        if "kernel_shape" in attrs
-        else [2, 2]
-    )
+    kernel = list(attrs["kernel_shape"].ints) if "kernel_shape" in attrs else [2, 2]
     strides = list(attrs["strides"].ints) if "strides" in attrs else [2, 2]
     pads = list(attrs["pads"].ints) if "pads" in attrs else [0, 0, 0, 0]
 
@@ -248,7 +239,7 @@ def convert_pool(node, op):
     )
 
 
-def convert_gemm(node, initializers, weight_offset):
+def _convert_gemm(node, initializers, weight_offset):
     weight = initializers.get(node.input[1])
     if weight is None:
         return None
@@ -274,18 +265,14 @@ def convert_gemm(node, initializers, weight_offset):
     )
 
 
-def convert_reshape(node, initializers):
+def _convert_reshape(node, initializers):
     shape_input = node.input[1] if len(node.input) > 1 else None
     shape = initializers.get(shape_input) if shape_input else None
 
     if shape is not None:
         shape_list = shape.astype(np.int32).tolist()
         ndim = len(shape_list)
-        config = (
-            [ndim]
-            + shape_list[:9]
-            + [0] * (9 - len(shape_list[:9]))
-        )
+        config = [ndim] + shape_list[:9] + [0] * (9 - len(shape_list[:9]))
     else:
         config = [0] * 10
 
@@ -295,7 +282,7 @@ def convert_reshape(node, initializers):
     )
 
 
-def write_descriptor(f, desc):
+def _write_descriptor(f, desc):
     """Write a 64-byte layer descriptor."""
     buf = bytearray(64)
     buf[0] = desc["type"]
@@ -308,11 +295,10 @@ def write_descriptor(f, desc):
 
 
 def main():
+    """CLI entry point for ONNX to .ocnn conversion."""
     parser = argparse.ArgumentParser(description="Convert ONNX to .ocnn")
     parser.add_argument("input", help="Input ONNX model path")
-    parser.add_argument(
-        "-o", "--output", required=True, help="Output .ocnn path"
-    )
+    parser.add_argument("-o", "--output", required=True, help="Output .ocnn path")
     parser.add_argument(
         "--fuse-bn",
         action="store_true",
