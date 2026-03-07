@@ -1383,6 +1383,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocrus-nn"
+version = "0.1.0"
+dependencies = [
+ "memmap2",
+ "ocrus-core",
+ "wide 1.1.1",
+]
+
+[[package]]
 name = "ocrus-preproc"
 version = "0.1.0"
 dependencies = [

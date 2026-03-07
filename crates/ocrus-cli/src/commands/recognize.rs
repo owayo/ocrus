@@ -189,6 +189,7 @@ pub fn run(args: RecognizeArgs) -> Result<()> {
                 text,
                 bbox: *bbox,
                 confidence: *confidence,
+                ruby: vec![],
             });
         } else {
             if let Some(output_tensors) = outputs.get(inference_idx)
@@ -246,6 +247,7 @@ pub fn run(args: RecognizeArgs) -> Result<()> {
                     text,
                     bbox: *bbox,
                     confidence,
+                    ruby: vec![],
                 });
             }
             inference_idx += 1;
@@ -286,6 +288,12 @@ fn build_engine_config(args: &RecognizeArgs) -> EngineConfig {
 
     if let Some(ref path) = args.dict {
         builder = builder.dict_path(path.clone());
+    }
+
+    builder = builder.ruby_separation(args.ruby);
+
+    if let Some(ref path) = args.cascade {
+        builder = builder.cascade_model_path(path.clone());
     }
 
     builder.build()

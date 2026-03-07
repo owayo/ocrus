@@ -100,6 +100,14 @@ pub struct RecognizeArgs {
     /// Custom dictionary path
     #[arg(long)]
     pub dict: Option<PathBuf>,
+
+    /// Enable ruby (furigana) separation
+    #[arg(long)]
+    pub ruby: bool,
+
+    /// Cascade classifier model path
+    #[arg(long)]
+    pub cascade: Option<PathBuf>,
 }
 
 #[derive(Clone, Debug, clap::ValueEnum)]

@@ -20,6 +20,9 @@ pub struct EngineConfig {
     pub dict_path: Option<PathBuf>,
     pub beam_width: usize,
     pub confidence_threshold: f32,
+    pub ruby_separation: bool,
+    pub cascade_model_path: Option<PathBuf>,
+    pub cascade_threshold: f32,
 }
 
 impl Default for EngineConfig {
@@ -33,6 +36,9 @@ impl Default for EngineConfig {
             dict_path: None,
             beam_width: 5,
             confidence_threshold: 0.5,
+            ruby_separation: false,
+            cascade_model_path: None,
+            cascade_threshold: 0.95,
         }
     }
 }
@@ -81,6 +87,21 @@ impl EngineConfigBuilder {
 
     pub fn confidence_threshold(mut self, threshold: f32) -> Self {
         self.config.confidence_threshold = threshold;
+        self
+    }
+
+    pub fn ruby_separation(mut self, enabled: bool) -> Self {
+        self.config.ruby_separation = enabled;
+        self
+    }
+
+    pub fn cascade_model_path(mut self, path: PathBuf) -> Self {
+        self.config.cascade_model_path = Some(path);
+        self
+    }
+
+    pub fn cascade_threshold(mut self, threshold: f32) -> Self {
+        self.config.cascade_threshold = threshold;
         self
     }
 

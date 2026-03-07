@@ -29,10 +29,18 @@ pub struct Quad {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RubyAnnotation {
+    pub ruby_text: String,
+    pub bbox: BBox,
+    pub confidence: f32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TextLine {
     pub text: String,
     pub bbox: BBox,
     pub confidence: f32,
+    pub ruby: Vec<RubyAnnotation>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -79,11 +79,13 @@ mod tests {
                 text: "hello".to_string(),
                 bbox: BBox::new(0, 0, 100, 20),
                 confidence: 0.9,
+                ruby: vec![],
             }),
             OcrEvent::LineRecognized(TextLine {
                 text: "world".to_string(),
                 bbox: BBox::new(0, 30, 100, 20),
                 confidence: 0.85,
+                ruby: vec![],
             }),
             OcrEvent::Done,
         ];

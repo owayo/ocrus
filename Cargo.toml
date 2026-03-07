@@ -7,6 +7,7 @@ members = [
     "crates/ocrus-runtime",
     "crates/ocrus-cli",
     "crates/ocrus-dataset",
+    "crates/ocrus-nn",
 ]
 resolver = "3"
 
@@ -41,6 +42,7 @@ ocrus-layout = { path = "crates/ocrus-layout" }
 ocrus-recognizer = { path = "crates/ocrus-recognizer" }
 ocrus-runtime = { path = "crates/ocrus-runtime" }
 ocrus-dataset = { path = "crates/ocrus-dataset" }
+ocrus-nn = { path = "crates/ocrus-nn" }
 
 # Font / Augmentation
 ab_glyph = "0.2.32"
