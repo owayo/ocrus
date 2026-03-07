@@ -2,12 +2,100 @@ use std::path::PathBuf;
 
 use ab_glyph::{Font, FontRef};
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
+
+/// Font style classification for training data diversity
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum FontStyle {
+    /// 明朝体 / Serif
+    Mincho,
+    /// ゴシック体 / Sans-serif
+    Gothic,
+    /// 筆書体 / Script / Brush
+    Script,
+    /// モノスペース
+    Monospace,
+    /// その他 / 分類不明
+    Other,
+}
+
+impl FontStyle {
+    /// Classify a font by its file name (heuristic)
+    pub fn from_name(name: &str) -> Self {
+        let lower = name.to_lowercase();
+        // Mincho / Serif patterns
+        if lower.contains("mincho")
+            || lower.contains("明朝")
+            || lower.contains("serif")
+            || lower.contains("song")
+            || lower.contains("batang")
+        {
+            return Self::Mincho;
+        }
+        // Gothic / Sans-serif patterns
+        if lower.contains("gothic")
+            || lower.contains("ゴシック")
+            || lower.contains("sans")
+            || lower.contains("kaku")
+            || lower.contains("maru")
+            || lower.contains("hiraginosans")
+            || lower.contains("yugothic")
+        {
+            return Self::Gothic;
+        }
+        // Script / Brush / Calligraphy patterns
+        if lower.contains("script")
+            || lower.contains("brush")
+            || lower.contains("筆")
+            || lower.contains("gyosho")
+            || lower.contains("kaisho")
+            || lower.contains("cursive")
+            || lower.contains("handwrit")
+        {
+            return Self::Script;
+        }
+        // Monospace patterns
+        if lower.contains("mono")
+            || lower.contains("courier")
+            || lower.contains("consolas")
+            || lower.contains("menlo")
+            || lower.contains("source code")
+        {
+            return Self::Monospace;
+        }
+        Self::Other
+    }
+
+    /// Return all styles
+    pub fn all() -> &'static [FontStyle] {
+        &[
+            Self::Mincho,
+            Self::Gothic,
+            Self::Script,
+            Self::Monospace,
+            Self::Other,
+        ]
+    }
+}
+
+impl std::fmt::Display for FontStyle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Mincho => write!(f, "mincho"),
+            Self::Gothic => write!(f, "gothic"),
+            Self::Script => write!(f, "script"),
+            Self::Monospace => write!(f, "monospace"),
+            Self::Other => write!(f, "other"),
+        }
+    }
+}
 
 pub struct FontEntry {
     pub name: String,
     pub path: PathBuf,
     pub data: Vec<u8>,
     pub index: u32,
+    pub style: FontStyle,
 }
 
 impl FontEntry {
@@ -25,6 +113,15 @@ pub fn default_font_dirs() -> Vec<PathBuf> {
         dirs.push(PathBuf::from(home).join("Library/Fonts"));
     }
     dirs
+}
+
+/// Discover fonts, optionally filtered by style
+pub fn discover_fonts_filtered(dirs: &[PathBuf], styles: Option<&[FontStyle]>) -> Vec<FontEntry> {
+    let mut fonts = discover_fonts(dirs);
+    if let Some(styles) = styles {
+        fonts.retain(|f| styles.contains(&f.style));
+    }
+    fonts
 }
 
 pub fn discover_fonts(dirs: &[PathBuf]) -> Vec<FontEntry> {
@@ -70,11 +167,13 @@ fn try_load_font(name: String, path: PathBuf, data: Vec<u8>, index: u32) -> Opti
     if glyph_id.0 == 0 {
         return None;
     }
+    let style = FontStyle::from_name(&name);
     Some(FontEntry {
         name,
         path,
         data,
         index,
+        style,
     })
 }
 
