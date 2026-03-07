@@ -359,7 +359,7 @@ fn char_accuracy_test() {
                 0.0
             };
 
-            if quantized_handle.is_some() {
+            if quantized_model.is_some() {
                 let pct_q = if cat_total_q > 0 {
                     cat_correct_q as f64 / cat_total_q as f64 * 100.0
                 } else {
@@ -422,7 +422,7 @@ fn char_accuracy_test() {
     }
 
     // Print timing comparison when A/B test is active
-    if quantized_handle.is_some() && inference_count > 0 {
+    if quantized_model.is_some() && inference_count > 0 {
         let fp32_ms = total_fp32_elapsed.as_secs_f64() * 1000.0;
         let int8_ms = total_int8_elapsed.as_secs_f64() * 1000.0;
         let fp32_avg = fp32_ms / inference_count as f64;

@@ -4,7 +4,6 @@ members = [
     "crates/ocrus-preproc",
     "crates/ocrus-layout",
     "crates/ocrus-recognizer",
-    "crates/ocrus-runtime",
     "crates/ocrus-cli",
     "crates/ocrus-dataset",
     "crates/ocrus-nn",
@@ -40,7 +39,6 @@ ocrus-core = { path = "crates/ocrus-core" }
 ocrus-preproc = { path = "crates/ocrus-preproc" }
 ocrus-layout = { path = "crates/ocrus-layout" }
 ocrus-recognizer = { path = "crates/ocrus-recognizer" }
-ocrus-runtime = { path = "crates/ocrus-runtime" }
 ocrus-dataset = { path = "crates/ocrus-dataset" }
 ocrus-nn = { path = "crates/ocrus-nn" }
 
@@ -60,9 +58,6 @@ anyhow = "1.0.102"
 # Image processing
 image = "0.25.9"
 ndarray = "0.17.2"
-
-# Inference
-ort = "2.0.0-rc.12"
 
 # Parallelism
 rayon = "1.11.0"
