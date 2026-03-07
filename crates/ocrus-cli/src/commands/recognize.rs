@@ -195,6 +195,20 @@ pub fn run(args: RecognizeArgs) -> Result<()> {
     let mut inference_idx = 0;
 
     for (i, bbox) in line_bboxes.iter().enumerate() {
+        let ruby_annotations = ruby_info
+            .as_ref()
+            .map(|info| {
+                info[i]
+                    .iter()
+                    .map(|rb| RubyAnnotation {
+                        ruby_text: String::new(),
+                        bbox: *rb,
+                        confidence: 0.0,
+                    })
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default();
+
         if let Some((text, confidence)) = &cached_results[i] {
             let mut text = text.clone();
             if let Some(ref corrector) = dict_corrector {
@@ -204,7 +218,7 @@ pub fn run(args: RecognizeArgs) -> Result<()> {
                 text,
                 bbox: *bbox,
                 confidence: *confidence,
-                ruby: vec![],
+                ruby: ruby_annotations,
             });
         } else {
             if let Some(output_tensors) = outputs.get(inference_idx)
@@ -262,7 +276,7 @@ pub fn run(args: RecognizeArgs) -> Result<()> {
                     text,
                     bbox: *bbox,
                     confidence,
-                    ruby: vec![],
+                    ruby: ruby_annotations,
                 });
             }
             inference_idx += 1;
