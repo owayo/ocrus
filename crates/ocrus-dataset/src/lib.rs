@@ -12,7 +12,7 @@ use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 pub use augment::AugmentType;
-pub use font::FontEntry;
+pub use font::{FontEntry, FontStyle};
 pub use writer::DatasetStats;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -44,6 +44,7 @@ pub struct DatasetConfig {
     pub augment: AugmentConfig,
     pub samples_per_char: usize,
     pub val_ratio: f32,
+    pub font_styles: Option<Vec<font::FontStyle>>,
 }
 
 impl Default for DatasetConfig {
@@ -57,6 +58,7 @@ impl Default for DatasetConfig {
             augment: AugmentConfig::default(),
             samples_per_char: 5,
             val_ratio: 0.1,
+            font_styles: None,
         }
     }
 }
@@ -72,7 +74,7 @@ const RENDER_HEIGHT: u32 = 48;
 
 pub fn generate(config: &DatasetConfig) -> Result<DatasetStats> {
     let start = Instant::now();
-    let fonts = font::discover_fonts(&config.font_dirs);
+    let fonts = font::discover_fonts_filtered(&config.font_dirs, config.font_styles.as_deref());
     if fonts.is_empty() {
         bail!("no Japanese-capable fonts found in {:?}", config.font_dirs);
     }
