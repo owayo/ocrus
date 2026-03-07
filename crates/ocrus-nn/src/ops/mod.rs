@@ -1,6 +1,14 @@
+pub mod activation;
 pub mod batchnorm;
+pub mod binary;
 pub mod conv2d;
+pub mod gather;
+pub mod layernorm;
 pub mod linear;
+pub mod math;
+pub mod matmul;
 pub mod pool;
+pub mod reduce;
 pub mod relu;
 pub mod reshape;
+pub mod tensor_ops;

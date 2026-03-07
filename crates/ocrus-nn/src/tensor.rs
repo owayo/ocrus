@@ -121,6 +121,42 @@ impl<T: Clone + Default> NdTensor<T> {
         }
     }
 
+    /// Transpose with arbitrary permutation.
+    /// `perm` specifies the new axis order, e.g., [0,2,1,3].
+    pub fn transpose_perm(&self, perm: &[usize]) -> Self {
+        let ndim = self.ndim();
+        assert_eq!(perm.len(), ndim, "perm length must match ndim");
+
+        let mut new_shape = vec![0usize; ndim];
+        for (i, &p) in perm.iter().enumerate() {
+            new_shape[i] = self.shape[p];
+        }
+
+        let total = self.data.len();
+        let mut new_data = vec![T::default(); total];
+        let out_strides = compute_strides(&new_shape);
+
+        let mut src_idx = vec![0usize; ndim];
+        for i in 0..total {
+            let mut remaining = i;
+            for (d, idx) in src_idx.iter_mut().enumerate() {
+                *idx = remaining / self.strides[d];
+                remaining %= self.strides[d];
+            }
+            let mut dst_offset = 0;
+            for (d, &p) in perm.iter().enumerate() {
+                dst_offset += src_idx[p] * out_strides[d];
+            }
+            new_data[dst_offset] = self.data[i].clone();
+        }
+
+        Self {
+            data: new_data,
+            shape: new_shape,
+            strides: out_strides,
+        }
+    }
+
     /// Get a slice of data for a specific batch/channel.
     /// Returns (data_slice, spatial_shape) for the remaining dimensions.
     pub fn slice_2d(&self, outer_indices: &[usize]) -> (&[T], &[usize]) {
@@ -149,6 +185,105 @@ impl<T: Clone + Default> NdTensor<T> {
         let remaining_shape = self.shape[outer_indices.len()..].to_vec();
         (&mut self.data[offset..offset + inner_size], remaining_shape)
     }
+}
+
+impl NdTensor<f32> {
+    /// Compute numpy-style broadcast shape.
+    pub fn broadcast_shape(a: &[usize], b: &[usize]) -> Vec<usize> {
+        let max_ndim = a.len().max(b.len());
+        let mut result = vec![0usize; max_ndim];
+        for i in 0..max_ndim {
+            let da = if i < max_ndim - a.len() {
+                1
+            } else {
+                a[i - (max_ndim - a.len())]
+            };
+            let db = if i < max_ndim - b.len() {
+                1
+            } else {
+                b[i - (max_ndim - b.len())]
+            };
+            assert!(
+                da == db || da == 1 || db == 1,
+                "broadcast: incompatible shapes {a:?} and {b:?} at dim {i}"
+            );
+            result[i] = da.max(db);
+        }
+        result
+    }
+
+    /// Apply a binary operation with numpy-style broadcasting.
+    pub fn broadcast_binary_op(
+        a: &NdTensor<f32>,
+        b: &NdTensor<f32>,
+        op: fn(f32, f32) -> f32,
+    ) -> NdTensor<f32> {
+        // Same-shape fast path
+        if a.shape == b.shape {
+            let data: Vec<f32> = a
+                .data
+                .iter()
+                .zip(b.data.iter())
+                .map(|(&x, &y)| op(x, y))
+                .collect();
+            return NdTensor::from_vec(data, &a.shape);
+        }
+
+        // Scalar fast paths
+        if b.data.len() == 1 {
+            let bv = b.data[0];
+            let data: Vec<f32> = a.data.iter().map(|&x| op(x, bv)).collect();
+            return NdTensor::from_vec(data, &a.shape);
+        }
+        if a.data.len() == 1 {
+            let av = a.data[0];
+            let data: Vec<f32> = b.data.iter().map(|&y| op(av, y)).collect();
+            return NdTensor::from_vec(data, &b.shape);
+        }
+
+        // General broadcasting
+        let out_shape = Self::broadcast_shape(&a.shape, &b.shape);
+        let total: usize = out_shape.iter().product();
+        let ndim = out_shape.len();
+        let mut data = vec![0.0f32; total];
+
+        // Precompute strides for output and padded input shapes
+        let out_strides = compute_strides(&out_shape);
+
+        let pad_a = pad_shape(&a.shape, ndim);
+        let pad_b = pad_shape(&b.shape, ndim);
+        let strides_a = compute_strides(&pad_a);
+        let strides_b = compute_strides(&pad_b);
+
+        let mut idx = vec![0usize; ndim];
+        for flat in 0..total {
+            // Decompose flat index
+            let mut rem = flat;
+            for d in 0..ndim {
+                idx[d] = rem / out_strides[d];
+                rem %= out_strides[d];
+            }
+            // Map to input indices (clamp for broadcast dims)
+            let mut a_off = 0;
+            let mut b_off = 0;
+            for d in 0..ndim {
+                let ai = if pad_a[d] == 1 { 0 } else { idx[d] };
+                let bi = if pad_b[d] == 1 { 0 } else { idx[d] };
+                a_off += ai * strides_a[d];
+                b_off += bi * strides_b[d];
+            }
+            data[flat] = op(a.data[a_off], b.data[b_off]);
+        }
+
+        NdTensor::from_vec(data, &out_shape)
+    }
+}
+
+/// Pad shape to target ndim by prepending 1s.
+fn pad_shape(shape: &[usize], target_ndim: usize) -> Vec<usize> {
+    let mut padded = vec![1usize; target_ndim - shape.len()];
+    padded.extend_from_slice(shape);
+    padded
 }
 
 impl<T: Clone + Default + fmt::Debug> fmt::Debug for NdTensor<T> {
