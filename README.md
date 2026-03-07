@@ -126,8 +126,19 @@ To convert an ONNX model to `.ocnn` format:
 
 ```bash
 cd scripts
-uv run python src/ocrus_scripts/convert_to_ocnn.py --input rec.onnx --output rec.ocnn
+uv run python src/ocrus_scripts/convert_to_ocnn.py rec.onnx -o rec.ocnn
 ```
+
+### `.ocnn` Format
+
+`.ocnn` (**O**crus **N**eural **N**etwork) is a custom binary model format designed for ocrus's pure Rust inference engine (`ocrus-nn`). It eliminates the dependency on ONNX Runtime while enabling zero-copy model loading via `mmap`.
+
+Key characteristics:
+- **mmap-friendly**: Models are loaded directly from disk without parsing overhead
+- **Conv+BN+ReLU fusion**: Batch normalization is fused into convolution weights at conversion time
+- **Fixed-size layer descriptors**: Efficient random access to layer metadata
+- **DAG execution graph**: Supports transformer architectures with residual connections and multi-head attention (v2)
+- **Constant table**: Embedded constant tensors for dynamic shapes and graph parameters
 
 ## Architecture
 
