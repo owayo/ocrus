@@ -16,7 +16,8 @@ use ocrus_layout::{
 use ocrus_preproc::{binarize_adaptive, normalize_line, normalize_line_vertical, to_grayscale};
 use ocrus_recognizer::charset::Charset;
 use ocrus_recognizer::{
-    DictCorrector, GlyphCache, ctc_beam_decode, ctc_greedy_decode, ctc_greedy_decode_masked,
+    CascadeRecognizer, DictCorrector, GlyphCache, ctc_beam_decode, ctc_greedy_decode,
+    ctc_greedy_decode_masked,
 };
 use ocrus_runtime::{InferenceBackend, ModelOptions, OrtBackend, Tensor};
 
@@ -131,6 +132,13 @@ pub fn run(args: RecognizeArgs) -> Result<()> {
     let model = backend
         .load_model(&rec_model_path, &model_opts)
         .context("Failed to load recognition model")?;
+
+    // Cascade recognition (if cascade model specified)
+    let _cascade = engine_config.cascade_model_path.as_ref().map(|_path| {
+        // TODO: Load cascade classifier model when trained
+        // For now, create cascade recognizer that always falls back to CTC
+        CascadeRecognizer::new(engine_config.cascade_threshold)
+    });
 
     // Normalize all lines (rotate vertical columns 90° for the horizontal-input model)
     let is_vertical = orientation == TextOrientation::Vertical;
