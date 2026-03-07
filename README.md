@@ -197,16 +197,16 @@ Available character categories:
 | Category | Content | Count |
 |----------|---------|-------|
 | `halfwidth_alnum` | Half-width alphanumeric (A-Z, a-z, 0-9) | 62 |
-| `halfwidth_symbols` | Half-width symbols (!@#$%&... etc.) | ~32 |
+| `halfwidth_symbols` | Half-width symbols (!@#$%&... etc.) | 32 |
 | `fullwidth_alnum` | Full-width alphanumeric (Ａ-Ｚ, ａ-ｚ, ０-９) | 62 |
-| `fullwidth_symbols` | Full-width symbols, Japanese punctuation (、。「」…) | ~50 |
+| `fullwidth_symbols` | Full-width symbols, Japanese punctuation (、。「」…) | 63 |
 | `hiragana` | Hiragana (あ-ん) | 83 |
-| `katakana` | Katakana (ア-ン) | 86 |
+| `katakana` | Katakana (ア-ヶ) | 86 |
 | `joyo_kanji` | 常用漢字 (2010 revision) | 2,136 |
 | `jis_level1` | JIS X 0208 Level 1 kanji | 2,965 |
 | `jis_level2` | JIS X 0208 Level 2 kanji | 3,390 |
-| `jis_level3` | JIS X 0213 Level 3 kanji | 1,259 |
-| `jis_level4` | JIS X 0213 Level 4 kanji | 2,436 |
+| `jis_level3` | JIS X 0213 Level 3 kanji | 1,233 |
+| `jis_level4` | JIS X 0213 Level 4 kanji | 7,960 |
 
 Available font styles (for `--font-styles`):
 
