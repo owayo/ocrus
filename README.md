@@ -125,8 +125,7 @@ Models are installed to `~/.ocrus/models/` by default. Override with `OCRUS_MODE
 To convert an ONNX model to `.ocnn` format:
 
 ```bash
-cd scripts
-uv run python src/ocrus_scripts/convert_to_ocnn.py rec.onnx -o rec.ocnn
+uv run --project scripts python scripts/src/ocrus_scripts/convert_to_ocnn.py rec.onnx -o ~/.ocrus/models/rec.ocnn
 ```
 
 ### `.ocnn` Format
@@ -181,8 +180,7 @@ The pipeline consists of 4 steps: data generation (Rust) → training (Python/Pa
 git clone https://github.com/PaddlePaddle/PaddleOCR.git /tmp/PaddleOCR
 
 # Install Python training dependencies
-cd scripts
-uv sync --extra train
+uv sync --project scripts --extra train
 ```
 
 ### Step 1: Generate Training Data
@@ -266,12 +264,10 @@ curl -L -o models/pretrained/PP-OCRv5_server_rec_pretrained.pdparams \
 
 ```bash
 # CPU only (default)
-cd scripts
-uv sync --extra train
+uv sync --project scripts --extra train
 
 # GPU (CUDA)
-cd scripts
-uv sync --extra train-gpu
+uv sync --project scripts --extra train-gpu
 ```
 
 #### Training Config
@@ -312,10 +308,8 @@ See the full config reference at `PaddleOCR/configs/rec/PP-OCRv5/PP-OCRv5_server
 #### Run Training
 
 ```bash
-cd scripts
-
 PYTHONPATH=/tmp/PaddleOCR:$PYTHONPATH \
-  uv run --python 3.12 python3 -u /tmp/PaddleOCR/tools/train.py \
+  uv run --project scripts --python 3.12 python3 -u /tmp/PaddleOCR/tools/train.py \
   -c /path/to/your_config.yml
 ```
 
@@ -338,27 +332,28 @@ Global:
 ### Step 4: Export to ONNX
 
 ```bash
-cd scripts
-
 # Export best model to ONNX
-uv run export-onnx \
+uv run --project scripts export-onnx \
   --model /tmp/ocrus_finetune_output/best_accuracy \
   --output rec_finetuned.onnx
 
 # Install as the default model
-uv run export-onnx \
+uv run --project scripts export-onnx \
   --model /tmp/ocrus_finetune_output/best_accuracy \
   --output rec_finetuned.onnx \
   --install   # Copies to ~/.ocrus/models/rec.onnx
+
+# Convert to .ocnn format
+uv run --project scripts python scripts/src/ocrus_scripts/convert_to_ocnn.py \
+  rec_finetuned.onnx -o ~/.ocrus/models/rec.ocnn
 ```
 
 ### Step 5 (Optional): INT8 Quantization
 
 ```bash
-cd scripts
-uv sync --extra quantize
+uv sync --project scripts --extra quantize
 
-uv run quantize \
+uv run --project scripts quantize \
   --input rec_finetuned.onnx \
   --output rec_int8.onnx
 ```
@@ -369,14 +364,16 @@ Run character accuracy tests to evaluate the model and identify weak characters:
 
 ```bash
 # Run accuracy test across all fonts (slow, ~10min)
-cargo test -p ocrus-cli --test char_accuracy -- --ignored
+cargo test -p ocrus-cli --test char_accuracy -- --ignored --nocapture
 
 # A/B test against a quantized model
 OCRUS_QUANTIZED_MODEL=rec_int8.onnx \
-  cargo test -p ocrus-cli --test char_accuracy -- --ignored
+  cargo test -p ocrus-cli --test char_accuracy -- --ignored --nocapture
 ```
 
-Test results are exported to `test_results/failures.json`, which can be fed back into Step 1 (`from-failures`) for targeted retraining.
+Test results are exported to:
+- `logs/char_accuracy_*.log` — Full test log (accuracy per font/category, timing)
+- `test_results/failures.json` — Failed characters (can be fed back into Step 1 `from-failures` for targeted retraining)
 
 ## Development
 
