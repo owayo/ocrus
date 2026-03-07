@@ -15,8 +15,8 @@ pub fn relu_inplace(tensor: &mut NdTensor<f32>) {
         let arr: [f32; 8] = result.into();
         data[offset..offset + 8].copy_from_slice(&arr);
     }
-    for i in (chunks * 8)..data.len() {
-        data[i] = data[i].max(0.0);
+    for val in data.iter_mut().skip(chunks * 8) {
+        *val = val.max(0.0);
     }
 }
 
@@ -36,9 +36,9 @@ pub fn hard_swish_inplace(tensor: &mut NdTensor<f32>) {
         let arr: [f32; 8] = result.into();
         data[offset..offset + 8].copy_from_slice(&arr);
     }
-    for i in (chunks * 8)..data.len() {
-        let x = data[i];
-        data[i] = x * ((x + 3.0).max(0.0).min(6.0)) / 6.0;
+    for val in data.iter_mut().skip(chunks * 8) {
+        let x = *val;
+        *val = x * (x + 3.0).clamp(0.0, 6.0) / 6.0;
     }
 }
 

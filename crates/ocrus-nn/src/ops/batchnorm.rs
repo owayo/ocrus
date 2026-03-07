@@ -23,8 +23,7 @@ pub fn batchnorm_inplace(tensor: &mut NdTensor<f32>, params: &[BnParams]) {
     let spatial = h * w;
 
     for batch in 0..n {
-        for ch in 0..c {
-            let p = &params[ch];
+        for (ch, p) in params.iter().enumerate().take(c) {
             let scale = p.gamma / (p.running_var + p.eps).sqrt();
             let bias = p.beta - p.running_mean * scale;
 
@@ -42,8 +41,8 @@ pub fn batchnorm_inplace(tensor: &mut NdTensor<f32>, params: &[BnParams]) {
                 let arr: [f32; 8] = result.into();
                 slice[o..o + 8].copy_from_slice(&arr);
             }
-            for i in (chunks * 8)..spatial {
-                slice[i] = slice[i] * scale + bias;
+            for val in slice.iter_mut().skip(chunks * 8) {
+                *val = *val * scale + bias;
             }
         }
     }

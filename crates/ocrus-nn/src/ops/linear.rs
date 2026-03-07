@@ -42,7 +42,7 @@ pub fn linear(
                 let off = c * 8;
                 let a = f32x8::from(&in_row[off..off + 8]);
                 let b_v = f32x8::from(&w_row[off..off + 8]);
-                acc = acc + a * b_v;
+                acc += a * b_v;
             }
 
             // Reduce SIMD accumulator
