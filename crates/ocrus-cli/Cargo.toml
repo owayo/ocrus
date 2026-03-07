@@ -27,3 +27,5 @@ ndarray = { workspace = true }
 ab_glyph = "0.2.32"
 imageproc = "0.26.1"
 serde = { workspace = true }
+log = "0.4.29"
+simplelog = "0.12.2"
