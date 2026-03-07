@@ -22,6 +22,7 @@ image = { workspace = true }
 rayon = { workspace = true }
 memmap2 = "0.9.10"
 ndarray = { workspace = true }
+ratatui = "0.30"
 
 [dev-dependencies]
 ab_glyph = "0.2.32"

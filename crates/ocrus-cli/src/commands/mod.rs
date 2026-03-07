@@ -1,6 +1,7 @@
 pub mod bench;
 pub mod dataset;
 pub mod recognize;
+pub mod tui;
 
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
@@ -21,6 +22,8 @@ pub enum Commands {
     Bench(BenchArgs),
     /// Generate training dataset
     Dataset(DatasetArgs),
+    /// Interactive TUI for OCR operations
+    Tui,
 }
 
 #[derive(Parser)]

@@ -20,5 +20,6 @@ fn main() -> Result<()> {
                 commands::dataset::run_from_failures(fail_args)
             }
         },
+        Commands::Tui => commands::tui::run(),
     }
 }
