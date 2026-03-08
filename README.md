@@ -32,6 +32,7 @@
 - 自作推論エンジン `ocrus-nn`：純 Rust、ONNX Runtime 依存ゼロ
 - `.ocnn` バイナリモデルフォーマット（mmap 対応、Conv+BN+ReLU 融合）
 - CTC デコード：Greedy + 低信頼行への Beam Search フォールバック
+- CTC デコーダ堅牢化：短い logits や NaN 入力でもパニックせず安全に処理
 - JIS X 0208 文字セットによる logit マスキング
 - Aho-Corasick 辞書による後処理補正
 - メモリマップドファイルによるゼロコピー I/O

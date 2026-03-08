@@ -73,6 +73,7 @@ ocrus bench image.png                          # Run benchmarks
 - **Vertical text**: Auto-detection of text orientation with right-to-left column ordering
 - **Sauvola binarization**: Adaptive local thresholding with integral image acceleration
 - **CTC beam search**: Prefix beam search for low-confidence lines (conditional LM)
+- **Robust CTC decoding**: Handles short logits and NaN inputs without panicking
 - **EngineConfig API**: Builder pattern for library-level OCR configuration
 - **Glyph cache**: Perceptual hash (`img_hash`) for caching recognized characters
 - **JPEG detection**: Fast JPEG magic byte detection and format-specific decoding

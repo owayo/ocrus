@@ -32,6 +32,7 @@
 - Custom inference engine (`ocrus-nn`): pure Rust, no ONNX Runtime dependency
 - `.ocnn` binary model format (mmap-friendly, Conv+BN+ReLU fusion)
 - CTC decode: greedy + beam search fallback for low-confidence lines
+- Robust CTC decoding: safely handles short logits and NaN inputs without panicking
 - JIS X 0208 charset logit masking
 - Aho-Corasick dictionary post-correction
 - Zero-copy I/O via memory-mapped files
