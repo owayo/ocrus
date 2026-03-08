@@ -344,6 +344,10 @@ fn char_accuracy_test() {
             let mut cat_correct_q = 0usize;
             let mut cat_total_q = 0usize;
 
+            let total_chars = chars.len();
+            let mut processed_chars = 0usize;
+            let cat_start = std::time::Instant::now();
+
             for batch in chars.chunks(BATCH_SIZE) {
                 let batch_str: String = batch.iter().collect();
                 let img = render_text_image(&font, &batch_str);
@@ -357,6 +361,23 @@ fn char_accuracy_test() {
                 let (correct, total) = char_accuracy(&batch_str, &recognized);
                 cat_correct += correct;
                 cat_total += total;
+
+                // Progress log every 100 chars
+                processed_chars += batch.len();
+                if processed_chars % 100 < BATCH_SIZE || processed_chars == total_chars {
+                    let elapsed = cat_start.elapsed().as_secs();
+                    let pct_done = processed_chars as f64 / total_chars as f64 * 100.0;
+                    let eta = if processed_chars > 0 {
+                        let remaining = elapsed as f64 / processed_chars as f64
+                            * (total_chars - processed_chars) as f64;
+                        format!("ETA {:.0}s", remaining)
+                    } else {
+                        "ETA --".to_string()
+                    };
+                    info!(
+                        "    {category}: {processed_chars}/{total_chars} ({pct_done:.0}%) {elapsed}s elapsed, {eta}"
+                    );
+                }
 
                 let rec_chars: Vec<char> =
                     recognized.chars().filter(|c| !c.is_whitespace()).collect();
