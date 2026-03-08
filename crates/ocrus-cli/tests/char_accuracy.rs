@@ -66,7 +66,7 @@ struct FontConfig {
 }
 
 fn load_fonts(workspace_root: &Path) -> Vec<FontEntry> {
-    let config_path = workspace_root.join("data/test_fonts.yml");
+    let config_path = workspace_root.join("test_fonts.yml");
     let content = std::fs::read_to_string(&config_path).unwrap_or_else(|e| {
         panic!(
             "Failed to read font config at {}: {e}",
@@ -74,7 +74,7 @@ fn load_fonts(workspace_root: &Path) -> Vec<FontEntry> {
         )
     });
     let config: FontListConfig =
-        serde_yaml::from_str(&content).expect("Failed to parse data/test_fonts.yml");
+        serde_yaml::from_str(&content).expect("Failed to parse test_fonts.yml");
 
     let fonts_dir = workspace_root.join("fonts");
     assert!(
