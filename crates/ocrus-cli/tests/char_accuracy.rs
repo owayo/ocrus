@@ -22,20 +22,28 @@ use ocrus_nn::{NnEngine, Tensor};
 use ocrus_preproc::{binarize_adaptive, normalize_line, to_grayscale};
 use ocrus_recognizer::{charset::Charset, ctc_greedy_decode};
 
-const CATEGORIES: &[&str] = &[
-    "halfwidth_alnum",
-    "fullwidth_alnum",
-    "hiragana",
-    "katakana",
-    "jis_level1",
-    "jis_level2",
-    "jis_level3",
-    "jis_level4",
-];
-
 const BATCH_SIZE: usize = 15;
 const FONT_SIZE: f32 = 48.0;
 const PADDING: u32 = 20;
+
+// Step definitions: name -> categories
+const STEPS: &[(&str, &[&str])] = &[
+    (
+        "step1",
+        &[
+            "halfwidth_alnum",
+            "halfwidth_symbols",
+            "fullwidth_alnum",
+            "fullwidth_symbols",
+        ],
+    ),
+    ("step2", &["hiragana", "katakana"]),
+    ("step3_joyo", &["joyo_kanji"]),
+    ("step3_jis1", &["jis_level1"]),
+    ("step3_jis2", &["jis_level2"]),
+    ("step3_jis3", &["jis_level3"]),
+    ("step3_jis4", &["jis_level4"]),
+];
 
 struct FontEntry {
     name: String,
@@ -228,9 +236,39 @@ fn char_accuracy(expected: &str, recognized: &str) -> (usize, usize) {
     (correct, total)
 }
 
-#[test]
-#[ignore]
-fn char_accuracy_test() {
+/// Resolve which categories to test based on step name.
+/// Returns None if step name is invalid.
+fn resolve_categories(step: &str) -> Option<Vec<&'static str>> {
+    // "all" runs everything
+    if step == "all" {
+        return Some(
+            STEPS
+                .iter()
+                .flat_map(|(_, cats)| cats.iter().copied())
+                .collect(),
+        );
+    }
+    // "step3" runs all kanji steps
+    if step == "step3" {
+        return Some(
+            STEPS
+                .iter()
+                .filter(|(name, _)| name.starts_with("step3"))
+                .flat_map(|(_, cats)| cats.iter().copied())
+                .collect(),
+        );
+    }
+    // Exact match (step1, step2, step3_joyo, step3_jis1, ...)
+    for (name, cats) in STEPS {
+        if *name == step {
+            return Some(cats.to_vec());
+        }
+    }
+    None
+}
+
+/// Core test runner shared by all step-specific tests.
+fn run_accuracy_test(categories: &[&str], step_label: &str) {
     let workspace_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .unwrap()
@@ -263,7 +301,7 @@ fn char_accuracy_test() {
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_secs();
-    let log_path = logs_dir.join(format!("char_accuracy_{now}.log"));
+    let log_path = logs_dir.join(format!("char_accuracy_{step_label}_{now}.log"));
     let log_file = std::fs::File::create(&log_path).expect("Failed to create log file");
 
     use simplelog::{
@@ -285,6 +323,8 @@ fn char_accuracy_test() {
     ])
     .expect("Failed to init logger");
 
+    info!("Step: {step_label}");
+    info!("Categories: {}", categories.join(", "));
     info!("Log file: {}", log_path.display());
 
     let engine = NnEngine::new().expect("Failed to create NnEngine");
@@ -324,21 +364,23 @@ fn char_accuracy_test() {
     // Setup results directory and Ctrl+C handler
     let results_dir = workspace_root.join("test_results");
     std::fs::create_dir_all(&results_dir).ok();
+    let failures_path = results_dir.join(format!("failures_{step_label}.json"));
 
     let interrupted = Arc::new(AtomicBool::new(false));
     {
         let interrupted = Arc::clone(&interrupted);
         let all_failures = Arc::clone(&all_failures);
-        let results_dir = results_dir.clone();
+        let failures_path = failures_path.clone();
         ctrlc::set_handler(move || {
             interrupted.store(true, Ordering::SeqCst);
             let failures = all_failures.lock().unwrap();
             if !failures.is_empty() {
                 let json = serde_json::to_string_pretty(&*failures).unwrap();
-                std::fs::write(results_dir.join("failures.json"), &json).ok();
+                std::fs::write(&failures_path, &json).ok();
                 eprintln!(
-                    "\nInterrupted. Saved {} failures to test_results/failures.json",
-                    failures.len()
+                    "\nInterrupted. Saved {} failures to {}",
+                    failures.len(),
+                    failures_path.display()
                 );
             }
             std::process::exit(1);
@@ -357,7 +399,7 @@ fn char_accuracy_test() {
 
         info!("=== Font: {} ===", font_entry.name);
 
-        for &category in CATEGORIES {
+        for &category in categories {
             let chars = match load_category_chars(&workspace_root, category) {
                 Some(c) => c,
                 None => {
@@ -471,28 +513,28 @@ fn char_accuracy_test() {
             // Save failures incrementally after each category
             {
                 let failures = all_failures.lock().unwrap();
-                if !failures.is_empty() {
-                    let json = serde_json::to_string_pretty(&*failures).unwrap();
-                    std::fs::write(results_dir.join("failures.json"), &json).ok();
-                    info!(
-                        "  -> Saved {} failures so far to test_results/failures.json",
-                        failures.len()
-                    );
-                }
+                let json = serde_json::to_string_pretty(&*failures).unwrap();
+                std::fs::write(&failures_path, &json).ok();
+                info!(
+                    "  -> Saved {} failures to {}",
+                    failures.len(),
+                    failures_path.display()
+                );
             }
         }
     }
 
     let failures = all_failures.lock().unwrap();
     let failures_json = serde_json::to_string_pretty(&*failures).unwrap();
-    std::fs::write(results_dir.join("failures.json"), &failures_json).unwrap();
+    std::fs::write(&failures_path, &failures_json).unwrap();
     info!(
-        "Exported {} failures to test_results/failures.json",
-        failures.len()
+        "Exported {} failures to {}",
+        failures.len(),
+        failures_path.display()
     );
 
-    info!("=== Overall Accuracy ===");
-    for &category in CATEGORIES {
+    info!("=== Overall Accuracy ({step_label}) ===");
+    for &category in categories {
         if let Some(&(correct, total)) = overall.get(category) {
             let pct = if total > 0 {
                 correct as f64 / total as f64 * 100.0
@@ -536,4 +578,70 @@ fn char_accuracy_test() {
     }
 
     info!("Log saved to: {}", log_path.display());
+}
+
+// --- Step-specific test functions ---
+
+/// Step 1: Half-width & full-width alphanumeric + symbols
+#[test]
+#[ignore]
+fn char_accuracy_step1() {
+    let cats = resolve_categories("step1").unwrap();
+    run_accuracy_test(&cats, "step1");
+}
+
+/// Step 2: Hiragana & Katakana
+#[test]
+#[ignore]
+fn char_accuracy_step2() {
+    let cats = resolve_categories("step2").unwrap();
+    run_accuracy_test(&cats, "step2");
+}
+
+/// Step 3 (Joyo): Joyo kanji (2,136 chars)
+#[test]
+#[ignore]
+fn char_accuracy_step3_joyo() {
+    let cats = resolve_categories("step3_joyo").unwrap();
+    run_accuracy_test(&cats, "step3_joyo");
+}
+
+/// Step 3 (JIS1): JIS X 0208 Level 1 kanji (2,965 chars)
+#[test]
+#[ignore]
+fn char_accuracy_step3_jis1() {
+    let cats = resolve_categories("step3_jis1").unwrap();
+    run_accuracy_test(&cats, "step3_jis1");
+}
+
+/// Step 3 (JIS2): JIS X 0208 Level 2 kanji (3,390 chars)
+#[test]
+#[ignore]
+fn char_accuracy_step3_jis2() {
+    let cats = resolve_categories("step3_jis2").unwrap();
+    run_accuracy_test(&cats, "step3_jis2");
+}
+
+/// Step 3 (JIS3): JIS X 0213 Level 3 kanji (1,233 chars)
+#[test]
+#[ignore]
+fn char_accuracy_step3_jis3() {
+    let cats = resolve_categories("step3_jis3").unwrap();
+    run_accuracy_test(&cats, "step3_jis3");
+}
+
+/// Step 3 (JIS4): JIS X 0213 Level 4 kanji (7,960 chars)
+#[test]
+#[ignore]
+fn char_accuracy_step3_jis4() {
+    let cats = resolve_categories("step3_jis4").unwrap();
+    run_accuracy_test(&cats, "step3_jis4");
+}
+
+/// All categories (full test)
+#[test]
+#[ignore]
+fn char_accuracy_all() {
+    let cats = resolve_categories("all").unwrap();
+    run_accuracy_test(&cats, "all");
 }
