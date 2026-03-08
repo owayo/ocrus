@@ -1,5 +1,5 @@
-/// Character set for CTC decoding (PaddleOCR convention).
-/// Characters are indexed 0..N-1, blank token is the last index (N).
+/// Character set for CTC decoding.
+/// Index 0 is reserved for blank (PaddleOCR CTC convention).
 #[derive(Debug, Clone)]
 pub struct Charset {
     chars: Vec<char>,
@@ -7,7 +7,7 @@ pub struct Charset {
 
 impl Charset {
     /// Create a charset from a list of characters.
-    /// Blank token is automatically appended at the end (PaddleOCR convention).
+    /// Blank (index 0) is automatically prepended.
     pub fn from_chars(chars: &[char]) -> Self {
         Self {
             chars: chars.to_vec(),
@@ -25,9 +25,9 @@ impl Charset {
         Ok(Self { chars })
     }
 
-    /// Blank token index (last index, PaddleOCR convention).
+    /// Blank token index (always 0).
     pub fn blank_index(&self) -> usize {
-        self.chars.len()
+        0
     }
 
     /// Number of classes including blank.
@@ -35,9 +35,13 @@ impl Charset {
         self.chars.len() + 1
     }
 
-    /// Get character for a given index. Blank index → None.
+    /// Get character for a given index (index 0 = blank → None).
     pub fn index_to_char(&self, index: usize) -> Option<char> {
-        self.chars.get(index).copied()
+        if index == 0 {
+            None
+        } else {
+            self.chars.get(index - 1).copied()
+        }
     }
 
     /// Create a built-in JIS X 0208 charset.
@@ -138,8 +142,8 @@ impl Charset {
     pub fn logit_mask(&self, full_charset: &Charset) -> Vec<bool> {
         let mut mask = vec![false; full_charset.num_classes()];
         // blank is always allowed
-        mask[full_charset.blank_index()] = true;
-        for (i, slot) in mask.iter_mut().enumerate() {
+        mask[0] = true;
+        for (i, slot) in mask.iter_mut().enumerate().skip(1) {
             if let Some(ch) = full_charset.index_to_char(i)
                 && self.contains(ch)
             {
@@ -162,12 +166,11 @@ mod tests {
     #[test]
     fn test_charset_basics() {
         let cs = Charset::from_chars(&['あ', 'い', 'う']);
-        assert_eq!(cs.num_classes(), 4); // 3 chars + blank
-        assert_eq!(cs.blank_index(), 3); // blank is last
-        assert_eq!(cs.index_to_char(0), Some('あ'));
-        assert_eq!(cs.index_to_char(1), Some('い'));
-        assert_eq!(cs.index_to_char(2), Some('う'));
-        assert_eq!(cs.index_to_char(3), None); // blank
+        assert_eq!(cs.num_classes(), 4); // blank + 3
+        assert_eq!(cs.blank_index(), 0);
+        assert_eq!(cs.index_to_char(0), None);
+        assert_eq!(cs.index_to_char(1), Some('あ'));
+        assert_eq!(cs.index_to_char(3), Some('う'));
         assert_eq!(cs.index_to_char(4), None);
     }
 
@@ -192,11 +195,11 @@ mod tests {
         let mask = subset.logit_mask(&full);
         // mask length = num_classes of full = 5
         assert_eq!(mask.len(), 5);
-        assert!(mask[0]); // 'a'
-        assert!(!mask[1]); // 'b'
-        assert!(mask[2]); // 'c'
-        assert!(!mask[3]); // 'd'
-        assert!(mask[4]); // blank
+        assert!(mask[0]); // blank
+        assert!(mask[1]); // 'a'
+        assert!(!mask[2]); // 'b'
+        assert!(mask[3]); // 'c'
+        assert!(!mask[4]); // 'd'
     }
 
     #[test]

@@ -29,23 +29,18 @@ pub fn ctc_beam_decode(
 
         let mut new_beams: HashMap<String, (f64, f64)> = HashMap::new();
 
-        let blank = charset.blank_index();
-
         for (prefix, &(log_pb, log_pnb)) in &beams {
             let log_p_prefix = log_sum_exp(log_pb, log_pnb);
 
             // Case 1: extend with blank
-            let log_p_blank_new = log_p_prefix + log_probs[blank];
+            let log_p_blank_new = log_p_prefix + log_probs[0];
             let entry = new_beams
                 .entry(prefix.clone())
                 .or_insert((neg_inf, neg_inf));
             entry.0 = log_sum_exp(entry.0, log_p_blank_new);
 
             // Case 2: extend with each character
-            for (c_idx, &log_p_c) in log_probs.iter().enumerate() {
-                if c_idx == blank {
-                    continue;
-                }
+            for (c_idx, &log_p_c) in log_probs.iter().enumerate().skip(1) {
                 let ch = match charset.index_to_char(c_idx) {
                     Some(ch) => ch,
                     None => continue,
@@ -132,12 +127,12 @@ mod tests {
 
     #[test]
     fn test_beam_simple() {
-        // 4 classes: a=0, b=1, c=2, blank=3
+        // 4 classes: blank=0, a=1, b=2, c=3
         let charset = Charset::from_chars(&['a', 'b', 'c']);
         let logits = vec![
-            10.0, -10.0, -10.0, -10.0, // t0: 'a'
-            10.0, -10.0, -10.0, -10.0, // t1: 'a' (repeat)
-            -10.0, 10.0, -10.0, -10.0, // t2: 'b'
+            -10.0, 10.0, -10.0, -10.0, // t0: 'a'
+            -10.0, 10.0, -10.0, -10.0, // t1: 'a' (repeat)
+            -10.0, -10.0, 10.0, -10.0, // t2: 'b'
         ];
         let (text, _conf) = ctc_beam_decode(&logits, 3, 4, &charset, 5);
         assert_eq!(text, "ab");
@@ -145,12 +140,12 @@ mod tests {
 
     #[test]
     fn test_beam_blank_separation() {
-        // 3 classes: a=0, b=1, blank=2
+        // 3 classes: blank=0, a=1, b=2
         let charset = Charset::from_chars(&['a', 'b']);
         let logits = vec![
-            10.0, -10.0, -10.0, // t0: 'a'
-            -10.0, -10.0, 10.0, // t1: blank
-            10.0, -10.0, -10.0, // t2: 'a'
+            -10.0, 10.0, -10.0, // t0: 'a'
+            10.0, -10.0, -10.0, // t1: blank
+            -10.0, 10.0, -10.0, // t2: 'a'
         ];
         let (text, _) = ctc_beam_decode(&logits, 3, 3, &charset, 5);
         assert_eq!(text, "aa");
@@ -158,12 +153,12 @@ mod tests {
 
     #[test]
     fn test_beam_ambiguous_prefers_better_path() {
-        // 3 classes: a=0, b=1, blank=2
+        // 3 classes: blank=0, a=1, b=2
         let charset = Charset::from_chars(&['a', 'b']);
         let logits = vec![
-            -0.1, -10.0, 0.1, // t0: blank slightly better than 'a'
-            -0.1, -10.0, 0.1, // t1: same
-            5.0, -10.0, -10.0, // t2: clearly 'a'
+            0.1, -0.1, -10.0, // t0: blank slightly better than 'a'
+            0.1, -0.1, -10.0, // t1: same
+            -10.0, 5.0, -10.0, // t2: clearly 'a'
         ];
         let (text, _) = ctc_beam_decode(&logits, 3, 3, &charset, 5);
         assert!(!text.is_empty(), "Beam search should find non-empty text");
@@ -171,9 +166,9 @@ mod tests {
 
     #[test]
     fn test_beam_width_1_matches_greedy_text() {
-        // 3 classes: x=0, y=1, blank=2
+        // 3 classes: blank=0, x=1, y=2
         let charset = Charset::from_chars(&['x', 'y']);
-        let logits = vec![10.0, -10.0, -10.0, -10.0, 10.0, -10.0];
+        let logits = vec![-10.0, 10.0, -10.0, -10.0, -10.0, 10.0];
         let (text, _) = ctc_beam_decode(&logits, 2, 3, &charset, 1);
         assert_eq!(text, "xy");
     }
