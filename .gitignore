@@ -38,3 +38,6 @@ __pycache__
 # Log output
 logs/
 
+# Test fonts (local copies)
+fonts/
+

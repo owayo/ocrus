@@ -6,7 +6,7 @@ use ab_glyph::{FontRef, PxScale};
 use image::{DynamicImage, Rgb, RgbImage};
 use imageproc::drawing::{draw_text_mut, text_size};
 use log::info;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use unicode_normalization::UnicodeNormalization;
 
 #[derive(Serialize)]
@@ -52,79 +52,59 @@ struct FontEntry {
     index: u32,
 }
 
-fn discover_fonts() -> Vec<FontEntry> {
-    let known_fonts: Vec<(&str, &str, u32)> = vec![
-        (
-            "HiraginoKakuGothic W3",
-            "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc",
-            0,
-        ),
-        (
-            "HiraginoMincho ProN",
-            "/System/Library/Fonts/ヒラギノ明朝 ProN.ttc",
-            0,
-        ),
-        ("BIZ-UDGothic", "/Library/Fonts/BIZ-UDGothicR.ttc", 0),
-        ("BIZ-UDMincho", "/Library/Fonts/BIZ-UDMinchoM.ttc", 0),
-        (
-            "UDEVGothic",
-            "/Users/owa/Library/Fonts/UDEVGothic-Regular.ttf",
-            0,
-        ),
-    ];
+#[derive(Deserialize)]
+struct FontListConfig {
+    fonts: Vec<FontConfig>,
+}
+
+#[derive(Deserialize)]
+struct FontConfig {
+    name: String,
+    file: String,
+    #[serde(default)]
+    index: u32,
+}
+
+fn load_fonts(workspace_root: &Path) -> Vec<FontEntry> {
+    let config_path = workspace_root.join("data/test_fonts.yml");
+    let content = std::fs::read_to_string(&config_path).unwrap_or_else(|e| {
+        panic!(
+            "Failed to read font config at {}: {e}",
+            config_path.display()
+        )
+    });
+    let config: FontListConfig =
+        serde_yaml::from_str(&content).expect("Failed to parse data/test_fonts.yml");
+
+    let fonts_dir = workspace_root.join("fonts");
+    assert!(
+        fonts_dir.is_dir(),
+        "fonts/ directory not found at {}",
+        fonts_dir.display()
+    );
 
     let mut fonts = Vec::new();
 
-    for (name, path, index) in &known_fonts {
-        let p = Path::new(path);
-        if p.exists()
-            && let Ok(data) = std::fs::read(p)
-        {
-            fonts.push(FontEntry {
-                name: name.to_string(),
-                data,
-                index: *index,
-            });
+    for fc in &config.fonts {
+        let font_path = fonts_dir.join(&fc.file);
+        if !font_path.exists() {
+            eprintln!(
+                "Font not found, skipping: {} ({})",
+                fc.name,
+                font_path.display()
+            );
+            continue;
         }
-    }
-
-    let scan_dirs = [
-        PathBuf::from("/System/Library/Fonts"),
-        PathBuf::from("/Library/Fonts"),
-        dirs_home().join("Library/Fonts"),
-    ];
-
-    let known_paths: Vec<PathBuf> = known_fonts
-        .iter()
-        .map(|(_, p, _)| PathBuf::from(p))
-        .collect();
-
-    for dir in &scan_dirs {
-        if let Ok(entries) = std::fs::read_dir(dir) {
-            for entry in entries.flatten() {
-                let path = entry.path();
-                if known_paths.contains(&path) {
-                    continue;
-                }
-                let ext = path
-                    .extension()
-                    .and_then(|e| e.to_str())
-                    .unwrap_or("")
-                    .to_lowercase();
-                if matches!(ext.as_str(), "ttf" | "otf" | "ttc")
-                    && let Ok(data) = std::fs::read(&path)
-                {
-                    let name = path
-                        .file_stem()
-                        .and_then(|s| s.to_str())
-                        .unwrap_or("unknown")
-                        .to_string();
-                    fonts.push(FontEntry {
-                        name,
-                        data,
-                        index: 0,
-                    });
-                }
+        match std::fs::read(&font_path) {
+            Ok(data) => {
+                fonts.push(FontEntry {
+                    name: fc.name.clone(),
+                    data,
+                    index: fc.index,
+                });
+            }
+            Err(e) => {
+                eprintln!("Failed to read font {}: {e}", font_path.display());
             }
         }
     }
@@ -361,8 +341,8 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
             .expect("Failed to load quantized model")
     });
 
-    let fonts = discover_fonts();
-    assert!(!fonts.is_empty(), "No fonts found on this system");
+    let fonts = load_fonts(&workspace_root);
+    assert!(!fonts.is_empty(), "No fonts found in fonts/ directory");
 
     let mut overall: std::collections::HashMap<String, (usize, usize)> =
         std::collections::HashMap::new();
