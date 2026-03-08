@@ -29,8 +29,6 @@ models/pretrained/
 # Model directory
 .ocrus/
 
-# Test results
-test_results/
 
 .ruff_cache
 __pycache__

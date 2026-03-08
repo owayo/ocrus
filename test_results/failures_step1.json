@@ -1,0 +1,3397 @@
+[
+  {
+    "character": "P",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "P",
+    "recognized": "ｐ"
+  },
+  {
+    "character": "u",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "u",
+    "recognized": "ü"
+  },
+  {
+    "character": "1",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "1",
+    "recognized": ""
+  },
+  {
+    "character": "z",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "z",
+    "recognized": "Ｚ"
+  },
+  {
+    "character": "v",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "v",
+    "recognized": "V"
+  },
+  {
+    "character": "X",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "X",
+    "recognized": "×"
+  },
+  {
+    "character": "w",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "w",
+    "recognized": "W"
+  },
+  {
+    "character": "Y",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "Y",
+    "recognized": ""
+  },
+  {
+    "character": "o",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "o",
+    "recognized": "0"
+  },
+  {
+    "character": "U",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "U",
+    "recognized": ""
+  },
+  {
+    "character": "x",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "x",
+    "recognized": "X"
+  },
+  {
+    "character": "H",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "H",
+    "recognized": "日"
+  },
+  {
+    "character": "c",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "c",
+    "recognized": "C"
+  },
+  {
+    "character": "s",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "s",
+    "recognized": "S"
+  },
+  {
+    "character": "l",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "l",
+    "recognized": ""
+  },
+  {
+    "character": "L",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "L",
+    "recognized": ""
+  },
+  {
+    "character": "J",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "J",
+    "recognized": ""
+  },
+  {
+    "character": "O",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "O",
+    "recognized": "０"
+  },
+  {
+    "character": "i",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "i",
+    "recognized": "c"
+  },
+  {
+    "character": "j",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "j",
+    "recognized": "c"
+  },
+  {
+    "character": "]",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "]",
+    "recognized": ""
+  },
+  {
+    "character": "#",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "#",
+    "recognized": ""
+  },
+  {
+    "character": "|",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "|",
+    "recognized": ""
+  },
+  {
+    "character": "\"",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "\"",
+    "recognized": "7"
+  },
+  {
+    "character": "}",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "}",
+    "recognized": ""
+  },
+  {
+    "character": "'",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "'",
+    "recognized": "c"
+  },
+  {
+    "character": "^",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "^",
+    "recognized": "（"
+  },
+  {
+    "character": ",",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": ",",
+    "recognized": "（"
+  },
+  {
+    "character": "!",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "!",
+    "recognized": "c"
+  },
+  {
+    "character": ";",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": ";",
+    "recognized": "c"
+  },
+  {
+    "character": "/",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "/",
+    "recognized": ""
+  },
+  {
+    "character": "~",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "~",
+    "recognized": "c"
+  },
+  {
+    "character": ">",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": ">",
+    "recognized": "V"
+  },
+  {
+    "character": "[",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "[",
+    "recognized": ""
+  },
+  {
+    "character": "\\",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "\\",
+    "recognized": "￥"
+  },
+  {
+    "character": ".",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": ".",
+    "recognized": "2"
+  },
+  {
+    "character": "`",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "`",
+    "recognized": "c"
+  },
+  {
+    "character": "-",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "-",
+    "recognized": "c"
+  },
+  {
+    "character": ":",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": ":",
+    "recognized": "c"
+  },
+  {
+    "character": "_",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "_",
+    "recognized": "c"
+  },
+  {
+    "character": "=",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "=",
+    "recognized": "c"
+  },
+  {
+    "character": "Ｈ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "Ｈ",
+    "recognized": ""
+  },
+  {
+    "character": "Ｌ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "Ｌ",
+    "recognized": "厂"
+  },
+  {
+    "character": "Ｙ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "Ｙ",
+    "recognized": ""
+  },
+  {
+    "character": "Ｊ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "Ｊ",
+    "recognized": "」"
+  },
+  {
+    "character": "Ｏ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "Ｏ",
+    "recognized": "〇"
+  },
+  {
+    "character": "ｃ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ｃ",
+    "recognized": "C"
+  },
+  {
+    "character": "Ｔ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "Ｔ",
+    "recognized": ""
+  },
+  {
+    "character": "ｍ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ｍ",
+    "recognized": "3"
+  },
+  {
+    "character": "ｏ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ｏ",
+    "recognized": "。"
+  },
+  {
+    "character": "ｓ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ｓ",
+    "recognized": "Ｓ"
+  },
+  {
+    "character": "ｖ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ｖ",
+    "recognized": "V"
+  },
+  {
+    "character": "Ｕ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "Ｕ",
+    "recognized": "C"
+  },
+  {
+    "character": "ｎ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ｎ",
+    "recognized": ""
+  },
+  {
+    "character": "Ｖ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "Ｖ",
+    "recognized": "<"
+  },
+  {
+    "character": "０",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "０",
+    "recognized": "Ｏ"
+  },
+  {
+    "character": "ｘ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ｘ",
+    "recognized": "X"
+  },
+  {
+    "character": "１",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "１",
+    "recognized": ""
+  },
+  {
+    "character": "ｚ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ｚ",
+    "recognized": "Ｚ"
+  },
+  {
+    "character": "ｌ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ｌ",
+    "recognized": ""
+  },
+  {
+    "character": "ｉ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ｉ",
+    "recognized": "c"
+  },
+  {
+    "character": "ｊ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ｊ",
+    "recognized": "c"
+  },
+  {
+    "character": "＼",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "＼",
+    "recognized": ""
+  },
+  {
+    "character": "，",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "，",
+    "recognized": "（"
+  },
+  {
+    "character": "＂",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "＂",
+    "recognized": ""
+  },
+  {
+    "character": "］",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "］",
+    "recognized": ""
+  },
+  {
+    "character": "＇",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "＇",
+    "recognized": "a"
+  },
+  {
+    "character": "～",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "～",
+    "recognized": "l"
+  },
+  {
+    "character": "、",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "、",
+    "recognized": ""
+  },
+  {
+    "character": "〔",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "〔",
+    "recognized": ""
+  },
+  {
+    "character": "！",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "！",
+    "recognized": "c"
+  },
+  {
+    "character": "〕",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "〕",
+    "recognized": ""
+  },
+  {
+    "character": "．",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "．",
+    "recognized": "c"
+  },
+  {
+    "character": "＾",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "＾",
+    "recognized": "c"
+  },
+  {
+    "character": "〖",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "〖",
+    "recognized": ""
+  },
+  {
+    "character": "。",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "。",
+    "recognized": "0"
+  },
+  {
+    "character": "｀",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "｀",
+    "recognized": "c"
+  },
+  {
+    "character": "／",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "／",
+    "recognized": ""
+  },
+  {
+    "character": "〗",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "〗",
+    "recognized": ""
+  },
+  {
+    "character": "｜",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "｜",
+    "recognized": ""
+  },
+  {
+    "character": "「",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "「",
+    "recognized": ""
+  },
+  {
+    "character": "：",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "：",
+    "recognized": "c"
+  },
+  {
+    "character": "｝",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "｝",
+    "recognized": ""
+  },
+  {
+    "character": "－",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "－",
+    "recognized": "c"
+  },
+  {
+    "character": "【",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "【",
+    "recognized": ""
+  },
+  {
+    "character": "［",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "［",
+    "recognized": ""
+  },
+  {
+    "character": "†",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "†",
+    "recognized": "十"
+  },
+  {
+    "character": "‡",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "‡",
+    "recognized": "年"
+  },
+  {
+    "character": "…",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "…",
+    "recognized": "c"
+  },
+  {
+    "character": "‥",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "‥",
+    "recognized": "c"
+  },
+  {
+    "character": "§",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "§",
+    "recognized": ""
+  },
+  {
+    "character": "※",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "※",
+    "recognized": ""
+  },
+  {
+    "character": "♪",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "♪",
+    "recognized": "」"
+  },
+  {
+    "character": "¶",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "¶",
+    "recognized": ""
+  },
+  {
+    "character": "；",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "；",
+    "recognized": "c"
+  },
+  {
+    "character": "〈",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "〈",
+    "recognized": "く"
+  },
+  {
+    "character": "〒",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "〒",
+    "recognized": "c"
+  },
+  {
+    "character": "〜",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "〜",
+    "recognized": "l"
+  },
+  {
+    "character": "・",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "・",
+    "recognized": "（"
+  },
+  {
+    "character": "＿",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "＿",
+    "recognized": "c"
+  },
+  {
+    "character": "ー",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ー",
+    "recognized": "c"
+  },
+  {
+    "character": "＝",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDGothic",
+    "expected": "＝",
+    "recognized": "c"
+  },
+  {
+    "character": "v",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "v",
+    "recognized": "V"
+  },
+  {
+    "character": "w",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "w",
+    "recognized": "W"
+  },
+  {
+    "character": "O",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "O",
+    "recognized": "０"
+  },
+  {
+    "character": "c",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "c",
+    "recognized": "C"
+  },
+  {
+    "character": "x",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "x",
+    "recognized": "X"
+  },
+  {
+    "character": "W",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "W",
+    "recognized": "w"
+  },
+  {
+    "character": "z",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "z",
+    "recognized": "Z"
+  },
+  {
+    "character": "l",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "l",
+    "recognized": ""
+  },
+  {
+    "character": "o",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "o",
+    "recognized": "0"
+  },
+  {
+    "character": "s",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "s",
+    "recognized": "S"
+  },
+  {
+    "character": "i",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "i",
+    "recognized": "c"
+  },
+  {
+    "character": "j",
+    "category": "halfwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "j",
+    "recognized": "c"
+  },
+  {
+    "character": "$",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "$",
+    "recognized": ""
+  },
+  {
+    "character": "]",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "]",
+    "recognized": ""
+  },
+  {
+    "character": "\"",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "\"",
+    "recognized": "2"
+  },
+  {
+    "character": "'",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "'",
+    "recognized": ""
+  },
+  {
+    "character": "+",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "+",
+    "recognized": "十"
+  },
+  {
+    "character": "{",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "{",
+    "recognized": ""
+  },
+  {
+    "character": "|",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "|",
+    "recognized": ""
+  },
+  {
+    "character": "^",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "^",
+    "recognized": "c"
+  },
+  {
+    "character": "}",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "}",
+    "recognized": ""
+  },
+  {
+    "character": "!",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "!",
+    "recognized": "c"
+  },
+  {
+    "character": "[",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "[",
+    "recognized": ""
+  },
+  {
+    "character": ";",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": ";",
+    "recognized": "c"
+  },
+  {
+    "character": "\\",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "\\",
+    "recognized": "￥"
+  },
+  {
+    "character": "/",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "/",
+    "recognized": ""
+  },
+  {
+    "character": "`",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "`",
+    "recognized": "c"
+  },
+  {
+    "character": "~",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "~",
+    "recognized": "（"
+  },
+  {
+    "character": "-",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "-",
+    "recognized": "c"
+  },
+  {
+    "character": ".",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": ".",
+    "recognized": "（"
+  },
+  {
+    "character": ":",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": ":",
+    "recognized": "c"
+  },
+  {
+    "character": "_",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "_",
+    "recognized": "c"
+  },
+  {
+    "character": "=",
+    "category": "halfwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "=",
+    "recognized": "c"
+  },
+  {
+    "character": "Ｏ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "Ｏ",
+    "recognized": ""
+  },
+  {
+    "character": "Ｗ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "Ｗ",
+    "recognized": "w"
+  },
+  {
+    "character": "ｌ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ｌ",
+    "recognized": "１"
+  },
+  {
+    "character": "ｃ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ｃ",
+    "recognized": "C"
+  },
+  {
+    "character": "ｘ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ｘ",
+    "recognized": "X"
+  },
+  {
+    "character": "ｚ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ｚ",
+    "recognized": "c"
+  },
+  {
+    "character": "ｉ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ｉ",
+    "recognized": "c"
+  },
+  {
+    "character": "ｊ",
+    "category": "fullwidth_alnum",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ｊ",
+    "recognized": "c"
+  },
+  {
+    "character": "（",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "（",
+    "recognized": ""
+  },
+  {
+    "character": "〔",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "〔",
+    "recognized": ""
+  },
+  {
+    "character": "＇",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "＇",
+    "recognized": ""
+  },
+  {
+    "character": "＂",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "＂",
+    "recognized": ""
+  },
+  {
+    "character": "～",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "～",
+    "recognized": ""
+  },
+  {
+    "character": "＋",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "＋",
+    "recognized": "十"
+  },
+  {
+    "character": "〕",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "〕",
+    "recognized": ""
+  },
+  {
+    "character": "」",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "」",
+    "recognized": ""
+  },
+  {
+    "character": "〖",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "〖",
+    "recognized": ""
+  },
+  {
+    "character": "『",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "『",
+    "recognized": "「"
+  },
+  {
+    "character": "〗",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "〗",
+    "recognized": ""
+  },
+  {
+    "character": "、",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "、",
+    "recognized": "（"
+  },
+  {
+    "character": "【",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "【",
+    "recognized": ""
+  },
+  {
+    "character": "！",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "！",
+    "recognized": "（"
+  },
+  {
+    "character": "／",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "／",
+    "recognized": ""
+  },
+  {
+    "character": "＼",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "＼",
+    "recognized": ""
+  },
+  {
+    "character": "］",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "］",
+    "recognized": ""
+  },
+  {
+    "character": "｜",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "｜",
+    "recognized": ""
+  },
+  {
+    "character": "｝",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "｝",
+    "recognized": ""
+  },
+  {
+    "character": "：",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "：",
+    "recognized": "c"
+  },
+  {
+    "character": "＞",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "＞",
+    "recognized": "V"
+  },
+  {
+    "character": "｀",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "｀",
+    "recognized": "（"
+  },
+  {
+    "character": "…",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "…",
+    "recognized": "c"
+  },
+  {
+    "character": "．",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "．",
+    "recognized": "c"
+  },
+  {
+    "character": "｛",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "｛",
+    "recognized": ""
+  },
+  {
+    "character": "＾",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "＾",
+    "recognized": "c"
+  },
+  {
+    "character": "［",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "［",
+    "recognized": ""
+  },
+  {
+    "character": "†",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "†",
+    "recognized": "十"
+  },
+  {
+    "character": "〒",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "〒",
+    "recognized": "c"
+  },
+  {
+    "character": "－",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "－",
+    "recognized": "c"
+  },
+  {
+    "character": "‡",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "‡",
+    "recognized": "年"
+  },
+  {
+    "character": "‥",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "‥",
+    "recognized": "c"
+  },
+  {
+    "character": "§",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "§",
+    "recognized": ""
+  },
+  {
+    "character": "※",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "※",
+    "recognized": ""
+  },
+  {
+    "character": "¶",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "¶",
+    "recognized": ""
+  },
+  {
+    "character": "♪",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "♪",
+    "recognized": "」"
+  },
+  {
+    "character": "ー",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ー",
+    "recognized": "c"
+  },
+  {
+    "character": "〇",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "〇",
+    "recognized": ""
+  },
+  {
+    "character": "；",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "；",
+    "recognized": "c"
+  },
+  {
+    "character": "〈",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "〈",
+    "recognized": "く"
+  },
+  {
+    "character": "〜",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "〜",
+    "recognized": ""
+  },
+  {
+    "character": "・",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "・",
+    "recognized": "c"
+  },
+  {
+    "character": "＿",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "＿",
+    "recognized": "c"
+  },
+  {
+    "character": "＝",
+    "category": "fullwidth_symbols",
+    "font_name": "BIZ-UDMincho",
+    "expected": "＝",
+    "recognized": "c"
+  },
+  {
+    "character": "m",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "m",
+    "recognized": "c"
+  },
+  {
+    "character": "l",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "l",
+    "recognized": ""
+  },
+  {
+    "character": "I",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "I",
+    "recognized": ""
+  },
+  {
+    "character": "L",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "L",
+    "recognized": "厂"
+  },
+  {
+    "character": "v",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "v",
+    "recognized": "V"
+  },
+  {
+    "character": "J",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "J",
+    "recognized": "「"
+  },
+  {
+    "character": "p",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "p",
+    "recognized": "ρ"
+  },
+  {
+    "character": "x",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "x",
+    "recognized": "X"
+  },
+  {
+    "character": "z",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "z",
+    "recognized": "Ｚ"
+  },
+  {
+    "character": "i",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "i",
+    "recognized": "c"
+  },
+  {
+    "character": "s",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "s",
+    "recognized": "Ｓ"
+  },
+  {
+    "character": "0",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "0",
+    "recognized": "。"
+  },
+  {
+    "character": "V",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "V",
+    "recognized": "<"
+  },
+  {
+    "character": "1",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "1",
+    "recognized": ""
+  },
+  {
+    "character": "b",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "b",
+    "recognized": "σ"
+  },
+  {
+    "character": "c",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "c",
+    "recognized": "C"
+  },
+  {
+    "character": "j",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "j",
+    "recognized": "c"
+  },
+  {
+    "character": "]",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "]",
+    "recognized": ""
+  },
+  {
+    "character": "\"",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "\"",
+    "recognized": "c"
+  },
+  {
+    "character": "^",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "^",
+    "recognized": "A"
+  },
+  {
+    "character": "}",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "}",
+    "recognized": ""
+  },
+  {
+    "character": "|",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "|",
+    "recognized": ""
+  },
+  {
+    "character": "+",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "+",
+    "recognized": "十"
+  },
+  {
+    "character": "'",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "'",
+    "recognized": "c"
+  },
+  {
+    "character": ",",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": ",",
+    "recognized": "c"
+  },
+  {
+    "character": "!",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "!",
+    "recognized": "c"
+  },
+  {
+    "character": "/",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "/",
+    "recognized": ""
+  },
+  {
+    "character": ";",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": ";",
+    "recognized": "c"
+  },
+  {
+    "character": "`",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "`",
+    "recognized": "（"
+  },
+  {
+    "character": "~",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "~",
+    "recognized": "c"
+  },
+  {
+    "character": "[",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "[",
+    "recognized": ""
+  },
+  {
+    "character": "\\",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "\\",
+    "recognized": "/"
+  },
+  {
+    "character": "_",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "_",
+    "recognized": "c"
+  },
+  {
+    "character": ".",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": ".",
+    "recognized": "c"
+  },
+  {
+    "character": "-",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "-",
+    "recognized": "c"
+  },
+  {
+    "character": ":",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": ":",
+    "recognized": "c"
+  },
+  {
+    "character": "=",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "=",
+    "recognized": "c"
+  },
+  {
+    "character": "Ｈ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "Ｈ",
+    "recognized": "日"
+  },
+  {
+    "character": "ｕ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｕ",
+    "recognized": "ü"
+  },
+  {
+    "character": "ｍ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｍ",
+    "recognized": "c"
+  },
+  {
+    "character": "Ｉ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "Ｉ",
+    "recognized": ""
+  },
+  {
+    "character": "ｖ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｖ",
+    "recognized": "c"
+  },
+  {
+    "character": "ｎ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｎ",
+    "recognized": "c"
+  },
+  {
+    "character": "Ｊ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "Ｊ",
+    "recognized": "」"
+  },
+  {
+    "character": "ｗ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｗ",
+    "recognized": "W"
+  },
+  {
+    "character": "ｏ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｏ",
+    "recognized": "0"
+  },
+  {
+    "character": "Ｌ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "Ｌ",
+    "recognized": "厂"
+  },
+  {
+    "character": "ｘ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｘ",
+    "recognized": "X"
+  },
+  {
+    "character": "ｒ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｒ",
+    "recognized": "c"
+  },
+  {
+    "character": "Ｗ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "Ｗ",
+    "recognized": "w"
+  },
+  {
+    "character": "ｚ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｚ",
+    "recognized": "Ｚ"
+  },
+  {
+    "character": "ｓ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｓ",
+    "recognized": "Ｓ"
+  },
+  {
+    "character": "ｌ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｌ",
+    "recognized": ""
+  },
+  {
+    "character": "ｃ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｃ",
+    "recognized": "C"
+  },
+  {
+    "character": "１",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "１",
+    "recognized": ""
+  },
+  {
+    "character": "ｉ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｉ",
+    "recognized": "c"
+  },
+  {
+    "character": "ｊ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ｊ",
+    "recognized": "c"
+  },
+  {
+    "character": "＼",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "＼",
+    "recognized": "/"
+  },
+  {
+    "character": "（",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "（",
+    "recognized": ""
+  },
+  {
+    "character": "］",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "］",
+    "recognized": ""
+  },
+  {
+    "character": "～",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "～",
+    "recognized": ""
+  },
+  {
+    "character": "＇",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "＇",
+    "recognized": ""
+  },
+  {
+    "character": "＋",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "＋",
+    "recognized": "十"
+  },
+  {
+    "character": "，",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "，",
+    "recognized": "c"
+  },
+  {
+    "character": "｜",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "｜",
+    "recognized": ""
+  },
+  {
+    "character": "｝",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "｝",
+    "recognized": ""
+  },
+  {
+    "character": "、",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "、",
+    "recognized": ""
+  },
+  {
+    "character": "｀",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "｀",
+    "recognized": "c"
+  },
+  {
+    "character": "｛",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "｛",
+    "recognized": ""
+  },
+  {
+    "character": "＾",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "＾",
+    "recognized": "c"
+  },
+  {
+    "character": "。",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "。",
+    "recognized": "0"
+  },
+  {
+    "character": "《",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "《",
+    "recognized": ""
+  },
+  {
+    "character": "「",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "「",
+    "recognized": "c"
+  },
+  {
+    "character": "〔",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "〔",
+    "recognized": ""
+  },
+  {
+    "character": "！",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "！",
+    "recognized": "c"
+  },
+  {
+    "character": "．",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "．",
+    "recognized": "c"
+  },
+  {
+    "character": "〕",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "〕",
+    "recognized": ""
+  },
+  {
+    "character": "／",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "／",
+    "recognized": ""
+  },
+  {
+    "character": "」",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "」",
+    "recognized": ""
+  },
+  {
+    "character": "〖",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "〖",
+    "recognized": ""
+  },
+  {
+    "character": "〗",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "〗",
+    "recognized": ""
+  },
+  {
+    "character": "『",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "『",
+    "recognized": ""
+  },
+  {
+    "character": "＂",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "＂",
+    "recognized": "（"
+  },
+  {
+    "character": "－",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "－",
+    "recognized": "c"
+  },
+  {
+    "character": "†",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "†",
+    "recognized": "十"
+  },
+  {
+    "character": "』",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "』",
+    "recognized": ""
+  },
+  {
+    "character": "：",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "：",
+    "recognized": "c"
+  },
+  {
+    "character": "‡",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "‡",
+    "recognized": "主"
+  },
+  {
+    "character": "【",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "【",
+    "recognized": ""
+  },
+  {
+    "character": "※",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "※",
+    "recognized": ""
+  },
+  {
+    "character": "§",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "§",
+    "recognized": ""
+  },
+  {
+    "character": "♪",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "♪",
+    "recognized": "」"
+  },
+  {
+    "character": "¶",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "¶",
+    "recognized": ""
+  },
+  {
+    "character": "‥",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "‥",
+    "recognized": "c"
+  },
+  {
+    "character": "＞",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "＞",
+    "recognized": "V"
+  },
+  {
+    "character": "…",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "…",
+    "recognized": "c"
+  },
+  {
+    "character": "〜",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "〜",
+    "recognized": ""
+  },
+  {
+    "character": "［",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "［",
+    "recognized": "「"
+  },
+  {
+    "character": "〈",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "〈",
+    "recognized": "く"
+  },
+  {
+    "character": "・",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "・",
+    "recognized": "c"
+  },
+  {
+    "character": "〒",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "〒",
+    "recognized": "c"
+  },
+  {
+    "character": "＿",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "＿",
+    "recognized": "c"
+  },
+  {
+    "character": "ー",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ー",
+    "recognized": "c"
+  },
+  {
+    "character": "；",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "；",
+    "recognized": "c"
+  },
+  {
+    "character": "＝",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "＝",
+    "recognized": "c"
+  },
+  {
+    "character": "P",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "P",
+    "recognized": "ｐ"
+  },
+  {
+    "character": "I",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "I",
+    "recognized": ""
+  },
+  {
+    "character": "v",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "v",
+    "recognized": "V"
+  },
+  {
+    "character": "o",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "o",
+    "recognized": "0"
+  },
+  {
+    "character": "l",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "l",
+    "recognized": "1"
+  },
+  {
+    "character": "x",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "x",
+    "recognized": "X"
+  },
+  {
+    "character": "z",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "z",
+    "recognized": "Ｚ"
+  },
+  {
+    "character": "O",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "O",
+    "recognized": "0"
+  },
+  {
+    "character": "W",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "W",
+    "recognized": "w"
+  },
+  {
+    "character": "c",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "c",
+    "recognized": "C"
+  },
+  {
+    "character": "i",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "i",
+    "recognized": "c"
+  },
+  {
+    "character": "j",
+    "category": "halfwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "j",
+    "recognized": "c"
+  },
+  {
+    "character": "/",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "/",
+    "recognized": ""
+  },
+  {
+    "character": "\"",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "\"",
+    "recognized": "c"
+  },
+  {
+    "character": "(",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "(",
+    "recognized": ""
+  },
+  {
+    "character": "]",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "]",
+    "recognized": ""
+  },
+  {
+    "character": "'",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "'",
+    "recognized": "c"
+  },
+  {
+    "character": "+",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "+",
+    "recognized": "-"
+  },
+  {
+    "character": "{",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "{",
+    "recognized": ""
+  },
+  {
+    "character": "^",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "^",
+    "recognized": "A"
+  },
+  {
+    "character": "|",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "|",
+    "recognized": ""
+  },
+  {
+    "character": "!",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "!",
+    "recognized": "（"
+  },
+  {
+    "character": "}",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "}",
+    "recognized": ""
+  },
+  {
+    "character": ",",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": ",",
+    "recognized": "c"
+  },
+  {
+    "character": ";",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": ";",
+    "recognized": "（"
+  },
+  {
+    "character": "-",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "-",
+    "recognized": "c"
+  },
+  {
+    "character": "[",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "[",
+    "recognized": ""
+  },
+  {
+    "character": "\\",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "\\",
+    "recognized": ""
+  },
+  {
+    "character": ":",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": ":",
+    "recognized": "（"
+  },
+  {
+    "character": ".",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": ".",
+    "recognized": "c"
+  },
+  {
+    "character": "~",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "~",
+    "recognized": "（"
+  },
+  {
+    "character": "`",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "`",
+    "recognized": "c"
+  },
+  {
+    "character": "_",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "_",
+    "recognized": "c"
+  },
+  {
+    "character": "=",
+    "category": "halfwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "=",
+    "recognized": "c"
+  },
+  {
+    "character": "ｖ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ｖ",
+    "recognized": "V"
+  },
+  {
+    "character": "Ｗ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "Ｗ",
+    "recognized": "w"
+  },
+  {
+    "character": "ｏ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ｏ",
+    "recognized": "0"
+  },
+  {
+    "character": "ｗ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ｗ",
+    "recognized": "W"
+  },
+  {
+    "character": "ｘ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ｘ",
+    "recognized": "X"
+  },
+  {
+    "character": "ｒ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ｒ",
+    "recognized": "c"
+  },
+  {
+    "character": "ｃ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ｃ",
+    "recognized": "C"
+  },
+  {
+    "character": "ｓ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ｓ",
+    "recognized": "S"
+  },
+  {
+    "character": "ｚ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ｚ",
+    "recognized": "c"
+  },
+  {
+    "character": "ｌ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ｌ",
+    "recognized": "１"
+  },
+  {
+    "character": "ｉ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ｉ",
+    "recognized": "c"
+  },
+  {
+    "character": "ｊ",
+    "category": "fullwidth_alnum",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ｊ",
+    "recognized": "c"
+  },
+  {
+    "character": "＼",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "＼",
+    "recognized": ""
+  },
+  {
+    "character": "（",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "（",
+    "recognized": ""
+  },
+  {
+    "character": "＞",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "＞",
+    "recognized": "V"
+  },
+  {
+    "character": "］",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "］",
+    "recognized": ""
+  },
+  {
+    "character": "～",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "～",
+    "recognized": "c"
+  },
+  {
+    "character": "＋",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "＋",
+    "recognized": "十"
+  },
+  {
+    "character": "＇",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "＇",
+    "recognized": ""
+  },
+  {
+    "character": "｀",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "｀",
+    "recognized": "c"
+  },
+  {
+    "character": "、",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "、",
+    "recognized": ""
+  },
+  {
+    "character": "〉",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "〉",
+    "recognized": ">"
+  },
+  {
+    "character": "＾",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "＾",
+    "recognized": "c"
+  },
+  {
+    "character": "｜",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "｜",
+    "recognized": ""
+  },
+  {
+    "character": "！",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "！",
+    "recognized": "c"
+  },
+  {
+    "character": "｝",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "｝",
+    "recognized": ""
+  },
+  {
+    "character": "〔",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "〔",
+    "recognized": ""
+  },
+  {
+    "character": "。",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "。",
+    "recognized": "0"
+  },
+  {
+    "character": "〕",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "〕",
+    "recognized": ""
+  },
+  {
+    "character": "＂",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "＂",
+    "recognized": ""
+  },
+  {
+    "character": "「",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "「",
+    "recognized": ""
+  },
+  {
+    "character": "〖",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "〖",
+    "recognized": ""
+  },
+  {
+    "character": "：",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "：",
+    "recognized": "c"
+  },
+  {
+    "character": "［",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "［",
+    "recognized": ""
+  },
+  {
+    "character": "〗",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "〗",
+    "recognized": ""
+  },
+  {
+    "character": "／",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "／",
+    "recognized": ""
+  },
+  {
+    "character": "」",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "」",
+    "recognized": ""
+  },
+  {
+    "character": "『",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "『",
+    "recognized": ""
+  },
+  {
+    "character": "』",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "』",
+    "recognized": "c"
+  },
+  {
+    "character": "【",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "【",
+    "recognized": ""
+  },
+  {
+    "character": "．",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "．",
+    "recognized": "c"
+  },
+  {
+    "character": "…",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "…",
+    "recognized": ""
+  },
+  {
+    "character": "；",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "；",
+    "recognized": "c"
+  },
+  {
+    "character": "〇",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "〇",
+    "recognized": ""
+  },
+  {
+    "character": "〈",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "〈",
+    "recognized": "<"
+  },
+  {
+    "character": "－",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "－",
+    "recognized": "c"
+  },
+  {
+    "character": "§",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "§",
+    "recognized": ""
+  },
+  {
+    "character": "†",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "†",
+    "recognized": "葉"
+  },
+  {
+    "character": "※",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "※",
+    "recognized": ""
+  },
+  {
+    "character": "¶",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "¶",
+    "recognized": ""
+  },
+  {
+    "character": "‡",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "‡",
+    "recognized": "年"
+  },
+  {
+    "character": "ー",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ー",
+    "recognized": "（"
+  },
+  {
+    "character": "♪",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "♪",
+    "recognized": "」"
+  },
+  {
+    "character": "‥",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "‥",
+    "recognized": "c"
+  },
+  {
+    "character": "〒",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "〒",
+    "recognized": "c"
+  },
+  {
+    "character": "〜",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "〜",
+    "recognized": "c"
+  },
+  {
+    "character": "・",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "・",
+    "recognized": "c"
+  },
+  {
+    "character": "＿",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "＿",
+    "recognized": "c"
+  },
+  {
+    "character": "＝",
+    "category": "fullwidth_symbols",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "＝",
+    "recognized": "c"
+  },
+  {
+    "character": "F",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "F",
+    "recognized": "下"
+  },
+  {
+    "character": "L",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "L",
+    "recognized": ""
+  },
+  {
+    "character": "J",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "J",
+    "recognized": "「"
+  },
+  {
+    "character": "O",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "O",
+    "recognized": "0"
+  },
+  {
+    "character": "X",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "X",
+    "recognized": "×"
+  },
+  {
+    "character": "c",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "c",
+    "recognized": "C"
+  },
+  {
+    "character": "V",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "V",
+    "recognized": "√"
+  },
+  {
+    "character": "U",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "U",
+    "recognized": ""
+  },
+  {
+    "character": "u",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "u",
+    "recognized": "c"
+  },
+  {
+    "character": "m",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "m",
+    "recognized": ""
+  },
+  {
+    "character": "l",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "l",
+    "recognized": "1"
+  },
+  {
+    "character": "v",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "v",
+    "recognized": "<"
+  },
+  {
+    "character": "z",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "z",
+    "recognized": "Ｚ"
+  },
+  {
+    "character": "o",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "o",
+    "recognized": "０"
+  },
+  {
+    "character": "x",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "x",
+    "recognized": "X"
+  },
+  {
+    "character": "i",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "i",
+    "recognized": "c"
+  },
+  {
+    "character": "j",
+    "category": "halfwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "j",
+    "recognized": "c"
+  },
+  {
+    "character": "{",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "{",
+    "recognized": ""
+  },
+  {
+    "character": "]",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "]",
+    "recognized": ""
+  },
+  {
+    "character": "|",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "|",
+    "recognized": ""
+  },
+  {
+    "character": "}",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "}",
+    "recognized": "子"
+  },
+  {
+    "character": "^",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "^",
+    "recognized": "0"
+  },
+  {
+    "character": "[",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "[",
+    "recognized": ""
+  },
+  {
+    "character": "+",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "+",
+    "recognized": "十"
+  },
+  {
+    "character": "'",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "'",
+    "recognized": "c"
+  },
+  {
+    "character": "\\",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "\\",
+    "recognized": "1"
+  },
+  {
+    "character": ",",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": ",",
+    "recognized": "（"
+  },
+  {
+    "character": "~",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "~",
+    "recognized": "c"
+  },
+  {
+    "character": "<",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "<",
+    "recognized": "く"
+  },
+  {
+    "character": "!",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "!",
+    "recognized": "c"
+  },
+  {
+    "character": "?",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "?",
+    "recognized": "っ"
+  },
+  {
+    "character": ";",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": ";",
+    "recognized": "c"
+  },
+  {
+    "character": "/",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "/",
+    "recognized": ""
+  },
+  {
+    "character": "_",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "_",
+    "recognized": "c"
+  },
+  {
+    "character": "\"",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "\"",
+    "recognized": "c"
+  },
+  {
+    "character": "`",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "`",
+    "recognized": "c"
+  },
+  {
+    "character": ".",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": ".",
+    "recognized": "（"
+  },
+  {
+    "character": "-",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "-",
+    "recognized": "c"
+  },
+  {
+    "character": ":",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": ":",
+    "recognized": "c"
+  },
+  {
+    "character": "=",
+    "category": "halfwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "=",
+    "recognized": "c"
+  },
+  {
+    "character": "Ｈ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "Ｈ",
+    "recognized": "工"
+  },
+  {
+    "character": "Ｘ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "Ｘ",
+    "recognized": "×"
+  },
+  {
+    "character": "Ｌ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "Ｌ",
+    "recognized": "厂"
+  },
+  {
+    "character": "Ｊ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "Ｊ",
+    "recognized": "「"
+  },
+  {
+    "character": "ｃ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｃ",
+    "recognized": "C"
+  },
+  {
+    "character": "Ｏ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "Ｏ",
+    "recognized": "o"
+  },
+  {
+    "character": "ｕ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｕ",
+    "recognized": "ú"
+  },
+  {
+    "character": "１",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "１",
+    "recognized": ""
+  },
+  {
+    "character": "ｚ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｚ",
+    "recognized": "Ｚ"
+  },
+  {
+    "character": "ｖ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｖ",
+    "recognized": "w"
+  },
+  {
+    "character": "ｓ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｓ",
+    "recognized": "S"
+  },
+  {
+    "character": "ｒ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｒ",
+    "recognized": ""
+  },
+  {
+    "character": "ｗ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｗ",
+    "recognized": "W"
+  },
+  {
+    "character": "ｏ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｏ",
+    "recognized": "0"
+  },
+  {
+    "character": "ｘ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｘ",
+    "recognized": "X"
+  },
+  {
+    "character": "ｌ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｌ",
+    "recognized": ""
+  },
+  {
+    "character": "ｉ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｉ",
+    "recognized": "c"
+  },
+  {
+    "character": "ｊ",
+    "category": "fullwidth_alnum",
+    "font_name": "UDEVGothic",
+    "expected": "ｊ",
+    "recognized": "c"
+  },
+  {
+    "character": "】",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "】",
+    "recognized": ""
+  },
+  {
+    "character": "＼",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "＼",
+    "recognized": "/"
+  },
+  {
+    "character": "］",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "］",
+    "recognized": ""
+  },
+  {
+    "character": "〔",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "〔",
+    "recognized": "「"
+  },
+  {
+    "character": "～",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "～",
+    "recognized": "c"
+  },
+  {
+    "character": "〕",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "〕",
+    "recognized": ""
+  },
+  {
+    "character": "〖",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "〖",
+    "recognized": ""
+  },
+  {
+    "character": "〗",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "〗",
+    "recognized": ""
+  },
+  {
+    "character": "，",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "，",
+    "recognized": "（"
+  },
+  {
+    "character": "、",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "、",
+    "recognized": ""
+  },
+  {
+    "character": "＾",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "＾",
+    "recognized": "c"
+  },
+  {
+    "character": "！",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "！",
+    "recognized": "c"
+  },
+  {
+    "character": "ー",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "ー",
+    "recognized": "c"
+  },
+  {
+    "character": "。",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "。",
+    "recognized": "0"
+  },
+  {
+    "character": "…",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "…",
+    "recognized": "c"
+  },
+  {
+    "character": "〇",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "〇",
+    "recognized": ""
+  },
+  {
+    "character": "＂",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "＂",
+    "recognized": "c"
+  },
+  {
+    "character": "：",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "：",
+    "recognized": "c"
+  },
+  {
+    "character": "〈",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "〈",
+    "recognized": "く"
+  },
+  {
+    "character": "【",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "【",
+    "recognized": ""
+  },
+  {
+    "character": "〒",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "〒",
+    "recognized": "c"
+  },
+  {
+    "character": "‥",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "‥",
+    "recognized": "c"
+  },
+  {
+    "character": "※",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "※",
+    "recognized": ""
+  },
+  {
+    "character": "＇",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "＇",
+    "recognized": "c"
+  },
+  {
+    "character": "〜",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "〜",
+    "recognized": "c"
+  },
+  {
+    "character": "♪",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "♪",
+    "recognized": "」"
+  },
+  {
+    "character": "－",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "－",
+    "recognized": "c"
+  },
+  {
+    "character": "†",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "†",
+    "recognized": "十"
+  },
+  {
+    "character": "｀",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "｀",
+    "recognized": "c"
+  },
+  {
+    "character": "‡",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "‡",
+    "recognized": "主"
+  },
+  {
+    "character": "［",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "［",
+    "recognized": ""
+  },
+  {
+    "character": "；",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "；",
+    "recognized": "c"
+  },
+  {
+    "character": "｛",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "｛",
+    "recognized": ""
+  },
+  {
+    "character": "§",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "§",
+    "recognized": ""
+  },
+  {
+    "character": "｜",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "｜",
+    "recognized": "—"
+  },
+  {
+    "character": "／",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "／",
+    "recognized": ""
+  },
+  {
+    "character": "¶",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "¶",
+    "recognized": ""
+  },
+  {
+    "character": "｝",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "｝",
+    "recognized": ""
+  },
+  {
+    "character": "・",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "・",
+    "recognized": "c"
+  },
+  {
+    "character": "．",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "．",
+    "recognized": "c"
+  },
+  {
+    "character": "＿",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "＿",
+    "recognized": "T"
+  },
+  {
+    "character": "＝",
+    "category": "fullwidth_symbols",
+    "font_name": "UDEVGothic",
+    "expected": "＝",
+    "recognized": "司"
+  }
+]
