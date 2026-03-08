@@ -23,7 +23,6 @@ use ocrus_nn::{NnEngine, Tensor};
 use ocrus_preproc::{binarize_adaptive, normalize_line, to_grayscale};
 use ocrus_recognizer::{charset::Charset, ctc_greedy_decode};
 
-const BATCH_SIZE: usize = 15;
 const FONT_SIZE: f32 = 48.0;
 const PADDING: u32 = 20;
 
@@ -198,34 +197,6 @@ fn normalize_char(c: char) -> char {
 /// Compare chars with NFKC normalization (fullwidth/halfwidth differences are tolerated).
 fn chars_match(a: char, b: char) -> bool {
     a == b || normalize_char(a) == normalize_char(b)
-}
-
-fn char_accuracy(expected: &str, recognized: &str) -> (usize, usize) {
-    let exp_chars: Vec<char> = expected.chars().collect();
-    let rec_chars: Vec<char> = recognized.chars().filter(|c| !c.is_whitespace()).collect();
-    let total = exp_chars.len();
-    let mut correct = 0;
-    let mut rec_idx = 0;
-    for &exp_c in &exp_chars {
-        if rec_idx < rec_chars.len() && chars_match(rec_chars[rec_idx], exp_c) {
-            correct += 1;
-            rec_idx += 1;
-        } else if rec_idx < rec_chars.len() {
-            let search_start = rec_idx.saturating_sub(2);
-            let search_end = (rec_idx + 3).min(rec_chars.len());
-            if search_start < search_end
-                && let Some(pos) = rec_chars[search_start..search_end]
-                    .iter()
-                    .position(|&c| chars_match(c, exp_c))
-            {
-                correct += 1;
-                rec_idx = search_start + pos + 1;
-                continue;
-            }
-            rec_idx += 1;
-        }
-    }
-    (correct, total)
 }
 
 /// Resolve which categories to test based on step name.
@@ -409,9 +380,9 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
             let mut processed_chars = 0usize;
             let cat_start = std::time::Instant::now();
 
-            for batch in chars.chunks(BATCH_SIZE) {
-                let batch_str: String = batch.iter().collect();
-                let img = render_text_image(&font, &batch_str);
+            for &exp_c in &chars {
+                let exp_str = exp_c.to_string();
+                let img = render_text_image(&font, &exp_str);
 
                 // FP32 inference
                 let t0 = std::time::Instant::now();
@@ -419,13 +390,24 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
                 total_fp32_elapsed += t0.elapsed();
                 inference_count += 1;
 
-                let (correct, total) = char_accuracy(&batch_str, &recognized);
-                cat_correct += correct;
-                cat_total += total;
+                let rec_c = recognized.chars().find(|c| !c.is_whitespace());
+                let is_correct = rec_c.is_some_and(|r| chars_match(r, exp_c));
+                if is_correct {
+                    cat_correct += 1;
+                } else {
+                    all_failures.lock().unwrap().push(CharFailure {
+                        character: exp_c,
+                        category: category.to_string(),
+                        font_name: font_entry.name.clone(),
+                        expected: exp_str.clone(),
+                        recognized: rec_c.map(|c| c.to_string()).unwrap_or_default(),
+                    });
+                }
+                cat_total += 1;
 
                 // Progress log every 100 chars
-                processed_chars += batch.len();
-                if processed_chars % 100 < BATCH_SIZE || processed_chars == total_chars {
+                processed_chars += 1;
+                if processed_chars.is_multiple_of(100) || processed_chars == total_chars {
                     let elapsed_secs = cat_start.elapsed().as_secs_f64();
                     let pct_done = processed_chars as f64 / total_chars as f64 * 100.0;
                     let spc = if processed_chars > 0 {
@@ -445,30 +427,18 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
                     );
                 }
 
-                let rec_chars: Vec<char> =
-                    recognized.chars().filter(|c| !c.is_whitespace()).collect();
-                for (i, &exp_c) in batch.iter().enumerate() {
-                    let rec_c = rec_chars.get(i).copied();
-                    if !rec_c.is_some_and(|r| chars_match(r, exp_c)) {
-                        all_failures.lock().unwrap().push(CharFailure {
-                            character: exp_c,
-                            category: category.to_string(),
-                            font_name: font_entry.name.clone(),
-                            expected: exp_c.to_string(),
-                            recognized: rec_c.map(|c| c.to_string()).unwrap_or_default(),
-                        });
-                    }
-                }
-
                 // INT8 inference (A/B comparison)
                 if let Some(ref q_model) = quantized_model {
                     let t0 = std::time::Instant::now();
                     let recognized_q = recognize_image(&engine, q_model, &charset, &img);
                     total_int8_elapsed += t0.elapsed();
 
-                    let (correct_q, total_q) = char_accuracy(&batch_str, &recognized_q);
-                    cat_correct_q += correct_q;
-                    cat_total_q += total_q;
+                    let rec_c_q = recognized_q.chars().find(|c| !c.is_whitespace());
+                    let is_correct_q = rec_c_q.is_some_and(|r| chars_match(r, exp_c));
+                    if is_correct_q {
+                        cat_correct_q += 1;
+                    }
+                    cat_total_q += 1;
                 }
             }
 
