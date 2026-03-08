@@ -383,20 +383,46 @@ uv run --project scripts quantize \
 
 ### Accuracy Testing
 
-Run character accuracy tests to evaluate the model and identify weak characters:
+Run character accuracy tests to evaluate the model and identify weak characters.
+Tests are split into steps so you can iterate incrementally:
+
+| Step | Target | Char count |
+|------|--------|------------|
+| `step1` | Half/full-width alphanumeric & symbols | ~220 |
+| `step2` | Hiragana & Katakana | ~170 |
+| `step3_joyo` | Joyo kanji | 2,136 |
+| `step3_jis1` | JIS Level 1 kanji | 2,965 |
+| `step3_jis2` | JIS Level 2 kanji | 3,390 |
+| `step3_jis3` | JIS Level 3 kanji | 1,233 |
+| `step3_jis4` | JIS Level 4 kanji | 7,960 |
 
 ```bash
-# Run accuracy test across all fonts (slow, ~10min)
-cargo test -p ocrus-cli --test char_accuracy -- --ignored --nocapture
+# Step 1: Half/full-width alphanumeric & symbols (a few minutes)
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step1 -- --ignored --nocapture
 
-# A/B test against a quantized model
+# Step 2: Hiragana & Katakana
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step2 -- --ignored --nocapture
+
+# Step 3: Kanji (run each level separately)
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step3_joyo -- --ignored --nocapture
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step3_jis1 -- --ignored --nocapture
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step3_jis2 -- --ignored --nocapture
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step3_jis3 -- --ignored --nocapture
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step3_jis4 -- --ignored --nocapture
+
+# All steps at once
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_all -- --ignored --nocapture
+
+# A/B test against a quantized model (combinable with any step)
 OCRUS_QUANTIZED_MODEL=rec_int8.onnx \
-  cargo test -p ocrus-cli --test char_accuracy -- --ignored --nocapture
+  cargo test -p ocrus-cli --test char_accuracy char_accuracy_step1 -- --ignored --nocapture
 ```
 
 Test results are exported to:
-- `logs/char_accuracy_*.log` — Full test log (accuracy per font/category, timing)
-- `test_results/failures.json` — Failed characters (can be fed back into Step 1 `from-failures` for targeted retraining)
+- `logs/char_accuracy_{step}_{timestamp}.log` — Full test log (accuracy per font/category, speed, ETA)
+- `test_results/failures_{step}.json` — Failed characters (can be fed back into Step 1 `from-failures` for targeted retraining)
+
+Failures are saved incrementally after each category completes. If interrupted with Ctrl+C, results up to that point are also saved.
 
 ## Development
 

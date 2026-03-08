@@ -385,20 +385,46 @@ uv run --project scripts quantize \
 
 ### 精度テスト
 
-モデルの評価と弱い文字の特定のため、文字精度テストを実行します：
+モデルの評価と弱い文字の特定のため、文字精度テストを実行します。
+段階的にテストを進められるよう、ステップごとにテストを分割しています：
+
+| ステップ | 対象 | 文字数 |
+|----------|------|--------|
+| `step1` | 半角/全角 英数記号 | ~220 |
+| `step2` | ひらがな・カタカナ | ~170 |
+| `step3_joyo` | 常用漢字 | 2,136 |
+| `step3_jis1` | JIS 第1水準漢字 | 2,965 |
+| `step3_jis2` | JIS 第2水準漢字 | 3,390 |
+| `step3_jis3` | JIS 第3水準漢字 | 1,233 |
+| `step3_jis4` | JIS 第4水準漢字 | 7,960 |
 
 ```bash
-# 全フォントで精度テストを実行（低速、約10分）
-cargo test -p ocrus-cli --test char_accuracy -- --ignored --nocapture
+# Step 1: 半角/全角 英数記号（数分で完了）
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step1 -- --ignored --nocapture
 
-# 量子化モデルとの A/B テスト
+# Step 2: ひらがな・カタカナ
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step2 -- --ignored --nocapture
+
+# Step 3: 漢字（水準ごとに個別実行）
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step3_joyo -- --ignored --nocapture
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step3_jis1 -- --ignored --nocapture
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step3_jis2 -- --ignored --nocapture
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step3_jis3 -- --ignored --nocapture
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step3_jis4 -- --ignored --nocapture
+
+# 全ステップ一括
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_all -- --ignored --nocapture
+
+# 量子化モデルとの A/B テスト（任意のステップと組み合わせ可能）
 OCRUS_QUANTIZED_MODEL=rec_int8.onnx \
-  cargo test -p ocrus-cli --test char_accuracy -- --ignored --nocapture
+  cargo test -p ocrus-cli --test char_accuracy char_accuracy_step1 -- --ignored --nocapture
 ```
 
 テスト結果の出力先：
-- `logs/char_accuracy_*.log` — テストログ（フォント/カテゴリごとの精度、タイミング）
-- `test_results/failures.json` — 失敗した文字（ステップ 1 の `from-failures` にフィードバック可能）
+- `logs/char_accuracy_{step}_{timestamp}.log` — テストログ（フォント/カテゴリごとの精度、処理速度、ETA）
+- `test_results/failures_{step}.json` — 失敗した文字（ステップ 1 の `from-failures` にフィードバック可能）
+
+失敗文字はカテゴリ完了ごとに逐次保存されます。Ctrl+C で中断した場合もその時点までの結果が保存されます。
 
 ## 開発
 
