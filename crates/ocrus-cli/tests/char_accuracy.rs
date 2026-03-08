@@ -365,17 +365,22 @@ fn char_accuracy_test() {
                 // Progress log every 100 chars
                 processed_chars += batch.len();
                 if processed_chars % 100 < BATCH_SIZE || processed_chars == total_chars {
-                    let elapsed = cat_start.elapsed().as_secs();
+                    let elapsed_secs = cat_start.elapsed().as_secs_f64();
                     let pct_done = processed_chars as f64 / total_chars as f64 * 100.0;
-                    let eta = if processed_chars > 0 {
-                        let remaining = elapsed as f64 / processed_chars as f64
-                            * (total_chars - processed_chars) as f64;
+                    let cps = if elapsed_secs > 0.0 {
+                        processed_chars as f64 / elapsed_secs
+                    } else {
+                        0.0
+                    };
+                    let eta = if cps > 0.0 {
+                        let remaining = (total_chars - processed_chars) as f64 / cps;
                         format!("ETA {:.0}s", remaining)
                     } else {
                         "ETA --".to_string()
                     };
                     info!(
-                        "    {category}: {processed_chars}/{total_chars} ({pct_done:.0}%) {elapsed}s elapsed, {eta}"
+                        "    {category}: {processed_chars}/{total_chars} ({pct_done:.0}%) {:.0}s elapsed, {cps:.1} chars/s, {eta}",
+                        elapsed_secs
                     );
                 }
 
