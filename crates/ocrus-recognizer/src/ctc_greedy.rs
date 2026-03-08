@@ -32,7 +32,7 @@ pub fn ctc_greedy_decode(
         indices.push(best_idx);
     }
 
-    // Collapse repeats and remove blank (index 0)
+    // Collapse repeats and remove blank
     let mut result = String::new();
     let mut prev = None;
 
@@ -104,7 +104,7 @@ pub fn ctc_greedy_decode_masked(
         indices.push(best_idx);
     }
 
-    // Collapse repeats and remove blank (index 0)
+    // Collapse repeats and remove blank
     let mut result = String::new();
     let mut prev = None;
 
@@ -136,15 +136,15 @@ mod tests {
 
     #[test]
     fn test_ctc_greedy_simple() {
-        // 3 timesteps, 4 classes (blank=0, a=1, b=2, c=3)
+        // 3 timesteps, 4 classes (a=0, b=1, c=2, blank=3)
         let charset = Charset::from_chars(&['a', 'b', 'c']);
 
-        // t0: class 1 (a), t1: class 1 (a), t2: class 2 (b)
+        // t0: class 0 (a), t1: class 0 (a), t2: class 1 (b)
         #[rustfmt::skip]
         let logits = vec![
-            -10.0,  10.0, -10.0, -10.0, // t0: 'a'
-            -10.0,  10.0, -10.0, -10.0, // t1: 'a' (repeat)
-            -10.0, -10.0,  10.0, -10.0, // t2: 'b'
+             10.0, -10.0, -10.0, -10.0, // t0: 'a'
+             10.0, -10.0, -10.0, -10.0, // t1: 'a' (repeat)
+            -10.0,  10.0, -10.0, -10.0, // t2: 'b'
         ];
 
         let (text, _conf) = ctc_greedy_decode(&logits, 3, 4, &charset);
@@ -153,14 +153,15 @@ mod tests {
 
     #[test]
     fn test_ctc_greedy_blank_separation() {
+        // 3 classes: a=0, b=1, blank=2
         let charset = Charset::from_chars(&['a', 'b']);
 
         // t0: 'a', t1: blank, t2: 'a' → "aa"
         #[rustfmt::skip]
         let logits = vec![
-            -10.0,  10.0, -10.0, // t0: 'a'
-             10.0, -10.0, -10.0, // t1: blank
-            -10.0,  10.0, -10.0, // t2: 'a'
+             10.0, -10.0, -10.0, // t0: 'a'
+            -10.0, -10.0,  10.0, // t1: blank
+             10.0, -10.0, -10.0, // t2: 'a'
         ];
 
         let (text, _) = ctc_greedy_decode(&logits, 3, 3, &charset);
@@ -169,17 +170,17 @@ mod tests {
 
     #[test]
     fn test_ctc_greedy_masked() {
-        // 3 classes: blank=0, a=1, b=2
+        // 3 classes: a=0, b=1, blank=2
         let charset = Charset::from_chars(&['a', 'b']);
 
         // Without mask, best would be 'b' at t0, but mask disallows 'b'
         #[rustfmt::skip]
         let logits = vec![
-            -10.0, 5.0, 10.0, // t0: 'b' is best, but masked out
+            5.0, 10.0, -10.0, // t0: 'b' is best, but masked out
         ];
 
-        // mask: blank=true, a=true, b=false
-        let mask = vec![true, true, false];
+        // mask: a=true, b=false, blank=true
+        let mask = vec![true, false, true];
         let (text, _) = ctc_greedy_decode_masked(&logits, 1, 3, &charset, &mask);
         assert_eq!(text, "a"); // forced to pick 'a'
 
