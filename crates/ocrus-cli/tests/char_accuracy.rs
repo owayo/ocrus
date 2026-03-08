@@ -1,4 +1,6 @@
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
 
 use ab_glyph::{FontRef, PxScale};
 use image::{DynamicImage, Rgb, RgbImage};
@@ -314,10 +316,35 @@ fn char_accuracy_test() {
         std::collections::HashMap::new();
     let mut overall_q: std::collections::HashMap<String, (usize, usize)> =
         std::collections::HashMap::new();
-    let mut all_failures: Vec<CharFailure> = Vec::new();
+    let all_failures: Arc<Mutex<Vec<CharFailure>>> = Arc::new(Mutex::new(Vec::new()));
     let mut total_fp32_elapsed = std::time::Duration::ZERO;
     let mut total_int8_elapsed = std::time::Duration::ZERO;
     let mut inference_count = 0u64;
+
+    // Setup results directory and Ctrl+C handler
+    let results_dir = workspace_root.join("test_results");
+    std::fs::create_dir_all(&results_dir).ok();
+
+    let interrupted = Arc::new(AtomicBool::new(false));
+    {
+        let interrupted = Arc::clone(&interrupted);
+        let all_failures = Arc::clone(&all_failures);
+        let results_dir = results_dir.clone();
+        ctrlc::set_handler(move || {
+            interrupted.store(true, Ordering::SeqCst);
+            let failures = all_failures.lock().unwrap();
+            if !failures.is_empty() {
+                let json = serde_json::to_string_pretty(&*failures).unwrap();
+                std::fs::write(results_dir.join("failures.json"), &json).ok();
+                eprintln!(
+                    "\nInterrupted. Saved {} failures to test_results/failures.json",
+                    failures.len()
+                );
+            }
+            std::process::exit(1);
+        })
+        .expect("Failed to set Ctrl+C handler");
+    }
 
     for font_entry in &fonts {
         let font = match FontRef::try_from_slice_and_index(&font_entry.data, font_entry.index) {
@@ -389,7 +416,7 @@ fn char_accuracy_test() {
                 for (i, &exp_c) in batch.iter().enumerate() {
                     let rec_c = rec_chars.get(i).copied();
                     if rec_c != Some(exp_c) {
-                        all_failures.push(CharFailure {
+                        all_failures.lock().unwrap().push(CharFailure {
                             character: exp_c,
                             category: category.to_string(),
                             font_name: font_entry.name.clone(),
@@ -440,16 +467,28 @@ fn char_accuracy_test() {
             let entry = overall.entry(category.to_string()).or_insert((0, 0));
             entry.0 += cat_correct;
             entry.1 += cat_total;
+
+            // Save failures incrementally after each category
+            {
+                let failures = all_failures.lock().unwrap();
+                if !failures.is_empty() {
+                    let json = serde_json::to_string_pretty(&*failures).unwrap();
+                    std::fs::write(results_dir.join("failures.json"), &json).ok();
+                    info!(
+                        "  -> Saved {} failures so far to test_results/failures.json",
+                        failures.len()
+                    );
+                }
+            }
         }
     }
 
-    let results_dir = workspace_root.join("test_results");
-    std::fs::create_dir_all(&results_dir).ok();
-    let failures_json = serde_json::to_string_pretty(&all_failures).unwrap();
+    let failures = all_failures.lock().unwrap();
+    let failures_json = serde_json::to_string_pretty(&*failures).unwrap();
     std::fs::write(results_dir.join("failures.json"), &failures_json).unwrap();
     info!(
         "Exported {} failures to test_results/failures.json",
-        all_failures.len()
+        failures.len()
     );
 
     info!("=== Overall Accuracy ===");
