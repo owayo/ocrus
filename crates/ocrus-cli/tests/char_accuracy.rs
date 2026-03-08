@@ -7,6 +7,7 @@ use image::{DynamicImage, Rgb, RgbImage};
 use imageproc::drawing::{draw_text_mut, text_size};
 use log::info;
 use serde::Serialize;
+use unicode_normalization::UnicodeNormalization;
 
 #[derive(Serialize)]
 struct CharFailure {
@@ -208,6 +209,17 @@ fn recognize_image(
     recognized
 }
 
+/// Normalize a char via NFKC (e.g. fullwidth 'Ａ' -> halfwidth 'A').
+fn normalize_char(c: char) -> char {
+    let s: String = c.to_string().nfkc().collect();
+    s.chars().next().unwrap_or(c)
+}
+
+/// Compare chars with NFKC normalization (fullwidth/halfwidth differences are tolerated).
+fn chars_match(a: char, b: char) -> bool {
+    a == b || normalize_char(a) == normalize_char(b)
+}
+
 fn char_accuracy(expected: &str, recognized: &str) -> (usize, usize) {
     let exp_chars: Vec<char> = expected.chars().collect();
     let rec_chars: Vec<char> = recognized.chars().filter(|c| !c.is_whitespace()).collect();
@@ -215,7 +227,7 @@ fn char_accuracy(expected: &str, recognized: &str) -> (usize, usize) {
     let mut correct = 0;
     let mut rec_idx = 0;
     for &exp_c in &exp_chars {
-        if rec_idx < rec_chars.len() && rec_chars[rec_idx] == exp_c {
+        if rec_idx < rec_chars.len() && chars_match(rec_chars[rec_idx], exp_c) {
             correct += 1;
             rec_idx += 1;
         } else if rec_idx < rec_chars.len() {
@@ -224,7 +236,7 @@ fn char_accuracy(expected: &str, recognized: &str) -> (usize, usize) {
             if search_start < search_end
                 && let Some(pos) = rec_chars[search_start..search_end]
                     .iter()
-                    .position(|&c| c == exp_c)
+                    .position(|&c| chars_match(c, exp_c))
             {
                 correct += 1;
                 rec_idx = search_start + pos + 1;
@@ -457,7 +469,7 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
                     recognized.chars().filter(|c| !c.is_whitespace()).collect();
                 for (i, &exp_c) in batch.iter().enumerate() {
                     let rec_c = rec_chars.get(i).copied();
-                    if rec_c != Some(exp_c) {
+                    if !rec_c.is_some_and(|r| chars_match(r, exp_c)) {
                         all_failures.lock().unwrap().push(CharFailure {
                             character: exp_c,
                             category: category.to_string(),
