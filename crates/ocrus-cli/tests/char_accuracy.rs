@@ -2,8 +2,11 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
+use std::sync::atomic::AtomicUsize;
+
 use image::DynamicImage;
 use log::info;
+use rayon::prelude::*;
 use serde::Serialize;
 use unicode_normalization::UnicodeNormalization;
 
@@ -275,9 +278,7 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
     let mut overall_q: std::collections::HashMap<String, (usize, usize)> =
         std::collections::HashMap::new();
     let all_failures: Arc<Mutex<Vec<CharFailure>>> = Arc::new(Mutex::new(Vec::new()));
-    let mut total_fp32_elapsed = std::time::Duration::ZERO;
-    let mut total_int8_elapsed = std::time::Duration::ZERO;
-    let mut inference_count = 0u64;
+    let test_start = std::time::Instant::now();
 
     // Setup results directory and Ctrl+C handler
     let results_dir = workspace_root.join("test_results");
@@ -318,34 +319,27 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
                 }
             };
 
-            let mut cat_correct = 0usize;
-            let mut cat_total = 0usize;
-            let mut cat_correct_q = 0usize;
-            let mut cat_total_q = 0usize;
-
             let total_chars = chars.len();
-            let mut processed_chars = 0usize;
+            let cat_correct = AtomicUsize::new(0);
+            let cat_total = AtomicUsize::new(0);
+            let cat_correct_q = AtomicUsize::new(0);
+            let cat_total_q = AtomicUsize::new(0);
+            let processed_chars = AtomicUsize::new(0);
             let cat_start = std::time::Instant::now();
 
-            for &exp_c in &chars {
+            chars.par_iter().for_each(|&exp_c| {
                 let img = match load_test_image(&workspace_root, font_name, category, exp_c) {
                     Some(img) => img,
-                    None => {
-                        // No pre-rendered image, skip this character
-                        continue;
-                    }
+                    None => return,
                 };
 
                 // FP32 inference
-                let t0 = std::time::Instant::now();
                 let recognized = recognize_image(&engine, &model, &charset, &img);
-                total_fp32_elapsed += t0.elapsed();
-                inference_count += 1;
 
                 let rec_c = recognized.chars().find(|c| !c.is_whitespace());
                 let is_correct = rec_c.is_some_and(|r| chars_match(r, exp_c));
                 if is_correct {
-                    cat_correct += 1;
+                    cat_correct.fetch_add(1, Ordering::Relaxed);
                 } else {
                     all_failures.lock().unwrap().push(CharFailure {
                         character: exp_c,
@@ -355,44 +349,37 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
                         recognized: rec_c.map(|c| c.to_string()).unwrap_or_default(),
                     });
                 }
-                cat_total += 1;
+                cat_total.fetch_add(1, Ordering::Relaxed);
 
                 // Progress log every 100 chars
-                processed_chars += 1;
-                if processed_chars.is_multiple_of(100) || processed_chars == total_chars {
+                let done = processed_chars.fetch_add(1, Ordering::Relaxed) + 1;
+                if done.is_multiple_of(100) || done == total_chars {
                     let elapsed_secs = cat_start.elapsed().as_secs_f64();
-                    let pct_done = processed_chars as f64 / total_chars as f64 * 100.0;
-                    let spc = if processed_chars > 0 {
-                        elapsed_secs / processed_chars as f64
-                    } else {
-                        0.0
-                    };
-                    let eta = if spc > 0.0 {
-                        let remaining = spc * (total_chars - processed_chars) as f64;
-                        format!("ETA {:.0}s", remaining)
-                    } else {
-                        "ETA --".to_string()
-                    };
+                    let pct_done = done as f64 / total_chars as f64 * 100.0;
+                    let spc = elapsed_secs / done as f64;
+                    let remaining = spc * (total_chars - done) as f64;
                     info!(
-                        "    {category}: {processed_chars}/{total_chars} ({pct_done:.0}%) {:.0}s elapsed, {spc:.2}s/char, {eta}",
-                        elapsed_secs
+                        "    {category}: {done}/{total_chars} ({pct_done:.0}%) {elapsed_secs:.0}s elapsed, {spc:.2}s/char, ETA {remaining:.0}s",
                     );
                 }
 
                 // INT8 inference (A/B comparison)
                 if let Some(ref q_model) = quantized_model {
-                    let t0 = std::time::Instant::now();
                     let recognized_q = recognize_image(&engine, q_model, &charset, &img);
-                    total_int8_elapsed += t0.elapsed();
 
                     let rec_c_q = recognized_q.chars().find(|c| !c.is_whitespace());
                     let is_correct_q = rec_c_q.is_some_and(|r| chars_match(r, exp_c));
                     if is_correct_q {
-                        cat_correct_q += 1;
+                        cat_correct_q.fetch_add(1, Ordering::Relaxed);
                     }
-                    cat_total_q += 1;
+                    cat_total_q.fetch_add(1, Ordering::Relaxed);
                 }
-            }
+            });
+
+            let cat_correct = cat_correct.load(Ordering::Relaxed);
+            let cat_total = cat_total.load(Ordering::Relaxed);
+            let cat_correct_q = cat_correct_q.load(Ordering::Relaxed);
+            let cat_total_q = cat_total_q.load(Ordering::Relaxed);
 
             let pct = if cat_total > 0 {
                 cat_correct as f64 / cat_total as f64 * 100.0
@@ -474,23 +461,8 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
         }
     }
 
-    // Print timing comparison when A/B test is active
-    if quantized_model.is_some() && inference_count > 0 {
-        let fp32_ms = total_fp32_elapsed.as_secs_f64() * 1000.0;
-        let int8_ms = total_int8_elapsed.as_secs_f64() * 1000.0;
-        let fp32_avg = fp32_ms / inference_count as f64;
-        let int8_avg = int8_ms / inference_count as f64;
-        let speedup = if int8_ms > 0.0 {
-            fp32_ms / int8_ms
-        } else {
-            f64::NAN
-        };
-        info!("=== Inference Timing ({inference_count} batches) ===");
-        info!("  FP32 total: {fp32_ms:.1}ms  avg: {fp32_avg:.2}ms/batch");
-        info!("  INT8 total: {int8_ms:.1}ms  avg: {int8_avg:.2}ms/batch");
-        info!("  Speedup:    {speedup:.2}x");
-    }
-
+    let total_elapsed = test_start.elapsed();
+    info!("=== Total time: {:.1}s ===", total_elapsed.as_secs_f64());
     info!("Log saved to: {}", log_path.display());
 }
 
