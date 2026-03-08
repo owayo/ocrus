@@ -2,11 +2,9 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
-use ab_glyph::{FontRef, PxScale};
-use image::{DynamicImage, Rgb, RgbImage};
-use imageproc::drawing::{draw_text_mut, text_size};
+use image::DynamicImage;
 use log::info;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use unicode_normalization::UnicodeNormalization;
 
 #[derive(Serialize)]
@@ -22,9 +20,6 @@ use ocrus_layout::detect_lines_projection;
 use ocrus_nn::{NnEngine, Tensor};
 use ocrus_preproc::{binarize_adaptive, normalize_line, to_grayscale};
 use ocrus_recognizer::{charset::Charset, ctc_greedy_decode};
-
-const FONT_SIZE: f32 = 48.0;
-const PADDING: u32 = 20;
 
 // Step definitions: name -> categories
 const STEPS: &[(&str, &[&str])] = &[
@@ -45,70 +40,45 @@ const STEPS: &[(&str, &[&str])] = &[
     ("step3_jis4", &["jis_level4"]),
 ];
 
-struct FontEntry {
-    name: String,
-    data: Vec<u8>,
-    index: u32,
-}
-
-#[derive(Deserialize)]
-struct FontListConfig {
-    fonts: Vec<FontConfig>,
-}
-
-#[derive(Deserialize)]
-struct FontConfig {
-    name: String,
-    file: String,
-    #[serde(default)]
-    index: u32,
-}
-
-fn load_fonts(workspace_root: &Path) -> Vec<FontEntry> {
-    let config_path = workspace_root.join("test_fonts.yml");
-    let content = std::fs::read_to_string(&config_path).unwrap_or_else(|e| {
-        panic!(
-            "Failed to read font config at {}: {e}",
-            config_path.display()
-        )
-    });
-    let config: FontListConfig =
-        serde_yaml::from_str(&content).expect("Failed to parse test_fonts.yml");
-
-    let fonts_dir = workspace_root.join("fonts");
+/// Load font names from test_images/ directory.
+/// Each subdirectory under test_images/ represents a font.
+fn load_font_names(workspace_root: &Path) -> Vec<String> {
+    let images_dir = workspace_root.join("test_images");
     assert!(
-        fonts_dir.is_dir(),
-        "fonts/ directory not found at {}",
-        fonts_dir.display()
+        images_dir.is_dir(),
+        "test_images/ not found. Run: cargo test -p ocrus-cli --test generate_test_images -- --ignored --nocapture"
     );
 
-    let mut fonts = Vec::new();
-
-    for fc in &config.fonts {
-        let font_path = fonts_dir.join(&fc.file);
-        if !font_path.exists() {
-            eprintln!(
-                "Font not found, skipping: {} ({})",
-                fc.name,
-                font_path.display()
-            );
-            continue;
-        }
-        match std::fs::read(&font_path) {
-            Ok(data) => {
-                fonts.push(FontEntry {
-                    name: fc.name.clone(),
-                    data,
-                    index: fc.index,
-                });
+    let mut names: Vec<String> = std::fs::read_dir(&images_dir)
+        .expect("Failed to read test_images/")
+        .filter_map(|entry| {
+            let entry = entry.ok()?;
+            if entry.file_type().ok()?.is_dir() {
+                Some(entry.file_name().to_string_lossy().to_string())
+            } else {
+                None
             }
-            Err(e) => {
-                eprintln!("Failed to read font {}: {e}", font_path.display());
-            }
-        }
-    }
+        })
+        .collect();
+    names.sort();
+    names
+}
 
-    fonts
+/// Load a pre-rendered test image for a specific font, category, and character.
+fn load_test_image(
+    workspace_root: &Path,
+    font_name: &str,
+    category: &str,
+    ch: char,
+) -> Option<DynamicImage> {
+    let codepoint = ch as u32;
+    let filename = format!("U+{codepoint:04X}.png");
+    let path = workspace_root
+        .join("test_images")
+        .join(font_name)
+        .join(category)
+        .join(&filename);
+    image::open(&path).ok()
 }
 
 fn dirs_home() -> PathBuf {
@@ -124,24 +94,6 @@ fn load_category_chars(workspace_root: &Path, category: &str) -> Option<Vec<char
     let content = std::fs::read_to_string(&path).ok()?;
     let chars: Vec<char> = content.chars().filter(|c| !c.is_whitespace()).collect();
     if chars.is_empty() { None } else { Some(chars) }
-}
-
-fn render_text_image(font: &FontRef<'_>, text: &str) -> DynamicImage {
-    let scale = PxScale::from(FONT_SIZE);
-    let (text_w, text_h) = text_size(scale, font, text);
-    let img_w = text_w + PADDING * 2;
-    let img_h = text_h + PADDING * 2;
-    let mut img = RgbImage::from_pixel(img_w, img_h, Rgb([255u8, 255, 255]));
-    draw_text_mut(
-        &mut img,
-        Rgb([0u8, 0, 0]),
-        PADDING as i32,
-        PADDING as i32,
-        scale,
-        font,
-        text,
-    );
-    DynamicImage::ImageRgb8(img)
 }
 
 fn recognize_image(
@@ -312,8 +264,11 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
             .expect("Failed to load quantized model")
     });
 
-    let fonts = load_fonts(&workspace_root);
-    assert!(!fonts.is_empty(), "No fonts found in fonts/ directory");
+    let font_names = load_font_names(&workspace_root);
+    assert!(
+        !font_names.is_empty(),
+        "No fonts found in test_images/ directory"
+    );
 
     let mut overall: std::collections::HashMap<String, (usize, usize)> =
         std::collections::HashMap::new();
@@ -351,16 +306,8 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
         .expect("Failed to set Ctrl+C handler");
     }
 
-    for font_entry in &fonts {
-        let font = match FontRef::try_from_slice_and_index(&font_entry.data, font_entry.index) {
-            Ok(f) => f,
-            Err(_) => {
-                log::warn!("Skipping font {} (failed to load)", font_entry.name);
-                continue;
-            }
-        };
-
-        info!("=== Font: {} ===", font_entry.name);
+    for font_name in &font_names {
+        info!("=== Font: {} ===", font_name);
 
         for &category in categories {
             let chars = match load_category_chars(&workspace_root, category) {
@@ -381,8 +328,13 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
             let cat_start = std::time::Instant::now();
 
             for &exp_c in &chars {
-                let exp_str = exp_c.to_string();
-                let img = render_text_image(&font, &exp_str);
+                let img = match load_test_image(&workspace_root, font_name, category, exp_c) {
+                    Some(img) => img,
+                    None => {
+                        // No pre-rendered image, skip this character
+                        continue;
+                    }
+                };
 
                 // FP32 inference
                 let t0 = std::time::Instant::now();
@@ -398,8 +350,8 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
                     all_failures.lock().unwrap().push(CharFailure {
                         character: exp_c,
                         category: category.to_string(),
-                        font_name: font_entry.name.clone(),
-                        expected: exp_str.clone(),
+                        font_name: font_name.clone(),
+                        expected: exp_c.to_string(),
                         recognized: rec_c.map(|c| c.to_string()).unwrap_or_default(),
                     });
                 }
