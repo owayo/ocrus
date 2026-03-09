@@ -105,13 +105,30 @@ impl FontEntry {
 }
 
 pub fn default_font_dirs() -> Vec<PathBuf> {
-    let mut dirs = vec![
-        PathBuf::from("/System/Library/Fonts"),
-        PathBuf::from("/Library/Fonts"),
-    ];
+    let mut dirs = Vec::new();
+
+    // macOS
+    dirs.push(PathBuf::from("/System/Library/Fonts"));
+    dirs.push(PathBuf::from("/Library/Fonts"));
     if let Some(home) = std::env::var_os("HOME") {
         dirs.push(PathBuf::from(home).join("Library/Fonts"));
     }
+
+    // Windows
+    if let Some(windir) = std::env::var_os("WINDIR") {
+        dirs.push(PathBuf::from(windir).join("Fonts"));
+    }
+    if let Some(localappdata) = std::env::var_os("LOCALAPPDATA") {
+        dirs.push(PathBuf::from(localappdata).join(r"Microsoft\Windows\Fonts"));
+    }
+
+    // Linux
+    dirs.push(PathBuf::from("/usr/share/fonts"));
+    dirs.push(PathBuf::from("/usr/local/share/fonts"));
+    if let Some(home) = std::env::var_os("HOME") {
+        dirs.push(PathBuf::from(home).join(".local/share/fonts"));
+    }
+
     dirs
 }
 

@@ -76,6 +76,12 @@ pub struct DatasetFailuresArgs {
     /// Samples per failed character
     #[arg(long, default_value = "10")]
     pub samples_per_char: usize,
+    /// Additional font directories to search
+    #[arg(long)]
+    pub font_dirs: Vec<PathBuf>,
+    /// Ignore font_name in failures (generate with all available fonts)
+    #[arg(long)]
+    pub all_fonts: bool,
 }
 
 #[derive(Parser)]

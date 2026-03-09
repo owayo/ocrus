@@ -64,16 +64,26 @@ pub fn run_generate(args: &DatasetGenerateArgs) -> Result<()> {
 
 pub fn run_from_failures(args: &DatasetFailuresArgs) -> Result<()> {
     let failures_json = std::fs::read_to_string(&args.failures)?;
-    let failures: Vec<CharFailure> = serde_json::from_str(&failures_json)?;
+    let mut failures: Vec<CharFailure> = serde_json::from_str(&failures_json)?;
     println!(
         "Loaded {} failures from {}",
         failures.len(),
         args.failures.display()
     );
 
+    if args.all_fonts {
+        for f in &mut failures {
+            f.font_name = None;
+        }
+        println!("  --all-fonts: ignoring font_name, generating with all available fonts");
+    }
+
+    let mut font_dirs = default_font_dirs();
+    font_dirs.extend(args.font_dirs.iter().cloned());
+
     let config = DatasetConfig {
         output_dir: args.output.clone(),
-        font_dirs: default_font_dirs(),
+        font_dirs,
         char_data_dir: default_char_data_dir(),
         categories: vec![],
         samples_per_char: args.samples_per_char,
@@ -92,14 +102,7 @@ pub fn run_from_failures(args: &DatasetFailuresArgs) -> Result<()> {
 }
 
 fn default_font_dirs() -> Vec<PathBuf> {
-    let mut dirs = vec![
-        PathBuf::from("/System/Library/Fonts"),
-        PathBuf::from("/Library/Fonts"),
-    ];
-    if let Ok(home) = std::env::var("HOME") {
-        dirs.push(PathBuf::from(home).join("Library/Fonts"));
-    }
-    dirs
+    ocrus_dataset::font::default_font_dirs()
 }
 
 fn default_char_data_dir() -> PathBuf {
