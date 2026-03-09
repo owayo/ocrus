@@ -79,17 +79,39 @@ def convert_onnx_to_ocnn(onnx_path: str, output_path: str):
             if val is not None and len(node.output) > 0:
                 constant_op_values[node.output[0]] = val
 
-    # Build DAG: tensor_name -> producing node index (excluding Constant/Shape ops)
+    # Build DAG: tensor_name -> producing node index (excluding Constant/Identity ops)
     # Also track Shape op outputs for dynamic shape resolution
     shape_outputs: set[str] = set()
     non_compute_nodes: list[str] = []
     compute_nodes: list[Any] = []
 
+    # Identity pass-through mapping: output_name -> input_name
+    identity_map: dict[str, str] = {}
+
     for node in graph.node:
         if node.op_type == "Constant":
             non_compute_nodes.append(node.op_type)
             continue
+        if node.op_type == "Identity":
+            # Map Identity output to its input (pass-through)
+            if len(node.input) > 0 and len(node.output) > 0:
+                identity_map[node.output[0]] = node.input[0]
+            continue
         compute_nodes.append(node)
+
+    # Resolve chained Identity mappings (A -> B -> C becomes A -> C)
+    def _resolve_identity(name: str) -> str:
+        visited: set[str] = set()
+        while name in identity_map and name not in visited:
+            visited.add(name)
+            name = identity_map[name]
+        return name
+
+    # Rewrite compute node inputs to resolve Identity references
+    for node in compute_nodes:
+        for i, inp_name in enumerate(node.input):
+            if inp_name in identity_map:
+                node.input[i] = _resolve_identity(inp_name)
 
     # Topological order is preserved from ONNX graph
     # Build output_name -> layer_index mapping

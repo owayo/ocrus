@@ -6,6 +6,9 @@ const TARGET_HEIGHT: u32 = 48;
 const NUM_CHANNELS: usize = 3;
 /// Maximum width after resize (prevents OOM on very wide lines).
 const MAX_WIDTH: usize = 2048;
+/// Minimum width after resize (PaddleOCR pads to 320 for recognition).
+/// Short inputs are right-padded with PAD_VALUE to this width.
+const MIN_WIDTH: usize = 320;
 /// Background fill value after PaddleOCR normalization: (255/255 - 0.5)/0.5 = 1.0
 const PAD_VALUE: f32 = 1.0;
 
@@ -52,14 +55,17 @@ fn normalize_line_inner(gray: &ndarray::Array2<u8>, bbox: &BBox, rotate: bool) -
 
     // Compute new width preserving aspect ratio, capped at MAX_WIDTH
     let scale = TARGET_HEIGHT as f32 / crop_h as f32;
-    let new_w = ((crop_w as f32 * scale).round().max(1.0) as usize).min(MAX_WIDTH);
+    let content_w = ((crop_w as f32 * scale).round().max(1.0) as usize).min(MAX_WIDTH);
     let new_h = TARGET_HEIGHT as usize;
+    // Pad to minimum width (PaddleOCR pads to 320); content is left-aligned
+    let new_w = content_w.max(MIN_WIDTH);
 
     // Recalculate effective scale for width to handle MAX_WIDTH capping
-    let effective_w_scale = crop_w as f32 / new_w as f32;
+    let effective_w_scale = crop_w as f32 / content_w as f32;
 
     // Nearest-neighbor resize from crop region
     // First, collect resized grayscale row by row, then SIMD-normalize
+    // Tensor is initialized with PAD_VALUE so right-padding is automatic
     let mut resized = Array4::from_elem((1, NUM_CHANNELS, new_h, new_w), PAD_VALUE);
 
     let scale_vec = f32x8::splat(SIMD_SCALE);
@@ -68,8 +74,8 @@ fn normalize_line_inner(gray: &ndarray::Array2<u8>, bbox: &BBox, rotate: bool) -
     for ry in 0..new_h {
         let crop_y = ((ry as f32 / scale) as usize).min(crop_h - 1);
 
-        // Collect source pixels for this row
-        let row_pixels: Vec<u8> = (0..new_w)
+        // Collect source pixels for this row (only the content region, not padding)
+        let row_pixels: Vec<u8> = (0..content_w)
             .map(|rx| {
                 let crop_x = ((rx as f32 * effective_w_scale) as usize).min(crop_w - 1);
                 if rotate {
@@ -84,9 +90,9 @@ fn normalize_line_inner(gray: &ndarray::Array2<u8>, bbox: &BBox, rotate: bool) -
             })
             .collect();
 
-        // SIMD normalize: process 8 pixels at a time
-        let chunks = new_w / 8;
-        let remainder = new_w % 8;
+        // SIMD normalize: process 8 pixels at a time (content region only)
+        let chunks = content_w / 8;
+        let remainder = content_w % 8;
 
         for i in 0..chunks {
             let base = i * 8;

@@ -14,13 +14,19 @@ impl Charset {
         }
     }
 
-    /// Load charset from a text file (one character per line, no blank line needed).
+    /// Load charset from a text file (one character per line).
+    /// Empty lines are treated as space characters (PaddleOCR convention).
     pub fn from_file(path: &std::path::Path) -> std::io::Result<Self> {
         let content = std::fs::read_to_string(path)?;
         let chars: Vec<char> = content
             .lines()
-            .filter(|l| !l.is_empty())
-            .filter_map(|l| l.chars().next())
+            .map(|l| {
+                if l.is_empty() {
+                    ' '
+                } else {
+                    l.chars().next().unwrap()
+                }
+            })
             .collect();
         Ok(Self { chars })
     }

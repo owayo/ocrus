@@ -28,7 +28,6 @@ generate-test-chars = "ocrus_scripts.generate_test_chars:main"
 finetune = "ocrus_scripts.finetune:main"
 export-onnx = "ocrus_scripts.export_onnx:main"
 export-inference = "ocrus_scripts.export_inference:main"
-convert-onnx-wsl = "ocrus_scripts.convert_onnx_wsl:main"
 checkpoint-to-onnx = "ocrus_scripts.checkpoint_to_onnx:main"
 quantize = "ocrus_scripts.quantize:main"
 
