@@ -720,7 +720,7 @@ requires-dist = [
     { name = "onnxruntime", marker = "extra == 'quantize'", specifier = ">=1.24.3" },
     { name = "paddle2onnx", marker = "extra == 'train'", specifier = ">=2.1.0" },
     { name = "paddlepaddle-gpu", marker = "extra == 'train'", specifier = ">=3.3.0" },
-    { name = "paddlex", marker = "extra == 'train'", specifier = ">=3.4.0" },
+    { name = "paddlex", marker = "extra == 'train'", specifier = ">=3.4.2" },
     { name = "pyclipper", marker = "extra == 'train'" },
     { name = "pyyaml", marker = "extra == 'train'" },
     { name = "rapidfuzz", marker = "extra == 'train'" },

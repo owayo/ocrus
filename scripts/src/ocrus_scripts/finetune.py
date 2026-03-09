@@ -78,11 +78,14 @@ def _convert_ocrus_to_paddleocr(data_dir: Path, output_dir: Path) -> Path:
 
     entries: list[tuple[str, str]] = []
     with labels_file.open(encoding="utf-8") as f:
-        reader = csv.reader(f, delimiter="\t")
+        reader = csv.reader(f, delimiter="\t", quoting=csv.QUOTE_NONE)
+        next(reader, None)  # Skip header row
         for row in reader:
             if len(row) < 2:
                 continue
             filename, label = row[0], row[1]
+            if not label:  # Skip entries with empty labels
+                continue
             src = samples_dir / filename
             if src.exists():
                 entries.append((filename, label))
