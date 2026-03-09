@@ -131,8 +131,12 @@ ocrus dataset generate --output ./training_data --categories hiragana,katakana
 ocrus dataset generate --output ./training_data \
   --categories hiragana,katakana --font-styles mincho,gothic
 
-# テスト失敗結果から生成
-ocrus dataset from-failures --failures ./failures.json --output ./training_data
+# テスト失敗結果から生成（事前生成済みテスト画像を使用、推奨）
+ocrus dataset from-failures --failures ./test_results/failures_step1.json \
+  --test-images ./test_images --output ./training_data
+
+# テスト失敗結果からフォント再レンダリングで生成
+ocrus dataset from-failures --failures ./failures.json --output ./training_data --all-fonts
 ```
 
 ## モデルのセットアップ
@@ -211,20 +215,31 @@ uv sync --project scripts --extra train
 
 ### ステップ 1: 訓練データの生成
 
-`ocrus-dataset` クレートがシステムフォントからテキスト画像をレンダリングし、オーグメンテーション（回転、ぼかし、ノイズ、コントラスト）を適用します。データ生成は Rust + rayon 並列で実行されます。
+`ocrus-dataset` クレートがテキスト画像を生成し、オーグメンテーション（回転、ぼかし、ノイズ、コントラスト）を適用します。データ生成は Rust + rayon 並列で実行されます。
+
+2つの方法があります：
+- **`--test-images`（推奨）**: `test_images/` に事前生成された画像を使用。フォントインストール不要、クロスプラットフォーム対応
+- **フォント再レンダリング**: システムフォントからリアルタイムにレンダリング。`--all-fonts` で全利用可能フォントを使用
 
 ```bash
-# 対象文字カテゴリの訓練データを生成
+# 対象文字カテゴリの訓練データを生成（フォントからレンダリング）
 ocrus dataset generate \
   --output /tmp/ocrus_training_data \
   --categories hiragana,katakana,halfwidth_alnum,fullwidth_alnum \
   --samples-per-char 5
 
-# テスト失敗結果から重点的にデータを生成
+# テスト失敗結果から重点的にデータを生成（事前生成済み画像を使用、推奨）
 ocrus dataset from-failures \
-  --failures ./test_results/failures.json \
+  --failures ./test_results/failures_step1.json \
+  --test-images ./test_images \
   --output /tmp/ocrus_training_data \
   --samples 10
+
+# テスト失敗結果からフォント再レンダリングで生成
+ocrus dataset from-failures \
+  --failures ./test_results/failures_step1.json \
+  --output /tmp/ocrus_training_data \
+  --samples 10 --all-fonts
 ```
 
 文字カテゴリ一覧：

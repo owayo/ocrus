@@ -2,7 +2,8 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use ocrus_dataset::{
-    AugmentConfig, CharFailure, DatasetConfig, FontStyle, generate, generate_from_failures,
+    AugmentConfig, CharFailure, DatasetConfig, FontStyle, generate, generate_from_failure_images,
+    generate_from_failures,
 };
 
 use super::{DatasetFailuresArgs, DatasetGenerateArgs};
@@ -90,7 +91,15 @@ pub fn run_from_failures(args: &DatasetFailuresArgs) -> Result<()> {
         ..Default::default()
     };
 
-    let stats = generate_from_failures(&failures, &config)?;
+    let stats = if let Some(ref test_images_dir) = args.test_images {
+        println!(
+            "Using pre-rendered test images from {}",
+            test_images_dir.display()
+        );
+        generate_from_failure_images(&failures, test_images_dir, &config)?
+    } else {
+        generate_from_failures(&failures, &config)?
+    };
     println!(
         "Generated {} images ({} train, {} val) in {:.1}s",
         stats.total_images,

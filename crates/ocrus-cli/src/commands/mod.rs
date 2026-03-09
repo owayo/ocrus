@@ -82,6 +82,9 @@ pub struct DatasetFailuresArgs {
     /// Ignore font_name in failures (generate with all available fonts)
     #[arg(long)]
     pub all_fonts: bool,
+    /// Use pre-rendered test images instead of font rendering
+    #[arg(long)]
+    pub test_images: Option<PathBuf>,
 }
 
 #[derive(Parser)]

@@ -21,7 +21,7 @@ Cargo workspace with 7 crates:
 | `ocrus-layout` | Layout analysis (projection, CCL, vertical, quality gate, ruby separation) |
 | `ocrus-recognizer` | CTC recognition (greedy + beam search, JIS charset, dict correction, cascade) |
 | `ocrus-nn` | Pure Rust inference engine (.ocnn format, SIMD ops, mmap model loading) |
-| `ocrus-dataset` | Training data generation (font rendering, augmentation, font style filtering) |
+| `ocrus-dataset` | Training data generation (font rendering, pre-rendered images, augmentation, font style filtering) |
 | `ocrus-cli` | CLI entry point |
 
 ## Dependency Graph
@@ -92,9 +92,13 @@ ocrus dataset generate --output ./training_data \
 ocrus dataset generate --output ./training_data \
   --categories hiragana,katakana --font-styles mincho,gothic
 
-# Generate from failure list (re-train weak characters)
+# Generate from failure list using pre-rendered test images (recommended)
 ocrus dataset from-failures --failures ./test_results/failures.json \
-  --output ./training_data --samples 10
+  --test-images ./test_images --output ./training_data --samples 10
+
+# Generate from failure list by re-rendering from system fonts
+ocrus dataset from-failures --failures ./test_results/failures.json \
+  --output ./training_data --samples 10 --all-fonts
 ```
 
 ## Fine-tuning (Python, requires PaddlePaddle)

@@ -129,8 +129,12 @@ ocrus dataset generate --output ./training_data --categories hiragana,katakana
 ocrus dataset generate --output ./training_data \
   --categories hiragana,katakana --font-styles mincho,gothic
 
-# Generate from test failure results
-ocrus dataset from-failures --failures ./failures.json --output ./training_data
+# Generate from test failure results (using pre-rendered test images, recommended)
+ocrus dataset from-failures --failures ./test_results/failures_step1.json \
+  --test-images ./test_images --output ./training_data
+
+# Generate from test failure results (re-render from system fonts)
+ocrus dataset from-failures --failures ./failures.json --output ./training_data --all-fonts
 ```
 
 ## Model Setup
@@ -209,20 +213,31 @@ uv sync --project scripts --extra train
 
 ### Step 1: Generate Training Data
 
-`ocrus-dataset` crate renders text images from system fonts with augmentation (rotation, blur, noise, contrast). Data generation runs in Rust with rayon parallelism.
+`ocrus-dataset` crate generates text images with augmentation (rotation, blur, noise, contrast). Data generation runs in Rust with rayon parallelism.
+
+Two methods are available:
+- **`--test-images` (recommended)**: Uses pre-rendered images from `test_images/`. No font installation needed, works cross-platform
+- **Font re-rendering**: Renders from system fonts in real-time. Use `--all-fonts` to use all available fonts
 
 ```bash
-# Generate training data for target character categories
+# Generate training data for target character categories (from fonts)
 ocrus dataset generate \
   --output /tmp/ocrus_training_data \
   --categories hiragana,katakana,halfwidth_alnum,fullwidth_alnum \
   --samples-per-char 5
 
-# Or generate focused data from test failure results
+# Generate focused data from test failure results (using pre-rendered images, recommended)
 ocrus dataset from-failures \
-  --failures ./test_results/failures.json \
+  --failures ./test_results/failures_step1.json \
+  --test-images ./test_images \
   --output /tmp/ocrus_training_data \
   --samples 10
+
+# Generate from failures by re-rendering from system fonts
+ocrus dataset from-failures \
+  --failures ./test_results/failures_step1.json \
+  --output /tmp/ocrus_training_data \
+  --samples 10 --all-fonts
 ```
 
 Available character categories:
