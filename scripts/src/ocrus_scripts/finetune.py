@@ -175,9 +175,9 @@ def main() -> None:
     # Convert dataset
     ds_dir = _convert_ocrus_to_paddleocr(data_dir, output_dir)
 
-    # Resolve pretrained path
+    # Resolve pretrained path (URLs are passed through for PaddleOCR to download)
     pretrained = args.pretrained
-    if pretrained:
+    if pretrained and not pretrained.startswith(("http://", "https://")):
         pretrained = str(Path(pretrained).expanduser().resolve())
         if not Path(pretrained).exists():
             print(f"Error: Pretrained model not found: {pretrained}", file=sys.stderr)
