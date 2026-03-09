@@ -1,0 +1,2426 @@
+filename	label	category	font	augment_type
+000000.png	F	halfwidth_alnum	UDEVGothic	original
+000001.png	v	halfwidth_alnum	BIZ-UDMincho	original
+000002.png	P	halfwidth_alnum	BIZ-UDGothic	original
+000003.png	m	halfwidth_alnum	HiraginoKakuGothic W3	original
+000004.png	P	halfwidth_alnum	HiraginoMincho ProN	original
+000005.png	F	halfwidth_alnum	UDEVGothic	rotate_2.0
+000006.png	P	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000009.png	v	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000008.png	m	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000007.png	P	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000010.png	F	halfwidth_alnum	UDEVGothic	blur_1.0
+000011.png	v	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000012.png	P	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000013.png	P	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000014.png	F	halfwidth_alnum	UDEVGothic	noise_0.02
+000015.png	F	halfwidth_alnum	UDEVGothic	contrast_1.1
+000016.png	v	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000017.png	P	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000018.png	m	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000019.png	L	halfwidth_alnum	UDEVGothic	original
+000022.png	P	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000020.png	v	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000021.png	P	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000023.png	L	halfwidth_alnum	UDEVGothic	rotate_2.0
+000024.png	P	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000025.png	u	halfwidth_alnum	BIZ-UDGothic	original
+000026.png	w	halfwidth_alnum	BIZ-UDMincho	original
+000027.png	m	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000028.png	u	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000029.png	w	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000030.png	m	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000031.png	I	halfwidth_alnum	HiraginoMincho ProN	original
+000032.png	l	halfwidth_alnum	HiraginoKakuGothic W3	original
+000033.png	I	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000034.png	l	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000035.png	L	halfwidth_alnum	UDEVGothic	blur_1.0
+000036.png	L	halfwidth_alnum	UDEVGothic	noise_0.02
+000038.png	w	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000037.png	u	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000039.png	I	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000040.png	L	halfwidth_alnum	UDEVGothic	contrast_1.1
+000041.png	J	halfwidth_alnum	UDEVGothic	original
+000042.png	I	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000043.png	J	halfwidth_alnum	UDEVGothic	rotate_2.0
+000044.png	w	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000045.png	u	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000046.png	l	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000047.png	I	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000048.png	u	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000049.png	w	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000050.png	v	halfwidth_alnum	HiraginoMincho ProN	original
+000051.png	l	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000052.png	1	halfwidth_alnum	BIZ-UDGothic	original
+000053.png	O	halfwidth_alnum	BIZ-UDMincho	original
+000054.png	l	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000055.png	O	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000056.png	v	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000058.png	I	halfwidth_alnum	HiraginoKakuGothic W3	original
+000057.png	1	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000059.png	J	halfwidth_alnum	UDEVGothic	blur_1.0
+000060.png	I	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000061.png	J	halfwidth_alnum	UDEVGothic	noise_0.02
+000062.png	J	halfwidth_alnum	UDEVGothic	contrast_1.1
+000063.png	O	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000064.png	1	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000065.png	O	halfwidth_alnum	UDEVGothic	original
+000066.png	v	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000067.png	O	halfwidth_alnum	UDEVGothic	rotate_2.0
+000068.png	I	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000069.png	O	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000070.png	1	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000071.png	O	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000072.png	1	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000073.png	I	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000074.png	v	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000075.png	I	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000076.png	c	halfwidth_alnum	BIZ-UDMincho	original
+000077.png	z	halfwidth_alnum	BIZ-UDGothic	original
+000078.png	v	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000079.png	L	halfwidth_alnum	HiraginoKakuGothic W3	original
+000080.png	c	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000083.png	z	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000081.png	o	halfwidth_alnum	HiraginoMincho ProN	original
+000084.png	O	halfwidth_alnum	UDEVGothic	blur_1.0
+000082.png	L	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000085.png	o	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000086.png	O	halfwidth_alnum	UDEVGothic	noise_0.02
+000087.png	O	halfwidth_alnum	UDEVGothic	contrast_1.1
+000088.png	X	halfwidth_alnum	UDEVGothic	original
+000089.png	X	halfwidth_alnum	UDEVGothic	rotate_2.0
+000090.png	c	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000091.png	z	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000092.png	o	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000093.png	L	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000094.png	c	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000095.png	z	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000096.png	c	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000097.png	z	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000098.png	o	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000099.png	L	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000100.png	o	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000101.png	x	halfwidth_alnum	BIZ-UDMincho	original
+000102.png	v	halfwidth_alnum	BIZ-UDGothic	original
+000103.png	L	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000104.png	X	halfwidth_alnum	UDEVGothic	blur_1.0
+000105.png	l	halfwidth_alnum	HiraginoMincho ProN	original
+000106.png	v	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000108.png	v	halfwidth_alnum	HiraginoKakuGothic W3	original
+000107.png	x	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000109.png	l	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000110.png	X	halfwidth_alnum	UDEVGothic	noise_0.02
+000111.png	v	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000112.png	X	halfwidth_alnum	UDEVGothic	contrast_1.1
+000113.png	c	halfwidth_alnum	UDEVGothic	original
+000114.png	c	halfwidth_alnum	UDEVGothic	rotate_2.0
+000115.png	x	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000116.png	v	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000117.png	l	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000118.png	x	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000120.png	l	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000119.png	v	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000121.png	v	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000122.png	l	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000123.png	v	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000124.png	x	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000126.png	x	halfwidth_alnum	HiraginoMincho ProN	original
+000125.png	c	halfwidth_alnum	UDEVGothic	blur_1.0
+000127.png	X	halfwidth_alnum	BIZ-UDGothic	original
+000128.png	W	halfwidth_alnum	BIZ-UDMincho	original
+000129.png	v	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000130.png	v	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000132.png	W	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000131.png	X	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000133.png	x	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000134.png	c	halfwidth_alnum	UDEVGothic	noise_0.02
+000135.png	c	halfwidth_alnum	UDEVGothic	contrast_1.1
+000136.png	J	halfwidth_alnum	HiraginoKakuGothic W3	original
+000137.png	J	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000138.png	V	halfwidth_alnum	UDEVGothic	original
+000139.png	V	halfwidth_alnum	UDEVGothic	rotate_2.0
+000140.png	X	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000141.png	x	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000142.png	W	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000143.png	X	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000145.png	X	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000144.png	J	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000146.png	x	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000147.png	w	halfwidth_alnum	BIZ-UDGothic	original
+000148.png	W	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000149.png	x	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000150.png	V	halfwidth_alnum	UDEVGothic	blur_1.0
+000151.png	J	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000152.png	W	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000154.png	J	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000153.png	w	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000155.png	z	halfwidth_alnum	HiraginoMincho ProN	original
+000156.png	V	halfwidth_alnum	UDEVGothic	noise_0.02
+000157.png	z	halfwidth_alnum	BIZ-UDMincho	original
+000158.png	p	halfwidth_alnum	HiraginoKakuGothic W3	original
+000159.png	V	halfwidth_alnum	UDEVGothic	contrast_1.1
+000160.png	p	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000161.png	z	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000162.png	U	halfwidth_alnum	UDEVGothic	original
+000163.png	z	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000164.png	U	halfwidth_alnum	UDEVGothic	rotate_2.0
+000165.png	w	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000166.png	z	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000167.png	z	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000170.png	U	halfwidth_alnum	UDEVGothic	blur_1.0
+000168.png	w	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000169.png	p	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000172.png	w	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000171.png	z	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000173.png	z	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000174.png	z	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000176.png	z	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000175.png	U	halfwidth_alnum	UDEVGothic	noise_0.02
+000177.png	Y	halfwidth_alnum	BIZ-UDGothic	original
+000178.png	p	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000179.png	U	halfwidth_alnum	UDEVGothic	contrast_1.1
+000181.png	l	halfwidth_alnum	BIZ-UDMincho	original
+000182.png	p	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000180.png	O	halfwidth_alnum	HiraginoMincho ProN	original
+000183.png	u	halfwidth_alnum	UDEVGothic	original
+000184.png	x	halfwidth_alnum	HiraginoKakuGothic W3	original
+000185.png	u	halfwidth_alnum	UDEVGothic	rotate_2.0
+000187.png	Y	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000186.png	O	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000188.png	l	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000189.png	x	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000190.png	u	halfwidth_alnum	UDEVGothic	blur_1.0
+000191.png	Y	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000192.png	O	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000193.png	l	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000194.png	u	halfwidth_alnum	UDEVGothic	noise_0.02
+000195.png	x	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000197.png	u	halfwidth_alnum	UDEVGothic	contrast_1.1
+000196.png	Y	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000198.png	Y	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000200.png	m	halfwidth_alnum	UDEVGothic	original
+000199.png	l	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000201.png	O	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000202.png	x	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000203.png	o	halfwidth_alnum	BIZ-UDGothic	original
+000204.png	l	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000205.png	O	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000206.png	x	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000207.png	o	halfwidth_alnum	BIZ-UDMincho	original
+000208.png	o	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000209.png	z	halfwidth_alnum	HiraginoKakuGothic W3	original
+000211.png	o	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000212.png	m	halfwidth_alnum	UDEVGothic	rotate_2.0
+000210.png	W	halfwidth_alnum	HiraginoMincho ProN	original
+000214.png	z	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000213.png	W	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000215.png	o	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000216.png	m	halfwidth_alnum	UDEVGothic	blur_1.0
+000217.png	o	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000218.png	z	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000219.png	o	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000220.png	m	halfwidth_alnum	UDEVGothic	noise_0.02
+000221.png	o	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000222.png	o	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000223.png	m	halfwidth_alnum	UDEVGothic	contrast_1.1
+000224.png	o	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000225.png	z	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000226.png	U	halfwidth_alnum	BIZ-UDGothic	original
+000227.png	z	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000228.png	l	halfwidth_alnum	UDEVGothic	original
+000229.png	s	halfwidth_alnum	BIZ-UDMincho	original
+000230.png	i	halfwidth_alnum	HiraginoKakuGothic W3	original
+000231.png	s	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000232.png	W	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000233.png	U	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000234.png	i	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000235.png	l	halfwidth_alnum	UDEVGothic	rotate_2.0
+000236.png	W	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000237.png	W	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000238.png	c	halfwidth_alnum	HiraginoMincho ProN	original
+000240.png	i	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000239.png	s	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000241.png	U	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000242.png	l	halfwidth_alnum	UDEVGothic	blur_1.0
+000243.png	c	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000244.png	i	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000245.png	s	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000246.png	i	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000247.png	U	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000249.png	s	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000248.png	l	halfwidth_alnum	UDEVGothic	noise_0.02
+000250.png	U	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000252.png	s	halfwidth_alnum	HiraginoKakuGothic W3	original
+000251.png	l	halfwidth_alnum	UDEVGothic	contrast_1.1
+000253.png	i	halfwidth_alnum	BIZ-UDMincho	original
+000254.png	x	halfwidth_alnum	BIZ-UDGothic	original
+000255.png	v	halfwidth_alnum	UDEVGothic	original
+000258.png	s	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000256.png	i	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000257.png	x	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000259.png	v	halfwidth_alnum	UDEVGothic	rotate_2.0
+000260.png	c	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000261.png	c	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000262.png	c	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000263.png	x	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000264.png	s	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000265.png	i	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000266.png	i	halfwidth_alnum	HiraginoMincho ProN	original
+000267.png	v	halfwidth_alnum	UDEVGothic	blur_1.0
+000269.png	i	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000268.png	x	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000270.png	s	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000271.png	i	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000272.png	x	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000273.png	v	halfwidth_alnum	UDEVGothic	noise_0.02
+000274.png	s	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000275.png	i	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000276.png	v	halfwidth_alnum	UDEVGothic	contrast_1.1
+000277.png	H	halfwidth_alnum	BIZ-UDGothic	original
+000278.png	j	halfwidth_alnum	BIZ-UDMincho	original
+000280.png	z	halfwidth_alnum	UDEVGothic	original
+000281.png	H	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000279.png	0	halfwidth_alnum	HiraginoKakuGothic W3	original
+000283.png	z	halfwidth_alnum	UDEVGothic	rotate_2.0
+000284.png	i	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000282.png	j	halfwidth_alnum	BIZ-UDMincho	rotate_2.0
+000285.png	0	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000286.png	i	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000287.png	i	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000288.png	j	halfwidth_alnum	HiraginoMincho ProN	original
+000289.png	j	halfwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000290.png	H	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000291.png	z	halfwidth_alnum	UDEVGothic	blur_1.0
+000292.png	j	halfwidth_alnum	BIZ-UDMincho	blur_1.0
+000293.png	0	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000294.png	H	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000297.png	H	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000295.png	z	halfwidth_alnum	UDEVGothic	noise_0.02
+000296.png	j	halfwidth_alnum	BIZ-UDMincho	noise_0.02
+000298.png	z	halfwidth_alnum	UDEVGothic	contrast_1.1
+000299.png	j	halfwidth_alnum	BIZ-UDMincho	contrast_1.1
+000301.png	c	halfwidth_alnum	BIZ-UDGothic	original
+000300.png	0	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000302.png	o	halfwidth_alnum	UDEVGothic	original
+000303.png	$	halfwidth_symbols	BIZ-UDMincho	original
+000304.png	j	halfwidth_alnum	HiraginoMincho ProN	blur_1.0
+000306.png	c	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000305.png	0	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000308.png	o	halfwidth_alnum	UDEVGothic	rotate_2.0
+000307.png	$	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000309.png	V	halfwidth_alnum	HiraginoKakuGothic W3	original
+000310.png	j	halfwidth_alnum	HiraginoMincho ProN	noise_0.02
+000311.png	j	halfwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000312.png	V	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000313.png	/	halfwidth_symbols	HiraginoMincho ProN	original
+000314.png	/	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000315.png	c	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000316.png	$	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000317.png	o	halfwidth_alnum	UDEVGothic	blur_1.0
+000318.png	c	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000319.png	o	halfwidth_alnum	UDEVGothic	noise_0.02
+000320.png	$	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000322.png	o	halfwidth_alnum	UDEVGothic	contrast_1.1
+000321.png	c	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000323.png	$	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000324.png	V	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000325.png	x	halfwidth_alnum	UDEVGothic	original
+000326.png	s	halfwidth_alnum	BIZ-UDGothic	original
+000328.png	]	halfwidth_symbols	BIZ-UDMincho	original
+000327.png	/	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000329.png	x	halfwidth_alnum	UDEVGothic	rotate_2.0
+000330.png	s	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000331.png	]	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000332.png	V	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000333.png	/	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000334.png	V	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000335.png	/	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000336.png	"	halfwidth_symbols	HiraginoMincho ProN	original
+000337.png	1	halfwidth_alnum	HiraginoKakuGothic W3	original
+000338.png	"	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000339.png	x	halfwidth_alnum	UDEVGothic	blur_1.0
+000340.png	]	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000341.png	1	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000342.png	s	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000343.png	x	halfwidth_alnum	UDEVGothic	noise_0.02
+000344.png	]	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000345.png	x	halfwidth_alnum	UDEVGothic	contrast_1.1
+000346.png	]	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000347.png	s	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000348.png	s	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000349.png	i	halfwidth_alnum	UDEVGothic	original
+000350.png	"	halfwidth_symbols	BIZ-UDMincho	original
+000351.png	l	halfwidth_alnum	BIZ-UDGothic	original
+000352.png	"	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000354.png	"	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000353.png	i	halfwidth_alnum	UDEVGothic	rotate_2.0
+000355.png	1	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000356.png	l	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000357.png	"	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000358.png	"	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000359.png	1	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000360.png	(	halfwidth_symbols	HiraginoMincho ProN	original
+000361.png	1	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000362.png	(	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000364.png	"	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000363.png	b	halfwidth_alnum	HiraginoKakuGothic W3	original
+000365.png	i	halfwidth_alnum	UDEVGothic	blur_1.0
+000367.png	l	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000366.png	b	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000368.png	"	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000369.png	i	halfwidth_alnum	UDEVGothic	noise_0.02
+000370.png	"	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000372.png	i	halfwidth_alnum	UDEVGothic	contrast_1.1
+000371.png	l	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000373.png	l	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000374.png	(	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000375.png	'	halfwidth_symbols	BIZ-UDMincho	original
+000376.png	j	halfwidth_alnum	UDEVGothic	original
+000377.png	L	halfwidth_alnum	BIZ-UDGothic	original
+000378.png	(	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000379.png	'	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000380.png	j	halfwidth_alnum	UDEVGothic	rotate_2.0
+000381.png	L	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000382.png	(	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000383.png	b	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000384.png	]	halfwidth_symbols	HiraginoMincho ProN	original
+000385.png	]	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000386.png	b	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000387.png	b	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000388.png	'	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000389.png	j	halfwidth_alnum	UDEVGothic	blur_1.0
+000390.png	L	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000391.png	c	halfwidth_alnum	HiraginoKakuGothic W3	original
+000392.png	'	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000393.png	j	halfwidth_alnum	UDEVGothic	noise_0.02
+000394.png	L	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000395.png	c	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000396.png	'	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000397.png	j	halfwidth_alnum	UDEVGothic	contrast_1.1
+000398.png	L	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000399.png	]	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000400.png	+	halfwidth_symbols	BIZ-UDMincho	original
+000402.png	J	halfwidth_alnum	BIZ-UDGothic	original
+000401.png	{	halfwidth_symbols	UDEVGothic	original
+000403.png	]	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000405.png	+	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000404.png	{	halfwidth_symbols	UDEVGothic	rotate_2.0
+000406.png	J	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000407.png	]	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000408.png	'	halfwidth_symbols	HiraginoMincho ProN	original
+000409.png	c	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000410.png	'	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000411.png	c	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000412.png	J	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000413.png	+	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000414.png	{	halfwidth_symbols	UDEVGothic	blur_1.0
+000415.png	c	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000417.png	j	halfwidth_alnum	HiraginoKakuGothic W3	original
+000416.png	J	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000419.png	'	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000418.png	+	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000421.png	J	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000420.png	{	halfwidth_symbols	UDEVGothic	noise_0.02
+000422.png	+	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000423.png	{	halfwidth_symbols	UDEVGothic	contrast_1.1
+000424.png	j	halfwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000425.png	'	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000426.png	O	halfwidth_alnum	BIZ-UDGothic	original
+000427.png	{	halfwidth_symbols	BIZ-UDMincho	original
+000429.png	]	halfwidth_symbols	UDEVGothic	original
+000428.png	'	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000431.png	O	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000430.png	]	halfwidth_symbols	UDEVGothic	rotate_2.0
+000432.png	{	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000433.png	+	halfwidth_symbols	HiraginoMincho ProN	original
+000434.png	+	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000435.png	j	halfwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000436.png	j	halfwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000437.png	j	halfwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000438.png	]	halfwidth_symbols	UDEVGothic	blur_1.0
+000439.png	O	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000441.png	]	halfwidth_symbols	HiraginoKakuGothic W3	original
+000440.png	{	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000442.png	]	halfwidth_symbols	UDEVGothic	noise_0.02
+000443.png	]	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000444.png	]	halfwidth_symbols	UDEVGothic	contrast_1.1
+000446.png	+	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000445.png	{	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000447.png	O	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000449.png	|	halfwidth_symbols	UDEVGothic	original
+000448.png	{	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000450.png	O	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000453.png	|	halfwidth_symbols	BIZ-UDMincho	original
+000451.png	|	halfwidth_symbols	UDEVGothic	rotate_2.0
+000452.png	+	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000454.png	i	halfwidth_alnum	BIZ-UDGothic	original
+000455.png	+	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000456.png	]	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000457.png	{	halfwidth_symbols	HiraginoMincho ProN	original
+000458.png	i	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000459.png	|	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000460.png	{	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000461.png	]	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000462.png	]	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000463.png	|	halfwidth_symbols	UDEVGothic	blur_1.0
+000464.png	"	halfwidth_symbols	HiraginoKakuGothic W3	original
+000465.png	"	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000466.png	|	halfwidth_symbols	UDEVGothic	noise_0.02
+000467.png	i	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000468.png	|	halfwidth_symbols	UDEVGothic	contrast_1.1
+000469.png	|	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000470.png	{	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000471.png	}	halfwidth_symbols	UDEVGothic	original
+000472.png	i	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000473.png	|	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000474.png	i	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000475.png	}	halfwidth_symbols	UDEVGothic	rotate_2.0
+000477.png	|	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000476.png	{	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000478.png	{	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000479.png	j	halfwidth_alnum	BIZ-UDGothic	original
+000481.png	^	halfwidth_symbols	BIZ-UDMincho	original
+000480.png	"	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000482.png	^	halfwidth_symbols	HiraginoMincho ProN	original
+000484.png	^	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000483.png	"	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000485.png	^	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000486.png	j	halfwidth_alnum	BIZ-UDGothic	rotate_2.0
+000487.png	"	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000488.png	}	halfwidth_symbols	UDEVGothic	blur_1.0
+000489.png	^	halfwidth_symbols	HiraginoKakuGothic W3	original
+000490.png	^	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000491.png	}	halfwidth_symbols	UDEVGothic	noise_0.02
+000492.png	}	halfwidth_symbols	UDEVGothic	contrast_1.1
+000493.png	^	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000494.png	j	halfwidth_alnum	BIZ-UDGothic	blur_1.0
+000495.png	^	halfwidth_symbols	UDEVGothic	original
+000496.png	^	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000497.png	^	halfwidth_symbols	UDEVGothic	rotate_2.0
+000498.png	^	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000499.png	^	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000500.png	j	halfwidth_alnum	BIZ-UDGothic	noise_0.02
+000501.png	^	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000502.png	^	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000503.png	j	halfwidth_alnum	BIZ-UDGothic	contrast_1.1
+000504.png	^	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000505.png	|	halfwidth_symbols	HiraginoMincho ProN	original
+000507.png	]	halfwidth_symbols	BIZ-UDGothic	original
+000506.png	}	halfwidth_symbols	BIZ-UDMincho	original
+000508.png	^	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000510.png	^	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000509.png	}	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000511.png	]	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000513.png	^	halfwidth_symbols	UDEVGothic	blur_1.0
+000514.png	}	halfwidth_symbols	HiraginoKakuGothic W3	original
+000512.png	|	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000515.png	^	halfwidth_symbols	UDEVGothic	noise_0.02
+000516.png	}	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000517.png	^	halfwidth_symbols	UDEVGothic	contrast_1.1
+000518.png	[	halfwidth_symbols	UDEVGothic	original
+000519.png	}	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000521.png	]	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000520.png	[	halfwidth_symbols	UDEVGothic	rotate_2.0
+000522.png	|	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000523.png	}	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000524.png	]	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000527.png	]	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000525.png	}	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000526.png	}	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000528.png	|	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000529.png	|	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000530.png	#	halfwidth_symbols	BIZ-UDGothic	original
+000531.png	!	halfwidth_symbols	BIZ-UDMincho	original
+000532.png	}	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000533.png	[	halfwidth_symbols	UDEVGothic	blur_1.0
+000534.png	}	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000535.png	!	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000537.png	#	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000536.png	!	halfwidth_symbols	HiraginoMincho ProN	original
+000538.png	|	halfwidth_symbols	HiraginoKakuGothic W3	original
+000539.png	[	halfwidth_symbols	UDEVGothic	noise_0.02
+000540.png	[	halfwidth_symbols	UDEVGothic	contrast_1.1
+000541.png	|	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000542.png	!	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000543.png	+	halfwidth_symbols	UDEVGothic	original
+000544.png	+	halfwidth_symbols	UDEVGothic	rotate_2.0
+000545.png	!	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000546.png	#	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000547.png	!	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000549.png	!	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000551.png	|	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000550.png	!	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000548.png	#	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000552.png	#	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000553.png	[	halfwidth_symbols	BIZ-UDMincho	original
+000556.png	|	halfwidth_symbols	BIZ-UDGothic	original
+000555.png	|	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000557.png	[	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000554.png	!	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000558.png	+	halfwidth_symbols	UDEVGothic	blur_1.0
+000559.png	|	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000561.png	!	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000560.png	|	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000562.png	+	halfwidth_symbols	HiraginoKakuGothic W3	original
+000563.png	}	halfwidth_symbols	HiraginoMincho ProN	original
+000564.png	+	halfwidth_symbols	UDEVGothic	noise_0.02
+000565.png	+	halfwidth_symbols	UDEVGothic	contrast_1.1
+000566.png	+	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000567.png	}	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000568.png	'	halfwidth_symbols	UDEVGothic	original
+000569.png	'	halfwidth_symbols	UDEVGothic	rotate_2.0
+000570.png	[	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000571.png	|	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000572.png	[	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000573.png	[	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000574.png	|	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000575.png	}	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000576.png	|	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000577.png	;	halfwidth_symbols	BIZ-UDMincho	original
+000578.png	+	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000579.png	"	halfwidth_symbols	BIZ-UDGothic	original
+000581.png	'	halfwidth_symbols	UDEVGothic	blur_1.0
+000580.png	}	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000582.png	;	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000583.png	}	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000585.png	"	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000584.png	+	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000587.png	,	halfwidth_symbols	HiraginoMincho ProN	original
+000588.png	+	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000586.png	'	halfwidth_symbols	UDEVGothic	noise_0.02
+000589.png	'	halfwidth_symbols	UDEVGothic	contrast_1.1
+000590.png	'	halfwidth_symbols	HiraginoKakuGothic W3	original
+000592.png	,	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000593.png	'	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000591.png	\	halfwidth_symbols	UDEVGothic	original
+000594.png	;	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000595.png	\	halfwidth_symbols	UDEVGothic	rotate_2.0
+000596.png	"	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000597.png	;	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000598.png	;	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000599.png	,	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000600.png	'	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000601.png	"	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000602.png	\	halfwidth_symbols	BIZ-UDMincho	original
+000603.png	"	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000604.png	,	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000605.png	'	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000606.png	,	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000608.png	'	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000607.png	\	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000609.png	\	halfwidth_symbols	UDEVGothic	blur_1.0
+000610.png	}	halfwidth_symbols	BIZ-UDGothic	original
+000612.png	,	halfwidth_symbols	HiraginoKakuGothic W3	original
+000611.png	;	halfwidth_symbols	HiraginoMincho ProN	original
+000613.png	\	halfwidth_symbols	UDEVGothic	noise_0.02
+000614.png	}	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000615.png	\	halfwidth_symbols	UDEVGothic	contrast_1.1
+000616.png	,	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000617.png	;	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000618.png	,	halfwidth_symbols	UDEVGothic	original
+000619.png	\	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000620.png	,	halfwidth_symbols	UDEVGothic	rotate_2.0
+000621.png	\	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000623.png	,	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000624.png	\	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000622.png	}	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000625.png	;	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000627.png	,	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000626.png	/	halfwidth_symbols	BIZ-UDMincho	original
+000629.png	,	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000628.png	}	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000632.png	}	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000631.png	/	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000630.png	;	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000634.png	,	halfwidth_symbols	UDEVGothic	blur_1.0
+000633.png	!	halfwidth_symbols	HiraginoKakuGothic W3	original
+000635.png	;	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000636.png	'	halfwidth_symbols	BIZ-UDGothic	original
+000637.png	-	halfwidth_symbols	HiraginoMincho ProN	original
+000639.png	'	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000640.png	!	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000638.png	,	halfwidth_symbols	UDEVGothic	noise_0.02
+000641.png	,	halfwidth_symbols	UDEVGothic	contrast_1.1
+000642.png	-	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000643.png	~	halfwidth_symbols	UDEVGothic	original
+000644.png	/	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000645.png	~	halfwidth_symbols	UDEVGothic	rotate_2.0
+000647.png	'	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000648.png	!	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000646.png	/	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000649.png	/	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000650.png	-	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000651.png	!	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000652.png	'	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000653.png	`	halfwidth_symbols	BIZ-UDMincho	original
+000654.png	!	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000656.png	'	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000655.png	~	halfwidth_symbols	UDEVGothic	blur_1.0
+000657.png	-	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000658.png	`	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000659.png	/	halfwidth_symbols	HiraginoKakuGothic W3	original
+000661.png	^	halfwidth_symbols	BIZ-UDGothic	original
+000660.png	-	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000662.png	~	halfwidth_symbols	UDEVGothic	noise_0.02
+000663.png	^	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000664.png	/	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000665.png	~	halfwidth_symbols	UDEVGothic	contrast_1.1
+000666.png	[	halfwidth_symbols	HiraginoMincho ProN	original
+000667.png	<	halfwidth_symbols	UDEVGothic	original
+000668.png	[	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000669.png	<	halfwidth_symbols	UDEVGothic	rotate_2.0
+000670.png	`	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000671.png	^	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000672.png	/	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000673.png	`	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000674.png	[	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000676.png	`	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000675.png	^	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000678.png	<	halfwidth_symbols	UDEVGothic	blur_1.0
+000679.png	^	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000677.png	/	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000681.png	~	halfwidth_symbols	BIZ-UDMincho	original
+000682.png	/	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000680.png	[	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000683.png	,	halfwidth_symbols	BIZ-UDGothic	original
+000684.png	[	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000686.png	;	halfwidth_symbols	HiraginoKakuGothic W3	original
+000685.png	<	halfwidth_symbols	UDEVGothic	noise_0.02
+000687.png	<	halfwidth_symbols	UDEVGothic	contrast_1.1
+000689.png	~	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000690.png	,	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000691.png	;	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000688.png	\	halfwidth_symbols	HiraginoMincho ProN	original
+000692.png	!	halfwidth_symbols	UDEVGothic	original
+000694.png	!	halfwidth_symbols	UDEVGothic	rotate_2.0
+000693.png	\	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000695.png	;	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000696.png	~	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000697.png	,	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000698.png	;	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000699.png	;	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000700.png	~	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000701.png	,	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000702.png	!	halfwidth_symbols	UDEVGothic	blur_1.0
+000704.png	~	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000703.png	\	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000705.png	,	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000706.png	`	halfwidth_symbols	HiraginoKakuGothic W3	original
+000707.png	-	halfwidth_symbols	BIZ-UDMincho	original
+000708.png	`	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000710.png	!	halfwidth_symbols	BIZ-UDGothic	original
+000709.png	!	halfwidth_symbols	UDEVGothic	noise_0.02
+000711.png	-	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000713.png	!	halfwidth_symbols	UDEVGothic	contrast_1.1
+000712.png	\	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000714.png	!	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000715.png	\	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000716.png	?	halfwidth_symbols	UDEVGothic	original
+000717.png	:	halfwidth_symbols	HiraginoMincho ProN	original
+000718.png	?	halfwidth_symbols	UDEVGothic	rotate_2.0
+000719.png	:	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000720.png	`	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000721.png	-	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000722.png	!	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000724.png	-	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000723.png	`	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000725.png	-	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000726.png	`	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000727.png	!	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000728.png	?	halfwidth_symbols	UDEVGothic	blur_1.0
+000730.png	.	halfwidth_symbols	BIZ-UDMincho	original
+000731.png	~	halfwidth_symbols	HiraginoKakuGothic W3	original
+000729.png	!	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000732.png	:	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000733.png	?	halfwidth_symbols	UDEVGothic	noise_0.02
+000734.png	;	halfwidth_symbols	BIZ-UDGothic	original
+000735.png	~	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000736.png	?	halfwidth_symbols	UDEVGothic	contrast_1.1
+000737.png	:	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000738.png	.	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000739.png	;	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000740.png	:	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000741.png	;	halfwidth_symbols	UDEVGothic	original
+000742.png	.	halfwidth_symbols	HiraginoMincho ProN	original
+000743.png	.	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000744.png	;	halfwidth_symbols	UDEVGothic	rotate_2.0
+000745.png	~	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000746.png	.	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000747.png	;	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000748.png	~	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000749.png	.	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000751.png	.	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000752.png	~	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000750.png	;	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000753.png	;	halfwidth_symbols	UDEVGothic	blur_1.0
+000754.png	.	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000755.png	;	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000756.png	[	halfwidth_symbols	HiraginoKakuGothic W3	original
+000758.png	:	halfwidth_symbols	BIZ-UDMincho	original
+000757.png	.	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000759.png	/	halfwidth_symbols	BIZ-UDGothic	original
+000763.png	.	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000762.png	:	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000761.png	[	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000760.png	;	halfwidth_symbols	UDEVGothic	noise_0.02
+000765.png	/	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000764.png	;	halfwidth_symbols	UDEVGothic	contrast_1.1
+000766.png	~	halfwidth_symbols	HiraginoMincho ProN	original
+000767.png	/	halfwidth_symbols	UDEVGothic	original
+000768.png	~	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000769.png	/	halfwidth_symbols	UDEVGothic	rotate_2.0
+000770.png	[	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000771.png	:	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000772.png	/	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000773.png	[	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000774.png	[	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000775.png	:	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000776.png	:	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000777.png	/	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000778.png	~	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000779.png	\	halfwidth_symbols	HiraginoKakuGothic W3	original
+000780.png	/	halfwidth_symbols	UDEVGothic	blur_1.0
+000781.png	/	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000782.png	_	halfwidth_symbols	BIZ-UDMincho	original
+000783.png	_	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000785.png	~	halfwidth_symbols	BIZ-UDGothic	original
+000786.png	\	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000787.png	/	halfwidth_symbols	UDEVGothic	noise_0.02
+000784.png	~	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000788.png	~	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000790.png	~	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000789.png	/	halfwidth_symbols	UDEVGothic	contrast_1.1
+000791.png	_	halfwidth_symbols	UDEVGothic	original
+000792.png	`	halfwidth_symbols	HiraginoMincho ProN	original
+000793.png	_	halfwidth_symbols	UDEVGothic	rotate_2.0
+000794.png	`	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000795.png	\	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000796.png	~	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000797.png	_	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000798.png	\	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000800.png	\	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000799.png	~	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000801.png	~	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000803.png	_	halfwidth_symbols	UDEVGothic	blur_1.0
+000802.png	_	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000804.png	_	halfwidth_symbols	HiraginoKakuGothic W3	original
+000805.png	_	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000806.png	`	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000807.png	>	halfwidth_symbols	BIZ-UDGothic	original
+000809.png	=	halfwidth_symbols	BIZ-UDMincho	original
+000808.png	_	halfwidth_symbols	UDEVGothic	noise_0.02
+000812.png	_	halfwidth_symbols	UDEVGothic	contrast_1.1
+000811.png	=	halfwidth_symbols	BIZ-UDMincho	rotate_2.0
+000810.png	`	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000813.png	>	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000814.png	`	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000815.png	"	halfwidth_symbols	UDEVGothic	original
+000816.png	_	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000817.png	_	halfwidth_symbols	HiraginoMincho ProN	original
+000818.png	"	halfwidth_symbols	UDEVGothic	rotate_2.0
+000819.png	_	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000820.png	=	halfwidth_symbols	BIZ-UDMincho	blur_1.0
+000821.png	>	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000822.png	=	halfwidth_symbols	BIZ-UDMincho	noise_0.02
+000823.png	_	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000824.png	"	halfwidth_symbols	UDEVGothic	blur_1.0
+000826.png	=	halfwidth_symbols	BIZ-UDMincho	contrast_1.1
+000825.png	>	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000827.png	>	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000829.png	_	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000828.png	_	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000831.png	Ｏ	fullwidth_alnum	BIZ-UDMincho	original
+000830.png	"	halfwidth_symbols	UDEVGothic	noise_0.02
+000832.png	[	halfwidth_symbols	BIZ-UDGothic	original
+000833.png	_	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000835.png	"	halfwidth_symbols	UDEVGothic	contrast_1.1
+000834.png	_	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000838.png	.	halfwidth_symbols	HiraginoKakuGothic W3	original
+000836.png	[	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000837.png	Ｏ	fullwidth_alnum	BIZ-UDMincho	rotate_2.0
+000839.png	_	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000840.png	`	halfwidth_symbols	UDEVGothic	original
+000841.png	.	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000842.png	=	halfwidth_symbols	HiraginoMincho ProN	original
+000844.png	=	halfwidth_symbols	HiraginoMincho ProN	rotate_2.0
+000843.png	`	halfwidth_symbols	UDEVGothic	rotate_2.0
+000845.png	[	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000846.png	.	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000847.png	[	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000848.png	.	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000850.png	[	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000849.png	Ｏ	fullwidth_alnum	BIZ-UDMincho	blur_1.0
+000851.png	.	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000852.png	`	halfwidth_symbols	UDEVGothic	blur_1.0
+000854.png	-	halfwidth_symbols	HiraginoKakuGothic W3	original
+000853.png	\	halfwidth_symbols	BIZ-UDGothic	original
+000858.png	-	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000855.png	=	halfwidth_symbols	HiraginoMincho ProN	blur_1.0
+000857.png	\	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000859.png	`	halfwidth_symbols	UDEVGothic	noise_0.02
+000856.png	Ｏ	fullwidth_alnum	BIZ-UDMincho	noise_0.02
+000860.png	`	halfwidth_symbols	UDEVGothic	contrast_1.1
+000863.png	.	halfwidth_symbols	UDEVGothic	original
+000861.png	Ｏ	fullwidth_alnum	BIZ-UDMincho	contrast_1.1
+000862.png	=	halfwidth_symbols	HiraginoMincho ProN	noise_0.02
+000864.png	=	halfwidth_symbols	HiraginoMincho ProN	contrast_1.1
+000865.png	Ｗ	fullwidth_alnum	BIZ-UDMincho	original
+000867.png	-	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000866.png	ｖ	fullwidth_alnum	HiraginoMincho ProN	original
+000868.png	\	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000869.png	-	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000871.png	ｖ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000870.png	Ｗ	fullwidth_alnum	BIZ-UDMincho	rotate_2.0
+000872.png	-	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000874.png	:	halfwidth_symbols	HiraginoKakuGothic W3	original
+000873.png	\	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000875.png	:	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000876.png	ｖ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+000877.png	\	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000878.png	.	halfwidth_symbols	BIZ-UDGothic	original
+000879.png	ｖ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+000880.png	ｖ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000882.png	:	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000881.png	.	halfwidth_symbols	UDEVGothic	rotate_2.0
+000884.png	:	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000885.png	:	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000883.png	Ｗ	fullwidth_alnum	HiraginoMincho ProN	original
+000886.png	=	halfwidth_symbols	HiraginoKakuGothic W3	original
+000887.png	=	halfwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+000888.png	.	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000890.png	Ｗ	fullwidth_alnum	BIZ-UDMincho	blur_1.0
+000889.png	Ｗ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000891.png	.	halfwidth_symbols	UDEVGothic	blur_1.0
+000892.png	Ｗ	fullwidth_alnum	BIZ-UDMincho	noise_0.02
+000893.png	=	halfwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+000894.png	.	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000895.png	.	halfwidth_symbols	UDEVGothic	noise_0.02
+000897.png	.	halfwidth_symbols	UDEVGothic	contrast_1.1
+000896.png	Ｗ	fullwidth_alnum	BIZ-UDMincho	contrast_1.1
+000898.png	.	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000899.png	=	halfwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+000900.png	-	halfwidth_symbols	UDEVGothic	original
+000901.png	.	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000902.png	=	halfwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+000903.png	ｌ	fullwidth_alnum	BIZ-UDMincho	original
+000904.png	`	halfwidth_symbols	BIZ-UDGothic	original
+000905.png	Ｈ	fullwidth_alnum	HiraginoKakuGothic W3	original
+000906.png	ｌ	fullwidth_alnum	BIZ-UDMincho	rotate_2.0
+000907.png	`	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000908.png	Ｗ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+000909.png	-	halfwidth_symbols	UDEVGothic	rotate_2.0
+000910.png	Ｈ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000911.png	Ｗ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+000913.png	`	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000912.png	Ｗ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000914.png	ｌ	fullwidth_alnum	BIZ-UDMincho	blur_1.0
+000915.png	-	halfwidth_symbols	UDEVGothic	blur_1.0
+000916.png	ｏ	fullwidth_alnum	HiraginoMincho ProN	original
+000917.png	`	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000919.png	`	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000918.png	-	halfwidth_symbols	UDEVGothic	noise_0.02
+000920.png	Ｈ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000921.png	-	halfwidth_symbols	UDEVGothic	contrast_1.1
+000923.png	-	halfwidth_symbols	BIZ-UDGothic	original
+000924.png	:	halfwidth_symbols	UDEVGothic	original
+000922.png	ｌ	fullwidth_alnum	BIZ-UDMincho	noise_0.02
+000925.png	-	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000926.png	ｌ	fullwidth_alnum	BIZ-UDMincho	contrast_1.1
+000929.png	:	halfwidth_symbols	UDEVGothic	rotate_2.0
+000927.png	Ｈ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000928.png	ｏ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000930.png	Ｈ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000931.png	ｃ	fullwidth_alnum	BIZ-UDMincho	original
+000932.png	ｕ	fullwidth_alnum	HiraginoKakuGothic W3	original
+000933.png	ｕ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000934.png	ｃ	fullwidth_alnum	BIZ-UDMincho	rotate_2.0
+000935.png	:	halfwidth_symbols	UDEVGothic	blur_1.0
+000936.png	-	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000937.png	:	halfwidth_symbols	UDEVGothic	noise_0.02
+000940.png	:	halfwidth_symbols	UDEVGothic	contrast_1.1
+000938.png	-	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000939.png	ｏ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+000941.png	-	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000942.png	=	halfwidth_symbols	UDEVGothic	original
+000943.png	:	halfwidth_symbols	BIZ-UDGothic	original
+000944.png	=	halfwidth_symbols	UDEVGothic	rotate_2.0
+000946.png	:	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000945.png	ｏ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+000947.png	ｏ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000948.png	ｃ	fullwidth_alnum	BIZ-UDMincho	blur_1.0
+000949.png	ｕ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000950.png	ｗ	fullwidth_alnum	HiraginoMincho ProN	original
+000954.png	=	halfwidth_symbols	UDEVGothic	blur_1.0
+000953.png	ｗ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000951.png	ｃ	fullwidth_alnum	BIZ-UDMincho	noise_0.02
+000952.png	ｕ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000955.png	ｃ	fullwidth_alnum	BIZ-UDMincho	contrast_1.1
+000956.png	ｕ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000957.png	:	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000958.png	=	halfwidth_symbols	UDEVGothic	noise_0.02
+000959.png	=	halfwidth_symbols	UDEVGothic	contrast_1.1
+000960.png	ｍ	fullwidth_alnum	HiraginoKakuGothic W3	original
+000961.png	ｘ	fullwidth_alnum	BIZ-UDMincho	original
+000963.png	Ｈ	fullwidth_alnum	UDEVGothic	original
+000962.png	:	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000964.png	ｍ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000965.png	ｘ	fullwidth_alnum	BIZ-UDMincho	rotate_2.0
+000966.png	:	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000967.png	_	halfwidth_symbols	BIZ-UDGothic	original
+000968.png	ｗ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+000969.png	_	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000970.png	Ｈ	fullwidth_alnum	UDEVGothic	rotate_2.0
+000971.png	ｗ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+000972.png	ｗ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+000973.png	ｍ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000974.png	ｘ	fullwidth_alnum	BIZ-UDMincho	blur_1.0
+000976.png	_	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000975.png	ｘ	fullwidth_alnum	HiraginoMincho ProN	original
+000977.png	ｍ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+000978.png	ｘ	fullwidth_alnum	BIZ-UDMincho	noise_0.02
+000979.png	ｘ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+000980.png	_	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000982.png	ｍ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+000981.png	ｘ	fullwidth_alnum	BIZ-UDMincho	contrast_1.1
+000983.png	_	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+000984.png	Ｈ	fullwidth_alnum	UDEVGothic	blur_1.0
+000985.png	=	halfwidth_symbols	BIZ-UDGothic	original
+000986.png	Ｉ	fullwidth_alnum	HiraginoKakuGothic W3	original
+000987.png	ｚ	fullwidth_alnum	BIZ-UDMincho	original
+000988.png	Ｉ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+000989.png	=	halfwidth_symbols	BIZ-UDGothic	rotate_2.0
+000990.png	Ｈ	fullwidth_alnum	UDEVGothic	noise_0.02
+000992.png	Ｈ	fullwidth_alnum	UDEVGothic	contrast_1.1
+000991.png	ｚ	fullwidth_alnum	BIZ-UDMincho	rotate_2.0
+000993.png	Ｘ	fullwidth_alnum	UDEVGothic	original
+000994.png	Ｘ	fullwidth_alnum	UDEVGothic	rotate_2.0
+000995.png	ｘ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+000996.png	=	halfwidth_symbols	BIZ-UDGothic	blur_1.0
+000998.png	Ｉ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+000997.png	=	halfwidth_symbols	BIZ-UDGothic	noise_0.02
+000999.png	ｘ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+001000.png	=	halfwidth_symbols	BIZ-UDGothic	contrast_1.1
+001001.png	ｘ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+001002.png	ｚ	fullwidth_alnum	BIZ-UDMincho	blur_1.0
+001003.png	Ｈ	fullwidth_alnum	BIZ-UDGothic	original
+001004.png	Ｉ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001005.png	ｒ	fullwidth_alnum	HiraginoMincho ProN	original
+001006.png	Ｈ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001007.png	Ｉ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001008.png	Ｘ	fullwidth_alnum	UDEVGothic	blur_1.0
+001010.png	ｒ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+001009.png	ｚ	fullwidth_alnum	BIZ-UDMincho	noise_0.02
+001011.png	ｖ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001012.png	ｚ	fullwidth_alnum	BIZ-UDMincho	contrast_1.1
+001013.png	Ｘ	fullwidth_alnum	UDEVGothic	noise_0.02
+001014.png	ｖ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001015.png	Ｘ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001016.png	ｉ	fullwidth_alnum	BIZ-UDMincho	original
+001017.png	Ｌ	fullwidth_alnum	UDEVGothic	original
+001018.png	ｉ	fullwidth_alnum	BIZ-UDMincho	rotate_2.0
+001019.png	Ｈ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001020.png	Ｌ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001022.png	ｒ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+001021.png	Ｈ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001023.png	Ｈ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001024.png	ｖ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001026.png	Ｌ	fullwidth_alnum	BIZ-UDGothic	original
+001025.png	ｒ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+001027.png	ｒ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+001028.png	Ｌ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001030.png	Ｌ	fullwidth_alnum	UDEVGothic	blur_1.0
+001031.png	ｉ	fullwidth_alnum	BIZ-UDMincho	blur_1.0
+001029.png	ｖ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001032.png	ｃ	fullwidth_alnum	HiraginoMincho ProN	original
+001033.png	ｖ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001034.png	Ｌ	fullwidth_alnum	UDEVGothic	noise_0.02
+001038.png	Ｌ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001037.png	ｎ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001035.png	ｃ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+001036.png	ｉ	fullwidth_alnum	BIZ-UDMincho	noise_0.02
+001039.png	ｉ	fullwidth_alnum	BIZ-UDMincho	contrast_1.1
+001040.png	Ｊ	fullwidth_alnum	UDEVGothic	original
+001041.png	ｊ	fullwidth_alnum	BIZ-UDMincho	original
+001042.png	Ｊ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001043.png	ｎ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001044.png	Ｌ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001045.png	ｊ	fullwidth_alnum	BIZ-UDMincho	rotate_2.0
+001046.png	Ｌ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001047.png	ｃ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+001048.png	Ｌ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001049.png	Ｙ	fullwidth_alnum	BIZ-UDGothic	original
+001050.png	Ｊ	fullwidth_alnum	UDEVGothic	blur_1.0
+001052.png	ｎ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001051.png	ｃ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+001053.png	Ｙ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001054.png	ｃ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+001055.png	ｊ	fullwidth_alnum	BIZ-UDMincho	blur_1.0
+001056.png	Ｊ	fullwidth_alnum	UDEVGothic	noise_0.02
+001057.png	ｎ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001058.png	ｓ	fullwidth_alnum	HiraginoMincho ProN	original
+001059.png	Ｊ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001060.png	ｎ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001061.png	ｊ	fullwidth_alnum	BIZ-UDMincho	noise_0.02
+001062.png	ｓ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+001063.png	ｃ	fullwidth_alnum	UDEVGothic	original
+001064.png	ｊ	fullwidth_alnum	BIZ-UDMincho	contrast_1.1
+001065.png	Ｊ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001066.png	（	fullwidth_symbols	BIZ-UDMincho	original
+001067.png	Ｊ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001068.png	ｃ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001069.png	Ｙ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001070.png	（	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001071.png	Ｙ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001072.png	Ｙ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001074.png	Ｊ	fullwidth_alnum	BIZ-UDGothic	original
+001073.png	ｓ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+001075.png	Ｊ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001076.png	ｃ	fullwidth_alnum	UDEVGothic	blur_1.0
+001077.png	Ｊ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001078.png	ｓ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+001079.png	ｓ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+001080.png	（	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001081.png	ｃ	fullwidth_alnum	UDEVGothic	noise_0.02
+001082.png	Ｊ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001084.png	ｚ	fullwidth_alnum	HiraginoMincho ProN	original
+001083.png	ｃ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001085.png	Ｊ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001086.png	ｚ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+001088.png	Ｏ	fullwidth_alnum	UDEVGothic	original
+001087.png	（	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001089.png	ｗ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001091.png	Ｊ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001090.png	（	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001093.png	ｗ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001092.png	Ｏ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001094.png	〔	fullwidth_symbols	BIZ-UDMincho	original
+001095.png	Ｊ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001096.png	〔	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001097.png	Ｊ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001098.png	Ｏ	fullwidth_alnum	BIZ-UDGothic	original
+001099.png	ｚ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+001100.png	Ｏ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001101.png	Ｏ	fullwidth_alnum	UDEVGothic	blur_1.0
+001102.png	ｗ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001103.png	ｚ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+001104.png	ｚ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+001105.png	Ｏ	fullwidth_alnum	UDEVGothic	noise_0.02
+001107.png	ｌ	fullwidth_alnum	HiraginoMincho ProN	original
+001106.png	ｗ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001108.png	〔	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001109.png	Ｏ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001110.png	ｌ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+001111.png	ｗ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001112.png	Ｏ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001113.png	ｕ	fullwidth_alnum	UDEVGothic	original
+001114.png	ｏ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001115.png	〔	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001118.png	〔	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001116.png	ｕ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001117.png	ｏ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001119.png	Ｏ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001120.png	＇	fullwidth_symbols	BIZ-UDMincho	original
+001121.png	Ｏ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001122.png	＇	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001123.png	ｃ	fullwidth_alnum	BIZ-UDGothic	original
+001124.png	ｌ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+001125.png	ｃ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001126.png	ｕ	fullwidth_alnum	UDEVGothic	blur_1.0
+001128.png	ｏ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001127.png	ｌ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+001129.png	ｌ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+001130.png	ｕ	fullwidth_alnum	UDEVGothic	noise_0.02
+001131.png	＇	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001133.png	ｉ	fullwidth_alnum	HiraginoMincho ProN	original
+001134.png	ｕ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001132.png	ｏ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001135.png	ｏ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001136.png	ｉ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+001137.png	ｃ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001138.png	１	fullwidth_alnum	UDEVGothic	original
+001139.png	＇	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001140.png	Ｌ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001141.png	＇	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001142.png	ｃ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001143.png	Ｌ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001144.png	１	fullwidth_alnum	UDEVGothic	rotate_2.0
+001146.png	＂	fullwidth_symbols	BIZ-UDMincho	original
+001145.png	ｃ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001147.png	＂	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001148.png	Ｔ	fullwidth_alnum	BIZ-UDGothic	original
+001149.png	Ｔ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001150.png	ｉ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+001151.png	１	fullwidth_alnum	UDEVGothic	blur_1.0
+001152.png	Ｌ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001154.png	Ｔ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001153.png	ｉ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+001155.png	＂	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001156.png	１	fullwidth_alnum	UDEVGothic	noise_0.02
+001158.png	ｉ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+001157.png	Ｌ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001159.png	１	fullwidth_alnum	UDEVGothic	contrast_1.1
+001160.png	Ｌ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001162.png	ｊ	fullwidth_alnum	HiraginoMincho ProN	original
+001163.png	＂	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001164.png	ｚ	fullwidth_alnum	UDEVGothic	original
+001161.png	Ｔ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001166.png	＂	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001167.png	Ｔ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001165.png	ｘ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001168.png	ｚ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001170.png	～	fullwidth_symbols	BIZ-UDMincho	original
+001169.png	ｘ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001171.png	ｍ	fullwidth_alnum	BIZ-UDGothic	original
+001172.png	ｊ	fullwidth_alnum	HiraginoMincho ProN	rotate_2.0
+001173.png	ｍ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001174.png	～	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001175.png	ｚ	fullwidth_alnum	UDEVGothic	blur_1.0
+001176.png	ｍ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001177.png	ｘ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001178.png	ｚ	fullwidth_alnum	UDEVGothic	noise_0.02
+001179.png	ｚ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001180.png	～	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001181.png	ｊ	fullwidth_alnum	HiraginoMincho ProN	blur_1.0
+001182.png	ｍ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001184.png	ｖ	fullwidth_alnum	UDEVGothic	original
+001183.png	ｘ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001185.png	ｍ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001186.png	ｘ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001188.png	ｊ	fullwidth_alnum	HiraginoMincho ProN	noise_0.02
+001187.png	～	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001189.png	ｖ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001190.png	ｏ	fullwidth_alnum	BIZ-UDGothic	original
+001191.png	ｒ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001193.png	～	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001192.png	ｊ	fullwidth_alnum	HiraginoMincho ProN	contrast_1.1
+001194.png	ｒ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001195.png	ｏ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001196.png	＋	fullwidth_symbols	BIZ-UDMincho	original
+001197.png	＋	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001198.png	＼	fullwidth_symbols	HiraginoMincho ProN	original
+001199.png	＼	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001200.png	ｖ	fullwidth_alnum	UDEVGothic	blur_1.0
+001201.png	ｏ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001202.png	ｒ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001203.png	＋	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001204.png	ｖ	fullwidth_alnum	UDEVGothic	noise_0.02
+001205.png	ｏ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001207.png	ｖ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001206.png	ｒ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001208.png	ｏ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001209.png	ｒ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001210.png	＋	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001212.png	ｓ	fullwidth_alnum	UDEVGothic	original
+001211.png	＼	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001213.png	＋	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001214.png	ｓ	fullwidth_alnum	BIZ-UDGothic	original
+001215.png	Ｗ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001216.png	ｓ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001217.png	〕	fullwidth_symbols	BIZ-UDMincho	original
+001218.png	Ｗ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001219.png	＼	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001220.png	ｓ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001221.png	＼	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001222.png	〕	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001223.png	（	fullwidth_symbols	HiraginoMincho ProN	original
+001224.png	（	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001225.png	ｓ	fullwidth_alnum	UDEVGothic	blur_1.0
+001226.png	Ｗ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001227.png	ｓ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001228.png	ｓ	fullwidth_alnum	UDEVGothic	noise_0.02
+001229.png	ｓ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001230.png	〕	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001231.png	Ｗ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001232.png	ｓ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001233.png	ｒ	fullwidth_alnum	UDEVGothic	original
+001234.png	Ｗ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001236.png	ｓ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001235.png	（	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001237.png	ｒ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001238.png	〕	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001239.png	ｚ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001240.png	ｖ	fullwidth_alnum	BIZ-UDGothic	original
+001241.png	〕	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001242.png	（	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001245.png	」	fullwidth_symbols	BIZ-UDMincho	original
+001244.png	ｚ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001243.png	ｖ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001246.png	（	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001247.png	」	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001248.png	＞	fullwidth_symbols	HiraginoMincho ProN	original
+001249.png	＞	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001250.png	ｒ	fullwidth_alnum	UDEVGothic	blur_1.0
+001252.png	ｚ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001251.png	ｒ	fullwidth_alnum	UDEVGothic	noise_0.02
+001253.png	ｖ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001254.png	ｒ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001255.png	」	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001256.png	ｗ	fullwidth_alnum	UDEVGothic	original
+001257.png	ｚ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001258.png	ｖ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001259.png	ｚ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001261.png	ｗ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001260.png	ｖ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001262.png	＞	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001263.png	」	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001264.png	ｓ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001266.png	」	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001265.png	Ｕ	fullwidth_alnum	BIZ-UDGothic	original
+001267.png	ｓ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001268.png	Ｕ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001270.png	〖	fullwidth_symbols	BIZ-UDMincho	original
+001269.png	＞	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001271.png	＞	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001272.png	〖	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001273.png	］	fullwidth_symbols	HiraginoMincho ProN	original
+001274.png	ｗ	fullwidth_alnum	UDEVGothic	blur_1.0
+001275.png	］	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001276.png	ｗ	fullwidth_alnum	UDEVGothic	noise_0.02
+001277.png	ｗ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001278.png	ｓ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001279.png	Ｕ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001280.png	ｏ	fullwidth_alnum	UDEVGothic	original
+001281.png	ｏ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001282.png	〖	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001283.png	ｓ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001284.png	Ｕ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001285.png	ｓ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001286.png	Ｕ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001287.png	］	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001289.png	ｌ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001288.png	〖	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001290.png	ｎ	fullwidth_alnum	BIZ-UDGothic	original
+001291.png	〖	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001293.png	ｎ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001292.png	ｌ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001294.png	］	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001295.png	『	fullwidth_symbols	BIZ-UDMincho	original
+001296.png	］	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001297.png	ｏ	fullwidth_alnum	UDEVGothic	blur_1.0
+001298.png	『	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001299.png	～	fullwidth_symbols	HiraginoMincho ProN	original
+001300.png	～	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001301.png	ｏ	fullwidth_alnum	UDEVGothic	noise_0.02
+001302.png	ｏ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001303.png	ｎ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001304.png	ｘ	fullwidth_alnum	UDEVGothic	original
+001305.png	ｌ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001306.png	ｘ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001307.png	ｎ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001308.png	ｌ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001309.png	『	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001310.png	ｎ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001311.png	ｌ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001312.png	Ｖ	fullwidth_alnum	BIZ-UDGothic	original
+001313.png	～	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001314.png	ｃ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001315.png	『	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001316.png	Ｖ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001317.png	ｃ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001318.png	『	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001319.png	～	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001320.png	〗	fullwidth_symbols	BIZ-UDMincho	original
+001321.png	～	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001322.png	ｘ	fullwidth_alnum	UDEVGothic	blur_1.0
+001323.png	〗	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001324.png	＋	fullwidth_symbols	HiraginoMincho ProN	original
+001326.png	＋	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001325.png	ｘ	fullwidth_alnum	UDEVGothic	noise_0.02
+001327.png	ｘ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001329.png	ｌ	fullwidth_alnum	UDEVGothic	original
+001328.png	Ｖ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001330.png	ｌ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001331.png	ｃ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001332.png	Ｖ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001333.png	ｃ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001334.png	Ｖ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001335.png	〗	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001336.png	＋	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001337.png	ｃ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001338.png	０	fullwidth_alnum	BIZ-UDGothic	original
+001340.png	１	fullwidth_alnum	HiraginoKakuGothic W3	original
+001339.png	〗	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001341.png	０	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001342.png	＋	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001343.png	１	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001345.png	ｌ	fullwidth_alnum	UDEVGothic	blur_1.0
+001344.png	〗	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001346.png	＋	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001347.png	、	fullwidth_symbols	BIZ-UDMincho	original
+001348.png	＇	fullwidth_symbols	HiraginoMincho ProN	original
+001349.png	ｌ	fullwidth_alnum	UDEVGothic	noise_0.02
+001350.png	、	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001352.png	ｌ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001351.png	＇	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001353.png	ｉ	fullwidth_alnum	UDEVGothic	original
+001354.png	ｉ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001355.png	１	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001356.png	０	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001358.png	＇	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001357.png	１	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001360.png	、	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001359.png	０	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001361.png	ｉ	fullwidth_alnum	UDEVGothic	blur_1.0
+001362.png	１	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001363.png	０	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001365.png	ｉ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001364.png	＇	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001366.png	、	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001367.png	ｘ	fullwidth_alnum	BIZ-UDGothic	original
+001368.png	ｉ	fullwidth_alnum	UDEVGothic	noise_0.02
+001370.png	、	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001369.png	＇	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001371.png	ｉ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001372.png	ｘ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001373.png	ｉ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001374.png	【	fullwidth_symbols	BIZ-UDMincho	original
+001375.png	｀	fullwidth_symbols	HiraginoMincho ProN	original
+001376.png	ｊ	fullwidth_alnum	UDEVGothic	original
+001379.png	｀	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001377.png	ｊ	fullwidth_alnum	UDEVGothic	rotate_2.0
+001378.png	【	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001380.png	ｘ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001381.png	ｉ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001382.png	ｊ	fullwidth_alnum	UDEVGothic	blur_1.0
+001383.png	【	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001384.png	ｘ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001385.png	｀	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001386.png	ｘ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001387.png	ｊ	fullwidth_alnum	UDEVGothic	noise_0.02
+001388.png	ｉ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001391.png	ｊ	fullwidth_alnum	UDEVGothic	contrast_1.1
+001392.png	ｉ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001389.png	【	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001390.png	｀	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001393.png	１	fullwidth_alnum	BIZ-UDGothic	original
+001395.png	｀	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001394.png	【	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001396.png	】	fullwidth_symbols	UDEVGothic	original
+001397.png	ｊ	fullwidth_alnum	HiraginoKakuGothic W3	original
+001398.png	、	fullwidth_symbols	HiraginoMincho ProN	original
+001399.png	】	fullwidth_symbols	UDEVGothic	rotate_2.0
+001400.png	！	fullwidth_symbols	BIZ-UDMincho	original
+001401.png	１	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001402.png	！	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001403.png	ｊ	fullwidth_alnum	HiraginoKakuGothic W3	rotate_2.0
+001404.png	、	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001405.png	】	fullwidth_symbols	UDEVGothic	blur_1.0
+001406.png	１	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001407.png	！	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001408.png	】	fullwidth_symbols	UDEVGothic	noise_0.02
+001409.png	ｊ	fullwidth_alnum	HiraginoKakuGothic W3	blur_1.0
+001411.png	】	fullwidth_symbols	UDEVGothic	contrast_1.1
+001410.png	１	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001412.png	１	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001413.png	、	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001414.png	！	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001415.png	＼	fullwidth_symbols	UDEVGothic	original
+001416.png	ｊ	fullwidth_alnum	HiraginoKakuGothic W3	noise_0.02
+001417.png	ｚ	fullwidth_alnum	BIZ-UDGothic	original
+001418.png	！	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001420.png	ｊ	fullwidth_alnum	HiraginoKakuGothic W3	contrast_1.1
+001419.png	＼	fullwidth_symbols	UDEVGothic	rotate_2.0
+001422.png	ｚ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001421.png	、	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001424.png	／	fullwidth_symbols	BIZ-UDMincho	original
+001425.png	、	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001423.png	＼	fullwidth_symbols	HiraginoKakuGothic W3	original
+001426.png	＼	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001428.png	／	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001427.png	〉	fullwidth_symbols	HiraginoMincho ProN	original
+001429.png	〉	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001430.png	＼	fullwidth_symbols	UDEVGothic	blur_1.0
+001431.png	ｚ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001432.png	＼	fullwidth_symbols	UDEVGothic	noise_0.02
+001433.png	＼	fullwidth_symbols	UDEVGothic	contrast_1.1
+001434.png	＼	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001435.png	／	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001436.png	ｚ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001437.png	］	fullwidth_symbols	UDEVGothic	original
+001438.png	ｚ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001440.png	］	fullwidth_symbols	UDEVGothic	rotate_2.0
+001439.png	〉	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001441.png	／	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001442.png	＼	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001443.png	ｌ	fullwidth_alnum	BIZ-UDGothic	original
+001444.png	／	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001445.png	＼	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001446.png	ｌ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001447.png	〉	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001448.png	＼	fullwidth_symbols	BIZ-UDMincho	original
+001449.png	（	fullwidth_symbols	HiraginoKakuGothic W3	original
+001450.png	〉	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001451.png	（	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001452.png	＼	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001453.png	＾	fullwidth_symbols	HiraginoMincho ProN	original
+001454.png	＾	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001455.png	］	fullwidth_symbols	UDEVGothic	blur_1.0
+001456.png	］	fullwidth_symbols	UDEVGothic	noise_0.02
+001457.png	］	fullwidth_symbols	UDEVGothic	contrast_1.1
+001458.png	ｌ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001459.png	〔	fullwidth_symbols	UDEVGothic	original
+001462.png	＼	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001461.png	〔	fullwidth_symbols	UDEVGothic	rotate_2.0
+001460.png	（	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001463.png	ｌ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001464.png	ｌ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001465.png	＾	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001467.png	＼	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001468.png	ｉ	fullwidth_alnum	BIZ-UDGothic	original
+001466.png	（	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001469.png	＼	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001470.png	（	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001471.png	ｉ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001472.png	＾	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001473.png	］	fullwidth_symbols	BIZ-UDMincho	original
+001474.png	］	fullwidth_symbols	HiraginoKakuGothic W3	original
+001475.png	＾	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001477.png	〔	fullwidth_symbols	UDEVGothic	blur_1.0
+001476.png	］	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001478.png	］	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001479.png	｜	fullwidth_symbols	HiraginoMincho ProN	original
+001480.png	｜	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001481.png	〔	fullwidth_symbols	UDEVGothic	noise_0.02
+001482.png	〔	fullwidth_symbols	UDEVGothic	contrast_1.1
+001483.png	ｉ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001484.png	～	fullwidth_symbols	UDEVGothic	original
+001486.png	～	fullwidth_symbols	UDEVGothic	rotate_2.0
+001485.png	ｉ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001487.png	ｉ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001488.png	］	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001489.png	ｊ	fullwidth_alnum	BIZ-UDGothic	original
+001490.png	］	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001491.png	ｊ	fullwidth_alnum	BIZ-UDGothic	rotate_2.0
+001492.png	｜	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001493.png	］	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001494.png	］	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001495.png	］	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001496.png	｜	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001497.png	｜	fullwidth_symbols	BIZ-UDMincho	original
+001498.png	］	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001499.png	｜	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001500.png	｜	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001501.png	～	fullwidth_symbols	UDEVGothic	blur_1.0
+001502.png	～	fullwidth_symbols	HiraginoKakuGothic W3	original
+001503.png	！	fullwidth_symbols	HiraginoMincho ProN	original
+001504.png	～	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001505.png	～	fullwidth_symbols	UDEVGothic	noise_0.02
+001506.png	！	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001507.png	ｊ	fullwidth_alnum	BIZ-UDGothic	blur_1.0
+001508.png	～	fullwidth_symbols	UDEVGothic	contrast_1.1
+001509.png	〕	fullwidth_symbols	UDEVGothic	original
+001511.png	〕	fullwidth_symbols	UDEVGothic	rotate_2.0
+001510.png	ｊ	fullwidth_alnum	BIZ-UDGothic	noise_0.02
+001512.png	ｊ	fullwidth_alnum	BIZ-UDGothic	contrast_1.1
+001513.png	｜	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001514.png	＼	fullwidth_symbols	BIZ-UDGothic	original
+001515.png	～	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001516.png	＼	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001517.png	！	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001518.png	｜	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001519.png	｜	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001520.png	～	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001522.png	～	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001521.png	！	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001523.png	｝	fullwidth_symbols	BIZ-UDMincho	original
+001524.png	！	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001526.png	＇	fullwidth_symbols	HiraginoKakuGothic W3	original
+001525.png	〕	fullwidth_symbols	UDEVGothic	blur_1.0
+001528.png	＇	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001527.png	｝	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001529.png	｝	fullwidth_symbols	HiraginoMincho ProN	original
+001530.png	＼	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001532.png	｝	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001531.png	〕	fullwidth_symbols	UDEVGothic	noise_0.02
+001533.png	〕	fullwidth_symbols	UDEVGothic	contrast_1.1
+001534.png	＼	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001535.png	＼	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001536.png	〖	fullwidth_symbols	UDEVGothic	original
+001537.png	〖	fullwidth_symbols	UDEVGothic	rotate_2.0
+001538.png	，	fullwidth_symbols	BIZ-UDGothic	original
+001539.png	＇	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001541.png	｝	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001540.png	｝	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001542.png	，	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001543.png	｝	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001545.png	＇	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001544.png	｝	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001546.png	〖	fullwidth_symbols	UDEVGothic	blur_1.0
+001547.png	｝	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001549.png	＇	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001548.png	｝	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001550.png	〔	fullwidth_symbols	HiraginoMincho ProN	original
+001551.png	：	fullwidth_symbols	BIZ-UDMincho	original
+001552.png	＋	fullwidth_symbols	HiraginoKakuGothic W3	original
+001553.png	〖	fullwidth_symbols	UDEVGothic	noise_0.02
+001554.png	＋	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001555.png	〖	fullwidth_symbols	UDEVGothic	contrast_1.1
+001556.png	：	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001557.png	〔	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001558.png	，	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001559.png	〗	fullwidth_symbols	UDEVGothic	original
+001560.png	〗	fullwidth_symbols	UDEVGothic	rotate_2.0
+001561.png	，	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001562.png	，	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001563.png	＋	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001564.png	＂	fullwidth_symbols	BIZ-UDGothic	original
+001565.png	：	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001566.png	＂	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001567.png	〔	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001568.png	＋	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001569.png	＋	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001571.png	〗	fullwidth_symbols	UDEVGothic	blur_1.0
+001570.png	：	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001572.png	〔	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001573.png	：	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001574.png	，	fullwidth_symbols	HiraginoKakuGothic W3	original
+001575.png	〔	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001576.png	，	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001578.png	。	fullwidth_symbols	HiraginoMincho ProN	original
+001577.png	＞	fullwidth_symbols	BIZ-UDMincho	original
+001579.png	〗	fullwidth_symbols	UDEVGothic	noise_0.02
+001581.png	。	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001580.png	＞	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001582.png	〗	fullwidth_symbols	UDEVGothic	contrast_1.1
+001583.png	＂	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001584.png	，	fullwidth_symbols	UDEVGothic	original
+001586.png	，	fullwidth_symbols	UDEVGothic	rotate_2.0
+001585.png	＂	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001587.png	＂	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001588.png	］	fullwidth_symbols	BIZ-UDGothic	original
+001589.png	，	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001590.png	］	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001591.png	。	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001592.png	，	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001593.png	＞	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001594.png	，	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001596.png	，	fullwidth_symbols	UDEVGothic	blur_1.0
+001595.png	。	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001597.png	。	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001598.png	｜	fullwidth_symbols	HiraginoKakuGothic W3	original
+001599.png	＞	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001600.png	｜	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001602.png	〕	fullwidth_symbols	HiraginoMincho ProN	original
+001601.png	＞	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001604.png	］	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001603.png	，	fullwidth_symbols	UDEVGothic	noise_0.02
+001605.png	，	fullwidth_symbols	UDEVGothic	contrast_1.1
+001606.png	〕	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001607.png	｀	fullwidth_symbols	BIZ-UDMincho	original
+001609.png	、	fullwidth_symbols	UDEVGothic	original
+001608.png	］	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001610.png	｀	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001611.png	］	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001612.png	、	fullwidth_symbols	UDEVGothic	rotate_2.0
+001613.png	＇	fullwidth_symbols	BIZ-UDGothic	original
+001614.png	＇	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001615.png	｜	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001616.png	〕	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001618.png	｀	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001617.png	｜	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001620.png	、	fullwidth_symbols	UDEVGothic	blur_1.0
+001619.png	〕	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001621.png	｜	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001622.png	＇	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001623.png	〕	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001624.png	｝	fullwidth_symbols	HiraginoKakuGothic W3	original
+001627.png	＂	fullwidth_symbols	HiraginoMincho ProN	original
+001626.png	、	fullwidth_symbols	UDEVGothic	noise_0.02
+001625.png	｀	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001629.png	、	fullwidth_symbols	UDEVGothic	contrast_1.1
+001630.png	｀	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001628.png	＇	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001632.png	＇	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001631.png	｝	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001633.png	＂	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001634.png	＾	fullwidth_symbols	UDEVGothic	original
+001635.png	…	fullwidth_symbols	BIZ-UDMincho	original
+001636.png	～	fullwidth_symbols	BIZ-UDGothic	original
+001637.png	＾	fullwidth_symbols	UDEVGothic	rotate_2.0
+001638.png	…	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001639.png	～	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001640.png	＂	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001641.png	｝	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001642.png	＾	fullwidth_symbols	UDEVGothic	blur_1.0
+001643.png	～	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001645.png	…	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001644.png	＂	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001646.png	｝	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001648.png	＂	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001647.png	＾	fullwidth_symbols	UDEVGothic	noise_0.02
+001649.png	｝	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001650.png	～	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001651.png	＾	fullwidth_symbols	UDEVGothic	contrast_1.1
+001653.png	～	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001654.png	「	fullwidth_symbols	HiraginoMincho ProN	original
+001652.png	…	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001655.png	、	fullwidth_symbols	HiraginoKakuGothic W3	original
+001656.png	！	fullwidth_symbols	UDEVGothic	original
+001657.png	…	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001658.png	、	fullwidth_symbols	BIZ-UDGothic	original
+001660.png	、	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001661.png	、	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001663.png	．	fullwidth_symbols	BIZ-UDMincho	original
+001662.png	「	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001659.png	！	fullwidth_symbols	UDEVGothic	rotate_2.0
+001664.png	．	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001665.png	、	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001666.png	、	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001667.png	．	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001668.png	「	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001669.png	！	fullwidth_symbols	UDEVGothic	blur_1.0
+001671.png	、	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001670.png	、	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001673.png	「	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001674.png	！	fullwidth_symbols	UDEVGothic	noise_0.02
+001676.png	、	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001672.png	．	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001675.png	、	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001677.png	「	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001678.png	！	fullwidth_symbols	UDEVGothic	contrast_1.1
+001679.png	．	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001680.png	｀	fullwidth_symbols	HiraginoKakuGothic W3	original
+001682.png	ー	fullwidth_symbols	UDEVGothic	original
+001681.png	〔	fullwidth_symbols	BIZ-UDGothic	original
+001683.png	〖	fullwidth_symbols	HiraginoMincho ProN	original
+001684.png	｛	fullwidth_symbols	BIZ-UDMincho	original
+001688.png	ー	fullwidth_symbols	UDEVGothic	rotate_2.0
+001687.png	｀	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001685.png	｛	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001686.png	〖	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001689.png	〔	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001690.png	ー	fullwidth_symbols	UDEVGothic	blur_1.0
+001692.png	〔	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001691.png	〖	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001693.png	｀	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001694.png	｛	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001695.png	ー	fullwidth_symbols	UDEVGothic	noise_0.02
+001696.png	〔	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001698.png	ー	fullwidth_symbols	UDEVGothic	contrast_1.1
+001697.png	〖	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001700.png	〔	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001699.png	｀	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001701.png	｛	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001702.png	〖	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001703.png	｀	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001704.png	。	fullwidth_symbols	UDEVGothic	original
+001705.png	｛	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001706.png	！	fullwidth_symbols	BIZ-UDGothic	original
+001709.png	＾	fullwidth_symbols	BIZ-UDMincho	original
+001708.png	｛	fullwidth_symbols	HiraginoKakuGothic W3	original
+001711.png	。	fullwidth_symbols	UDEVGothic	rotate_2.0
+001710.png	！	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001707.png	：	fullwidth_symbols	HiraginoMincho ProN	original
+001713.png	＾	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001712.png	｛	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001714.png	：	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001715.png	。	fullwidth_symbols	UDEVGothic	blur_1.0
+001717.png	＾	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001716.png	！	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001718.png	｛	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001719.png	：	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001720.png	。	fullwidth_symbols	UDEVGothic	noise_0.02
+001721.png	＾	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001723.png	。	fullwidth_symbols	UDEVGothic	contrast_1.1
+001722.png	！	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001724.png	＾	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001725.png	！	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001728.png	…	fullwidth_symbols	UDEVGothic	original
+001729.png	［	fullwidth_symbols	BIZ-UDMincho	original
+001727.png	：	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001726.png	｛	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001730.png	〕	fullwidth_symbols	BIZ-UDGothic	original
+001731.png	：	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001732.png	…	fullwidth_symbols	UDEVGothic	rotate_2.0
+001733.png	｛	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001735.png	［	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001734.png	〕	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001736.png	［	fullwidth_symbols	HiraginoMincho ProN	original
+001737.png	＾	fullwidth_symbols	HiraginoKakuGothic W3	original
+001738.png	［	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001739.png	＾	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001740.png	…	fullwidth_symbols	UDEVGothic	blur_1.0
+001741.png	…	fullwidth_symbols	UDEVGothic	noise_0.02
+001742.png	…	fullwidth_symbols	UDEVGothic	contrast_1.1
+001743.png	〕	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001744.png	［	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001745.png	［	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001746.png	〇	fullwidth_symbols	UDEVGothic	original
+001747.png	＾	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001748.png	〕	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001750.png	［	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001749.png	［	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001751.png	〇	fullwidth_symbols	UDEVGothic	rotate_2.0
+001752.png	〕	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001753.png	［	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001754.png	［	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001755.png	＾	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001756.png	．	fullwidth_symbols	BIZ-UDGothic	original
+001757.png	†	fullwidth_symbols	BIZ-UDMincho	original
+001759.png	＾	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001760.png	．	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001758.png	〗	fullwidth_symbols	HiraginoMincho ProN	original
+001761.png	〗	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001763.png	。	fullwidth_symbols	HiraginoKakuGothic W3	original
+001762.png	†	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001764.png	。	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001765.png	〇	fullwidth_symbols	UDEVGothic	blur_1.0
+001766.png	〇	fullwidth_symbols	UDEVGothic	noise_0.02
+001767.png	〇	fullwidth_symbols	UDEVGothic	contrast_1.1
+001768.png	．	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001769.png	＂	fullwidth_symbols	UDEVGothic	original
+001770.png	＂	fullwidth_symbols	UDEVGothic	rotate_2.0
+001771.png	〗	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001774.png	。	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001772.png	†	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001773.png	．	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001775.png	．	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001777.png	＾	fullwidth_symbols	BIZ-UDGothic	original
+001776.png	〗	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001778.png	。	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001779.png	†	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001780.png	＾	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001781.png	〗	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001782.png	。	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001783.png	†	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001786.png	〒	fullwidth_symbols	BIZ-UDMincho	original
+001784.png	《	fullwidth_symbols	HiraginoKakuGothic W3	original
+001785.png	／	fullwidth_symbols	HiraginoMincho ProN	original
+001787.png	＂	fullwidth_symbols	UDEVGothic	blur_1.0
+001789.png	〒	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001790.png	／	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001788.png	《	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001791.png	＂	fullwidth_symbols	UDEVGothic	noise_0.02
+001792.png	＂	fullwidth_symbols	UDEVGothic	contrast_1.1
+001793.png	＾	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001794.png	：	fullwidth_symbols	UDEVGothic	original
+001795.png	：	fullwidth_symbols	UDEVGothic	rotate_2.0
+001796.png	＾	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001797.png	＾	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001798.png	《	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001799.png	〒	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001800.png	／	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001801.png	〖	fullwidth_symbols	BIZ-UDGothic	original
+001802.png	〖	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001803.png	《	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001804.png	〒	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001805.png	：	fullwidth_symbols	UDEVGothic	blur_1.0
+001808.png	〒	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001806.png	／	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001807.png	《	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001809.png	／	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001810.png	－	fullwidth_symbols	BIZ-UDMincho	original
+001812.png	「	fullwidth_symbols	HiraginoKakuGothic W3	original
+001813.png	」	fullwidth_symbols	HiraginoMincho ProN	original
+001811.png	：	fullwidth_symbols	UDEVGothic	noise_0.02
+001815.png	－	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001814.png	「	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001816.png	：	fullwidth_symbols	UDEVGothic	contrast_1.1
+001817.png	」	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001818.png	〈	fullwidth_symbols	UDEVGothic	original
+001819.png	〈	fullwidth_symbols	UDEVGothic	rotate_2.0
+001820.png	〖	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001821.png	〖	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001822.png	「	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001823.png	」	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001825.png	－	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001824.png	〖	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001826.png	〈	fullwidth_symbols	UDEVGothic	blur_1.0
+001827.png	。	fullwidth_symbols	BIZ-UDGothic	original
+001828.png	「	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001829.png	」	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001830.png	－	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001831.png	。	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001832.png	「	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001833.png	」	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001834.png	－	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001835.png	〈	fullwidth_symbols	UDEVGothic	noise_0.02
+001836.png	〔	fullwidth_symbols	HiraginoKakuGothic W3	original
+001837.png	〈	fullwidth_symbols	UDEVGothic	contrast_1.1
+001838.png	『	fullwidth_symbols	HiraginoMincho ProN	original
+001839.png	‡	fullwidth_symbols	BIZ-UDMincho	original
+001840.png	『	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001842.png	〔	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001841.png	‡	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001843.png	【	fullwidth_symbols	UDEVGothic	original
+001844.png	【	fullwidth_symbols	UDEVGothic	rotate_2.0
+001845.png	。	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001846.png	『	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001847.png	‡	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001848.png	〔	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001849.png	【	fullwidth_symbols	UDEVGothic	blur_1.0
+001850.png	。	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001852.png	『	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001851.png	‡	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001854.png	。	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001853.png	〔	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001856.png	『	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001855.png	【	fullwidth_symbols	UDEVGothic	noise_0.02
+001857.png	‡	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001858.png	〔	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001859.png	【	fullwidth_symbols	UDEVGothic	contrast_1.1
+001860.png	｀	fullwidth_symbols	BIZ-UDGothic	original
+001862.png	‥	fullwidth_symbols	BIZ-UDMincho	original
+001861.png	』	fullwidth_symbols	HiraginoMincho ProN	original
+001863.png	！	fullwidth_symbols	HiraginoKakuGothic W3	original
+001864.png	｀	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001865.png	〒	fullwidth_symbols	UDEVGothic	original
+001866.png	！	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001867.png	〒	fullwidth_symbols	UDEVGothic	rotate_2.0
+001869.png	‥	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001868.png	』	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001870.png	｀	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001871.png	〒	fullwidth_symbols	UDEVGothic	blur_1.0
+001872.png	！	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001873.png	｀	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001874.png	‥	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001875.png	』	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001877.png	｀	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001876.png	〒	fullwidth_symbols	UDEVGothic	noise_0.02
+001878.png	〒	fullwidth_symbols	UDEVGothic	contrast_1.1
+001879.png	！	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001883.png	‥	fullwidth_symbols	UDEVGothic	original
+001882.png	／	fullwidth_symbols	BIZ-UDGothic	original
+001881.png	』	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001884.png	！	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001880.png	‥	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001885.png	』	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001887.png	‥	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001888.png	‥	fullwidth_symbols	UDEVGothic	rotate_2.0
+001886.png	／	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001889.png	．	fullwidth_symbols	HiraginoKakuGothic W3	original
+001890.png	【	fullwidth_symbols	HiraginoMincho ProN	original
+001891.png	§	fullwidth_symbols	BIZ-UDMincho	original
+001893.png	．	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001892.png	§	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001894.png	【	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001895.png	‥	fullwidth_symbols	UDEVGothic	blur_1.0
+001896.png	／	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001897.png	§	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001898.png	‥	fullwidth_symbols	UDEVGothic	noise_0.02
+001899.png	／	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001900.png	【	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001901.png	‥	fullwidth_symbols	UDEVGothic	contrast_1.1
+001903.png	．	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001902.png	／	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001905.png	※	fullwidth_symbols	UDEVGothic	original
+001904.png	§	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001906.png	〗	fullwidth_symbols	BIZ-UDGothic	original
+001909.png	※	fullwidth_symbols	UDEVGothic	rotate_2.0
+001908.png	§	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001907.png	【	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001910.png	．	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001912.png	．	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001911.png	【	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001913.png	〗	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001914.png	※	fullwidth_symbols	BIZ-UDMincho	original
+001915.png	〕	fullwidth_symbols	HiraginoKakuGothic W3	original
+001916.png	．	fullwidth_symbols	HiraginoMincho ProN	original
+001917.png	※	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001918.png	．	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001919.png	〕	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001920.png	※	fullwidth_symbols	UDEVGothic	blur_1.0
+001921.png	〗	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001922.png	※	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001923.png	※	fullwidth_symbols	UDEVGothic	noise_0.02
+001924.png	〕	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001926.png	※	fullwidth_symbols	UDEVGothic	contrast_1.1
+001925.png	〗	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001927.png	．	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001928.png	〗	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001930.png	＇	fullwidth_symbols	UDEVGothic	original
+001929.png	※	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001931.png	〕	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001933.png	＇	fullwidth_symbols	UDEVGothic	rotate_2.0
+001935.png	｜	fullwidth_symbols	BIZ-UDGothic	original
+001932.png	※	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001934.png	．	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001936.png	〕	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001938.png	．	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001937.png	｜	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001939.png	¶	fullwidth_symbols	BIZ-UDMincho	original
+001940.png	／	fullwidth_symbols	HiraginoKakuGothic W3	original
+001942.png	…	fullwidth_symbols	HiraginoMincho ProN	original
+001941.png	¶	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001943.png	…	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001944.png	／	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001945.png	＇	fullwidth_symbols	UDEVGothic	blur_1.0
+001946.png	｜	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001947.png	＇	fullwidth_symbols	UDEVGothic	noise_0.02
+001948.png	＇	fullwidth_symbols	UDEVGothic	contrast_1.1
+001950.png	〜	fullwidth_symbols	UDEVGothic	original
+001949.png	¶	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001952.png	…	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001951.png	｜	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001953.png	〜	fullwidth_symbols	UDEVGothic	rotate_2.0
+001954.png	／	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001955.png	｜	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001956.png	¶	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001958.png	「	fullwidth_symbols	BIZ-UDGothic	original
+001957.png	…	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001959.png	¶	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001961.png	…	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001962.png	「	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001960.png	／	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001963.png	／	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001964.png	♪	fullwidth_symbols	BIZ-UDMincho	original
+001965.png	；	fullwidth_symbols	HiraginoMincho ProN	original
+001968.png	」	fullwidth_symbols	HiraginoKakuGothic W3	original
+001966.png	；	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001967.png	♪	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001969.png	」	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001970.png	〜	fullwidth_symbols	UDEVGothic	blur_1.0
+001972.png	「	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001971.png	〜	fullwidth_symbols	UDEVGothic	noise_0.02
+001973.png	〜	fullwidth_symbols	UDEVGothic	contrast_1.1
+001974.png	；	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+001976.png	「	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+001975.png	♪	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001977.png	♪	fullwidth_symbols	UDEVGothic	original
+001978.png	」	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+001979.png	「	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+001980.png	♪	fullwidth_symbols	UDEVGothic	rotate_2.0
+001981.png	；	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+001982.png	：	fullwidth_symbols	BIZ-UDGothic	original
+001984.png	；	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+001983.png	♪	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+001985.png	」	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+001986.png	：	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+001987.png	♪	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+001988.png	」	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+001989.png	〇	fullwidth_symbols	HiraginoMincho ProN	original
+001990.png	ー	fullwidth_symbols	BIZ-UDMincho	original
+001991.png	〖	fullwidth_symbols	HiraginoKakuGothic W3	original
+001992.png	〇	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+001994.png	ー	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+001993.png	〖	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+001995.png	♪	fullwidth_symbols	UDEVGothic	blur_1.0
+001996.png	：	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+001997.png	♪	fullwidth_symbols	UDEVGothic	noise_0.02
+001998.png	：	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002000.png	ー	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+001999.png	♪	fullwidth_symbols	UDEVGothic	contrast_1.1
+002001.png	：	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002002.png	〇	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002003.png	－	fullwidth_symbols	UDEVGothic	original
+002004.png	〖	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002005.png	｝	fullwidth_symbols	BIZ-UDGothic	original
+002007.png	－	fullwidth_symbols	UDEVGothic	rotate_2.0
+002006.png	ー	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+002009.png	｝	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002008.png	〇	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002010.png	ー	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+002011.png	〇	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002012.png	〖	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002013.png	〇	fullwidth_symbols	BIZ-UDMincho	original
+002014.png	〖	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002015.png	〈	fullwidth_symbols	HiraginoMincho ProN	original
+002016.png	〇	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+002017.png	〈	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002018.png	〗	fullwidth_symbols	HiraginoKakuGothic W3	original
+002019.png	〗	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002020.png	－	fullwidth_symbols	UDEVGothic	blur_1.0
+002021.png	｝	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002022.png	－	fullwidth_symbols	UDEVGothic	noise_0.02
+002023.png	－	fullwidth_symbols	UDEVGothic	contrast_1.1
+002024.png	〇	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+002026.png	〈	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002025.png	｝	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002027.png	†	fullwidth_symbols	UDEVGothic	original
+002028.png	｝	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002029.png	〗	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002030.png	†	fullwidth_symbols	UDEVGothic	rotate_2.0
+002033.png	－	fullwidth_symbols	BIZ-UDGothic	original
+002032.png	〈	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002031.png	〇	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+002034.png	－	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002036.png	〈	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002035.png	〗	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002037.png	〇	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+002038.png	〗	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002039.png	－	fullwidth_symbols	HiraginoMincho ProN	original
+002041.png	－	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002040.png	；	fullwidth_symbols	BIZ-UDMincho	original
+002042.png	†	fullwidth_symbols	UDEVGothic	blur_1.0
+002043.png	『	fullwidth_symbols	HiraginoKakuGothic W3	original
+002044.png	；	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+002045.png	『	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002046.png	†	fullwidth_symbols	UDEVGothic	noise_0.02
+002047.png	†	fullwidth_symbols	UDEVGothic	contrast_1.1
+002048.png	－	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002049.png	｀	fullwidth_symbols	UDEVGothic	original
+002050.png	｀	fullwidth_symbols	UDEVGothic	rotate_2.0
+002051.png	－	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002052.png	－	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002053.png	－	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002054.png	『	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002055.png	－	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002056.png	；	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+002057.png	【	fullwidth_symbols	BIZ-UDGothic	original
+002058.png	－	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002059.png	｀	fullwidth_symbols	UDEVGothic	blur_1.0
+002060.png	【	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002061.png	§	fullwidth_symbols	HiraginoMincho ProN	original
+002062.png	『	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002064.png	§	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002063.png	；	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+002065.png	『	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002067.png	；	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+002066.png	｀	fullwidth_symbols	UDEVGothic	noise_0.02
+002068.png	｀	fullwidth_symbols	UDEVGothic	contrast_1.1
+002069.png	＂	fullwidth_symbols	HiraginoKakuGothic W3	original
+002070.png	〈	fullwidth_symbols	BIZ-UDMincho	original
+002071.png	‡	fullwidth_symbols	UDEVGothic	original
+002072.png	＂	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002073.png	‡	fullwidth_symbols	UDEVGothic	rotate_2.0
+002074.png	〈	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+002075.png	【	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002076.png	§	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002078.png	‡	fullwidth_symbols	UDEVGothic	blur_1.0
+002080.png	＂	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002077.png	【	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002079.png	§	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002081.png	【	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002082.png	§	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002083.png	〈	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+002084.png	‡	fullwidth_symbols	UDEVGothic	noise_0.02
+002085.png	［	fullwidth_symbols	BIZ-UDGothic	original
+002086.png	‡	fullwidth_symbols	UDEVGothic	contrast_1.1
+002087.png	＂	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002090.png	＂	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002089.png	†	fullwidth_symbols	HiraginoMincho ProN	original
+002088.png	［	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002091.png	［	fullwidth_symbols	UDEVGothic	original
+002092.png	〈	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+002094.png	－	fullwidth_symbols	HiraginoKakuGothic W3	original
+002093.png	†	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002095.png	［	fullwidth_symbols	UDEVGothic	rotate_2.0
+002096.png	〈	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+002097.png	－	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002098.png	〜	fullwidth_symbols	BIZ-UDMincho	original
+002099.png	〜	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+002100.png	［	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002101.png	［	fullwidth_symbols	UDEVGothic	blur_1.0
+002102.png	†	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002103.png	［	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002104.png	－	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002106.png	〜	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+002107.png	［	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002105.png	［	fullwidth_symbols	UDEVGothic	noise_0.02
+002109.png	［	fullwidth_symbols	UDEVGothic	contrast_1.1
+002108.png	†	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002110.png	†	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002111.png	†	fullwidth_symbols	BIZ-UDGothic	original
+002113.png	；	fullwidth_symbols	UDEVGothic	original
+002114.png	〜	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+002112.png	－	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002116.png	；	fullwidth_symbols	UDEVGothic	rotate_2.0
+002115.png	※	fullwidth_symbols	HiraginoMincho ProN	original
+002119.png	－	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002117.png	〜	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+002118.png	†	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002120.png	※	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002121.png	†	fullwidth_symbols	HiraginoKakuGothic W3	original
+002122.png	・	fullwidth_symbols	BIZ-UDMincho	original
+002124.png	・	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+002123.png	†	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002125.png	†	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002126.png	；	fullwidth_symbols	UDEVGothic	blur_1.0
+002128.png	；	fullwidth_symbols	UDEVGothic	noise_0.02
+002127.png	†	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002130.png	；	fullwidth_symbols	UDEVGothic	contrast_1.1
+002129.png	※	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002131.png	†	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002132.png	・	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+002133.png	†	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002134.png	｛	fullwidth_symbols	UDEVGothic	original
+002135.png	‡	fullwidth_symbols	BIZ-UDGothic	original
+002136.png	※	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002137.png	‡	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002138.png	｛	fullwidth_symbols	UDEVGothic	rotate_2.0
+002139.png	・	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+002140.png	†	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002141.png	※	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002142.png	・	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+002143.png	†	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002144.png	¶	fullwidth_symbols	HiraginoMincho ProN	original
+002145.png	＿	fullwidth_symbols	BIZ-UDMincho	original
+002146.png	』	fullwidth_symbols	HiraginoKakuGothic W3	original
+002147.png	¶	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002149.png	＿	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+002148.png	』	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002150.png	｛	fullwidth_symbols	UDEVGothic	blur_1.0
+002151.png	‡	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002153.png	¶	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002152.png	｛	fullwidth_symbols	UDEVGothic	noise_0.02
+002154.png	｛	fullwidth_symbols	UDEVGothic	contrast_1.1
+002155.png	‡	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002156.png	‡	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002158.png	§	fullwidth_symbols	UDEVGothic	original
+002159.png	＿	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+002157.png	¶	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002160.png	』	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002161.png	¶	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002162.png	§	fullwidth_symbols	UDEVGothic	rotate_2.0
+002163.png	…	fullwidth_symbols	BIZ-UDGothic	original
+002165.png	‡	fullwidth_symbols	HiraginoMincho ProN	original
+002166.png	…	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002164.png	＿	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+002167.png	』	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002168.png	＿	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+002169.png	‡	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002170.png	』	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002171.png	＝	fullwidth_symbols	BIZ-UDMincho	original
+002172.png	：	fullwidth_symbols	HiraginoKakuGothic W3	original
+002173.png	＝	fullwidth_symbols	BIZ-UDMincho	rotate_2.0
+002174.png	：	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002175.png	§	fullwidth_symbols	UDEVGothic	blur_1.0
+002177.png	…	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002176.png	§	fullwidth_symbols	UDEVGothic	noise_0.02
+002178.png	§	fullwidth_symbols	UDEVGothic	contrast_1.1
+002180.png	：	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002179.png	‡	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002181.png	｜	fullwidth_symbols	UDEVGothic	original
+002182.png	…	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002183.png	｜	fullwidth_symbols	UDEVGothic	rotate_2.0
+002184.png	＝	fullwidth_symbols	BIZ-UDMincho	blur_1.0
+002185.png	…	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002186.png	：	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002187.png	‡	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002188.png	‥	fullwidth_symbols	BIZ-UDGothic	original
+002189.png	：	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002192.png	‥	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002191.png	‡	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002190.png	＝	fullwidth_symbols	BIZ-UDMincho	noise_0.02
+002193.png	＝	fullwidth_symbols	BIZ-UDMincho	contrast_1.1
+002194.png	‡	fullwidth_symbols	HiraginoKakuGothic W3	original
+002195.png	ー	fullwidth_symbols	HiraginoMincho ProN	original
+002196.png	ー	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002197.png	‡	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002198.png	｜	fullwidth_symbols	UDEVGothic	blur_1.0
+002199.png	‥	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002200.png	｜	fullwidth_symbols	UDEVGothic	noise_0.02
+002201.png	｜	fullwidth_symbols	UDEVGothic	contrast_1.1
+002202.png	／	fullwidth_symbols	UDEVGothic	original
+002203.png	‥	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002205.png	ー	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002204.png	／	fullwidth_symbols	UDEVGothic	rotate_2.0
+002206.png	‥	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002207.png	‡	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002208.png	§	fullwidth_symbols	BIZ-UDGothic	original
+002209.png	ー	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002210.png	§	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002211.png	ー	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002212.png	‡	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002213.png	‡	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002214.png	♪	fullwidth_symbols	HiraginoMincho ProN	original
+002215.png	♪	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002216.png	【	fullwidth_symbols	HiraginoKakuGothic W3	original
+002217.png	／	fullwidth_symbols	UDEVGothic	blur_1.0
+002218.png	【	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002219.png	／	fullwidth_symbols	UDEVGothic	noise_0.02
+002221.png	／	fullwidth_symbols	UDEVGothic	contrast_1.1
+002220.png	§	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002222.png	¶	fullwidth_symbols	UDEVGothic	original
+002223.png	¶	fullwidth_symbols	UDEVGothic	rotate_2.0
+002225.png	【	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002224.png	§	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002226.png	♪	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002227.png	§	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002228.png	※	fullwidth_symbols	BIZ-UDGothic	original
+002229.png	【	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002230.png	♪	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002231.png	※	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002232.png	【	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002233.png	♪	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002234.png	¶	fullwidth_symbols	UDEVGothic	blur_1.0
+002235.png	※	fullwidth_symbols	HiraginoKakuGothic W3	original
+002236.png	‥	fullwidth_symbols	HiraginoMincho ProN	original
+002237.png	¶	fullwidth_symbols	UDEVGothic	noise_0.02
+002238.png	‥	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002239.png	※	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002240.png	¶	fullwidth_symbols	UDEVGothic	contrast_1.1
+002241.png	｝	fullwidth_symbols	UDEVGothic	original
+002242.png	｝	fullwidth_symbols	UDEVGothic	rotate_2.0
+002243.png	※	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002244.png	‥	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002245.png	※	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002246.png	※	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002247.png	※	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002248.png	‥	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002249.png	‥	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002250.png	♪	fullwidth_symbols	BIZ-UDGothic	original
+002251.png	※	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002253.png	〒	fullwidth_symbols	HiraginoMincho ProN	original
+002252.png	♪	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002254.png	※	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002256.png	〒	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002255.png	｝	fullwidth_symbols	UDEVGothic	blur_1.0
+002257.png	§	fullwidth_symbols	HiraginoKakuGothic W3	original
+002258.png	§	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002259.png	｝	fullwidth_symbols	UDEVGothic	noise_0.02
+002260.png	｝	fullwidth_symbols	UDEVGothic	contrast_1.1
+002261.png	・	fullwidth_symbols	UDEVGothic	original
+002262.png	・	fullwidth_symbols	UDEVGothic	rotate_2.0
+002264.png	〒	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002263.png	♪	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002265.png	§	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002266.png	〒	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002268.png	〒	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002267.png	♪	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002269.png	♪	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002271.png	〜	fullwidth_symbols	HiraginoMincho ProN	original
+002272.png	・	fullwidth_symbols	UDEVGothic	blur_1.0
+002270.png	§	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002273.png	〜	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002275.png	¶	fullwidth_symbols	BIZ-UDGothic	original
+002274.png	§	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002276.png	¶	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002277.png	・	fullwidth_symbols	UDEVGothic	noise_0.02
+002279.png	・	fullwidth_symbols	UDEVGothic	contrast_1.1
+002278.png	♪	fullwidth_symbols	HiraginoKakuGothic W3	original
+002280.png	♪	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002281.png	．	fullwidth_symbols	UDEVGothic	original
+002282.png	．	fullwidth_symbols	UDEVGothic	rotate_2.0
+002283.png	〜	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002284.png	¶	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002285.png	〜	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002286.png	〜	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002287.png	．	fullwidth_symbols	UDEVGothic	blur_1.0
+002290.png	・	fullwidth_symbols	HiraginoMincho ProN	original
+002288.png	♪	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002289.png	¶	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002291.png	・	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002292.png	¶	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002293.png	．	fullwidth_symbols	UDEVGothic	noise_0.02
+002295.png	；	fullwidth_symbols	BIZ-UDGothic	original
+002296.png	．	fullwidth_symbols	UDEVGothic	contrast_1.1
+002294.png	♪	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002297.png	；	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002298.png	♪	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002299.png	＿	fullwidth_symbols	UDEVGothic	original
+002300.png	＿	fullwidth_symbols	UDEVGothic	rotate_2.0
+002301.png	¶	fullwidth_symbols	HiraginoKakuGothic W3	original
+002302.png	¶	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002303.png	・	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002304.png	；	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002305.png	＿	fullwidth_symbols	UDEVGothic	blur_1.0
+002306.png	・	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002308.png	・	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002307.png	；	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002310.png	¶	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002311.png	；	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002309.png	＿	fullwidth_symbols	UDEVGothic	noise_0.02
+002312.png	＿	fullwidth_symbols	HiraginoMincho ProN	original
+002313.png	＿	fullwidth_symbols	UDEVGothic	contrast_1.1
+002314.png	〈	fullwidth_symbols	BIZ-UDGothic	original
+002315.png	＿	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002317.png	＝	fullwidth_symbols	UDEVGothic	original
+002316.png	¶	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002319.png	¶	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002318.png	〈	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002320.png	＝	fullwidth_symbols	UDEVGothic	rotate_2.0
+002321.png	‥	fullwidth_symbols	HiraginoKakuGothic W3	original
+002322.png	‥	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002323.png	＿	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002324.png	＝	fullwidth_symbols	UDEVGothic	blur_1.0
+002325.png	〈	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002326.png	‥	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002327.png	＿	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002328.png	＿	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002329.png	＝	fullwidth_symbols	UDEVGothic	noise_0.02
+002330.png	‥	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002331.png	〈	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002332.png	＝	fullwidth_symbols	UDEVGothic	contrast_1.1
+002333.png	‥	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002334.png	＝	fullwidth_symbols	HiraginoMincho ProN	original
+002335.png	〈	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002336.png	＝	fullwidth_symbols	HiraginoMincho ProN	rotate_2.0
+002337.png	＞	fullwidth_symbols	HiraginoKakuGothic W3	original
+002338.png	〒	fullwidth_symbols	BIZ-UDGothic	original
+002339.png	〒	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002340.png	＞	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002341.png	＝	fullwidth_symbols	HiraginoMincho ProN	blur_1.0
+002342.png	＞	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002343.png	〒	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002344.png	＝	fullwidth_symbols	HiraginoMincho ProN	noise_0.02
+002345.png	＝	fullwidth_symbols	HiraginoMincho ProN	contrast_1.1
+002346.png	＞	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002347.png	〒	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002348.png	＞	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002349.png	〒	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002350.png	〜	fullwidth_symbols	BIZ-UDGothic	original
+002351.png	…	fullwidth_symbols	HiraginoKakuGothic W3	original
+002352.png	…	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002353.png	〜	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002354.png	…	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002355.png	〜	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002357.png	〜	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002356.png	…	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002358.png	〜	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002359.png	…	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002360.png	〜	fullwidth_symbols	HiraginoKakuGothic W3	original
+002361.png	・	fullwidth_symbols	BIZ-UDGothic	original
+002362.png	・	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002363.png	〜	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002364.png	・	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002365.png	〜	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002367.png	〜	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002366.png	・	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002368.png	〜	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002369.png	・	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002370.png	［	fullwidth_symbols	HiraginoKakuGothic W3	original
+002371.png	＿	fullwidth_symbols	BIZ-UDGothic	original
+002372.png	［	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002373.png	＿	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002374.png	［	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002375.png	＿	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002376.png	［	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002377.png	＿	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002378.png	［	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002379.png	＿	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002380.png	〈	fullwidth_symbols	HiraginoKakuGothic W3	original
+002381.png	ー	fullwidth_symbols	BIZ-UDGothic	original
+002382.png	ー	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002383.png	〈	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002384.png	ー	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002385.png	〈	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002386.png	ー	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002387.png	〈	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002388.png	ー	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002389.png	〈	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002390.png	＝	fullwidth_symbols	BIZ-UDGothic	original
+002391.png	＝	fullwidth_symbols	BIZ-UDGothic	rotate_2.0
+002392.png	・	fullwidth_symbols	HiraginoKakuGothic W3	original
+002393.png	・	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002394.png	＝	fullwidth_symbols	BIZ-UDGothic	blur_1.0
+002395.png	・	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002396.png	＝	fullwidth_symbols	BIZ-UDGothic	noise_0.02
+002398.png	＝	fullwidth_symbols	BIZ-UDGothic	contrast_1.1
+002397.png	・	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002399.png	・	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002400.png	〒	fullwidth_symbols	HiraginoKakuGothic W3	original
+002401.png	〒	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002402.png	〒	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002403.png	〒	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002404.png	〒	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002405.png	＿	fullwidth_symbols	HiraginoKakuGothic W3	original
+002406.png	＿	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002407.png	＿	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002408.png	＿	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002409.png	＿	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002410.png	ー	fullwidth_symbols	HiraginoKakuGothic W3	original
+002411.png	ー	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002412.png	ー	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002413.png	ー	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002414.png	ー	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002415.png	；	fullwidth_symbols	HiraginoKakuGothic W3	original
+002416.png	；	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002417.png	；	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002418.png	；	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002419.png	；	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1
+002420.png	＝	fullwidth_symbols	HiraginoKakuGothic W3	original
+002421.png	＝	fullwidth_symbols	HiraginoKakuGothic W3	rotate_2.0
+002422.png	＝	fullwidth_symbols	HiraginoKakuGothic W3	blur_1.0
+002423.png	＝	fullwidth_symbols	HiraginoKakuGothic W3	noise_0.02
+002424.png	＝	fullwidth_symbols	HiraginoKakuGothic W3	contrast_1.1

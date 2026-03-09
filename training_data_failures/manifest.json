@@ -1,0 +1,45 @@
+{
+  "stats": {
+    "augmentations_applied": [
+      "original",
+      "noise_0.02",
+      "contrast_1.1",
+      "rotate_2.0",
+      "blur_1.0"
+    ],
+    "categories": [
+      "halfwidth_symbols",
+      "halfwidth_alnum",
+      "fullwidth_alnum",
+      "fullwidth_symbols"
+    ],
+    "fonts_used": [
+      "HiraginoKakuGothic W3",
+      "UDEVGothic",
+      "BIZ-UDGothic",
+      "BIZ-UDMincho",
+      "HiraginoMincho ProN"
+    ],
+    "per_category": {
+      "fullwidth_alnum": 395,
+      "fullwidth_symbols": 1105,
+      "halfwidth_alnum": 390,
+      "halfwidth_symbols": 535
+    },
+    "per_font": {
+      "BIZ-UDGothic": 510,
+      "BIZ-UDMincho": 425,
+      "HiraginoKakuGothic W3": 525,
+      "HiraginoMincho ProN": 465,
+      "UDEVGothic": 500
+    },
+    "total_images": 2425,
+    "total_samples": 2425,
+    "train_images": 2183,
+    "train_samples": 2183,
+    "val_images": 242,
+    "val_samples": 242
+  },
+  "timestamp": 1773026816,
+  "version": "1.0"
+}
