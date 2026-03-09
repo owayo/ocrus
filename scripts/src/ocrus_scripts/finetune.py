@@ -23,7 +23,12 @@ def _check_paddle_installed() -> None:
 
 
 def _find_paddleocr_root() -> Path:
-    """Find PaddleOCR repo root installed by PaddleX."""
+    """Find PaddleOCR repo root installed by PaddleX.
+
+    Returns:
+        Path to the PaddleOCR repository root directory.
+
+    """
     try:
         import paddlex
 
@@ -179,41 +184,37 @@ def main() -> None:
     device = args.device
     use_gpu = "gpu" in device
 
-    # Build PaddleOCR training command
+    # Generate a custom config YAML with our overrides
+    import yaml
+
     save_dir = str(output_dir / "rec_model")
-    cmd = [
-        sys.executable,
-        str(train_py),
-        "-c",
-        str(config_yaml),
-        "-o",
-        f"Global.use_gpu={use_gpu}",
-        "-o",
-        f"Global.epoch_num={args.epochs}",
-        "-o",
-        f"Global.save_model_dir={save_dir}",
-        "-o",
-        f"Global.character_dict_path={dict_path}",
-        "-o",
-        f"Train.dataset.data_dir={ds_dir}",
-        "-o",
-        f"Train.dataset.label_file_list=['{ds_dir / 'train.txt'}']",
-        "-o",
-        f"Train.loader.batch_size_per_card={args.batch_size}",
-        "-o",
-        f"Train.sampler.first_bs={args.batch_size}",
-        "-o",
-        f"Eval.dataset.data_dir={ds_dir}",
-        "-o",
-        f"Eval.dataset.label_file_list=['{ds_dir / 'val.txt'}']",
-        "-o",
-        f"Eval.loader.batch_size_per_card={args.batch_size}",
-        "-o",
-        f"Optimizer.lr.learning_rate={args.lr}",
-    ]
+    with config_yaml.open(encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+
+    cfg["Global"]["use_gpu"] = use_gpu
+    cfg["Global"]["epoch_num"] = args.epochs
+    cfg["Global"]["save_model_dir"] = save_dir
+    cfg["Global"]["character_dict_path"] = str(dict_path)
+    cfg["Global"]["distributed"] = False
+    cfg["Train"]["dataset"]["data_dir"] = str(ds_dir)
+    cfg["Train"]["dataset"]["label_file_list"] = [str(ds_dir / "train.txt")]
+    cfg["Train"]["loader"]["batch_size_per_card"] = args.batch_size
+    cfg["Train"]["sampler"]["first_bs"] = args.batch_size
+    cfg["Train"]["loader"]["num_workers"] = 0
+    cfg["Eval"]["dataset"]["data_dir"] = str(ds_dir)
+    cfg["Eval"]["dataset"]["label_file_list"] = [str(ds_dir / "val.txt")]
+    cfg["Eval"]["loader"]["batch_size_per_card"] = args.batch_size
+    cfg["Eval"]["loader"]["num_workers"] = 0
+    cfg["Optimizer"]["lr"]["learning_rate"] = args.lr
 
     if pretrained:
-        cmd.extend(["-o", f"Global.pretrained_model={pretrained}"])
+        cfg["Global"]["pretrained_model"] = pretrained
+
+    custom_config = output_dir / "train_config.yml"
+    with custom_config.open("w", encoding="utf-8") as f:
+        yaml.dump(cfg, f, default_flow_style=False, allow_unicode=True)
+
+    cmd = [sys.executable, str(train_py), "-c", str(custom_config)]
 
     print(f"\n{'=' * 60}")
     print("Starting PP-OCRv5 fine-tuning via PaddleOCR")
