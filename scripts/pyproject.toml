@@ -8,6 +8,7 @@ dependencies = []
 [project.optional-dependencies]
 train = [
     "paddlepaddle>=3.3.0",
+    "paddlex>=3.4.0",
     "paddle2onnx>=2.1.0",
     "onnx",
     "pyyaml",

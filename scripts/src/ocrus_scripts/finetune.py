@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fine-tune PP-OCRv5 recognition model using PaddleX API."""
+"""Fine-tune PP-OCRv5 recognition model using PaddleOCR tools directly."""
 
 from __future__ import annotations
 
@@ -16,33 +16,53 @@ def _check_paddle_installed() -> None:
         print(
             "Error: PaddlePaddle is not installed.\n"
             "Install training dependencies with:\n"
-            "  uv pip install -e '.[train]'",
+            "  uv sync --extra train",
             file=sys.stderr,
         )
         sys.exit(1)
 
 
-def _convert_ocrus_to_paddlex(data_dir: Path, output_dir: Path) -> Path:
-    r"""Convert ocrus dataset format to PaddleX format.
+def _find_paddleocr_root() -> Path:
+    """Find PaddleOCR repo root installed by PaddleX."""
+    try:
+        import paddlex
 
-    PaddleX expects:
+        repo = Path(paddlex.__file__).parent / "repo_manager" / "repos" / "PaddleOCR"
+        if repo.exists():
+            return repo
+    except ImportError:
+        pass
+
+    print(
+        "Error: PaddleOCR repo not found.\n"
+        "Install PaddleOCR plugin with:\n"
+        "  uv run python -m paddlex --install PaddleOCR -y --no_deps",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+
+def _convert_ocrus_to_paddleocr(data_dir: Path, output_dir: Path) -> Path:
+    r"""Convert ocrus dataset format to PaddleOCR format.
+
+    PaddleOCR expects:
       dataset_dir/
         images/
           img1.png
-          img2.png
         train.txt   (image_path\tlabel per line)
         val.txt
 
     Args:
         data_dir: ocrus dataset directory (containing labels.tsv + samples/).
-        output_dir: Directory to write PaddleX-format dataset.
+        output_dir: Directory to write PaddleOCR-format dataset.
 
     Returns:
-        Path to the PaddleX dataset directory.
+        Path to the dataset directory.
 
     """
     import csv
     import random
+    import shutil
 
     labels_file = data_dir / "labels.tsv"
     samples_dir = data_dir / "samples"
@@ -72,54 +92,29 @@ def _convert_ocrus_to_paddlex(data_dir: Path, output_dir: Path) -> Path:
     val_entries = entries[:val_count]
     train_entries = entries[val_count:]
 
-    # Create PaddleX dataset structure
-    pdx_dir = output_dir / "paddlex_dataset"
-    images_dir = pdx_dir / "images"
+    # Create dataset structure
+    ds_dir = output_dir / "dataset"
+    images_dir = ds_dir / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
 
-    # Symlink images
+    # Copy images (symlinks require admin privileges on Windows)
     for filename, _ in entries:
         src = samples_dir / filename
         dst = images_dir / filename
         if not dst.exists():
-            dst.symlink_to(src.resolve())
+            shutil.copy2(src, dst)
 
-    # Write label files
+    # Write label files (PaddleOCR format: relative_path\tlabel)
     def _write_labels(items: list[tuple[str, str]], path: Path) -> None:
         with path.open("w", encoding="utf-8") as f:
             for filename, label in items:
                 f.write(f"images/{filename}\t{label}\n")
 
-    _write_labels(train_entries, pdx_dir / "train.txt")
-    _write_labels(val_entries, pdx_dir / "val.txt")
+    _write_labels(train_entries, ds_dir / "train.txt")
+    _write_labels(val_entries, ds_dir / "val.txt")
 
-    print(f"PaddleX dataset: {len(train_entries)} train, {len(val_entries)} val")
-    return pdx_dir
-
-
-def _find_paddlex_main() -> Path:
-    """Find PaddleX main.py entry point.
-
-    Returns:
-        Path to the PaddleX main.py script.
-
-    """
-    try:
-        import paddlex
-
-        pkg_dir = Path(paddlex.__file__).parent
-        main_py = pkg_dir / "main.py"
-        if main_py.exists():
-            return main_py
-        # Some versions use run_pipeline.py
-        run_py = pkg_dir / "run_pipeline.py"
-        if run_py.exists():
-            return run_py
-    except ImportError:
-        pass
-
-    # PaddleX may also be available as a CLI module
-    return Path("paddlex.main")
+    print(f"Dataset: {len(train_entries)} train, {len(val_entries)} val")
+    return ds_dir
 
 
 def main() -> None:
@@ -159,87 +154,114 @@ def main() -> None:
     output_dir = Path(args.output).expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Convert ocrus dataset to PaddleX format
-    pdx_dataset = _convert_ocrus_to_paddlex(data_dir, output_dir)
+    # Find PaddleOCR repo
+    ocr_root = _find_paddleocr_root()
+    train_py = ocr_root / "tools" / "train.py"
+    config_yaml = ocr_root / "configs" / "rec" / "PP-OCRv5" / "PP-OCRv5_server_rec.yml"
+    dict_path = ocr_root / "ppocr" / "utils" / "dict" / "ppocrv5_dict.txt"
 
-    # Find PP-OCRv5_server_rec config from PaddleX
-    try:
-        import paddlex
-
-        pkg_dir = Path(paddlex.__file__).parent
-        config_path = (
-            pkg_dir
-            / "configs"
-            / "modules"
-            / "text_recognition"
-            / "PP-OCRv5_server_rec.yaml"
-        )
-        if not config_path.exists():
-            print(f"Error: PaddleX config not found at {config_path}", file=sys.stderr)
-            sys.exit(1)
-    except ImportError:
-        print(
-            "Error: PaddleX not found. Install with:\n  uv pip install -e '.[train]'",
-            file=sys.stderr,
-        )
+    if not config_yaml.exists():
+        print(f"Error: Config not found at {config_yaml}", file=sys.stderr)
         sys.exit(1)
 
-    # Build PaddleX training command
-    main_py = _find_paddlex_main()
+    # Convert dataset
+    ds_dir = _convert_ocrus_to_paddleocr(data_dir, output_dir)
 
-    overrides = [
-        "Global.mode=train",
-        f"Global.dataset_dir={pdx_dataset}",
-        f"Global.device={args.device}",
-        f"Global.output={output_dir}",
-        f"Train.epochs_iters={args.epochs}",
-        f"Train.batch_size={args.batch_size}",
-        f"Train.learning_rate={args.lr}",
+    # Resolve pretrained path
+    pretrained = args.pretrained
+    if pretrained:
+        pretrained = str(Path(pretrained).expanduser().resolve())
+        if not Path(pretrained).exists():
+            print(f"Error: Pretrained model not found: {pretrained}", file=sys.stderr)
+            sys.exit(1)
+
+    # Determine device flags
+    device = args.device
+    use_gpu = "gpu" in device
+
+    # Build PaddleOCR training command
+    save_dir = str(output_dir / "rec_model")
+    cmd = [
+        sys.executable,
+        str(train_py),
+        "-c",
+        str(config_yaml),
+        "-o",
+        f"Global.use_gpu={use_gpu}",
+        "-o",
+        f"Global.epoch_num={args.epochs}",
+        "-o",
+        f"Global.save_model_dir={save_dir}",
+        "-o",
+        f"Global.character_dict_path={dict_path}",
+        "-o",
+        f"Train.dataset.data_dir={ds_dir}",
+        "-o",
+        f"Train.dataset.label_file_list=['{ds_dir / 'train.txt'}']",
+        "-o",
+        f"Train.loader.batch_size_per_card={args.batch_size}",
+        "-o",
+        f"Train.sampler.first_bs={args.batch_size}",
+        "-o",
+        f"Eval.dataset.data_dir={ds_dir}",
+        "-o",
+        f"Eval.dataset.label_file_list=['{ds_dir / 'val.txt'}']",
+        "-o",
+        f"Eval.loader.batch_size_per_card={args.batch_size}",
+        "-o",
+        f"Optimizer.lr.learning_rate={args.lr}",
     ]
 
-    if args.pretrained:
-        pretrained_path = Path(args.pretrained).expanduser().resolve()
-        if not pretrained_path.exists():
-            print(
-                f"Error: Pretrained model not found: {pretrained_path}",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        overrides.append(f"Train.pretrain_weight_path={pretrained_path}")
-
-    cmd = [sys.executable, str(main_py), "-c", str(config_path)]
-    for ov in overrides:
-        cmd.extend(["-o", ov])
+    if pretrained:
+        cmd.extend(["-o", f"Global.pretrained_model={pretrained}"])
 
     print(f"\n{'=' * 60}")
-    print("Starting PP-OCRv5 fine-tuning via PaddleX")
+    print("Starting PP-OCRv5 fine-tuning via PaddleOCR")
     print(f"{'=' * 60}")
-    print(f"Config:     {config_path}")
-    print(f"Dataset:    {pdx_dataset}")
-    print(f"Output:     {output_dir}")
+    print(f"Config:     {config_yaml}")
+    print(f"Dataset:    {ds_dir}")
+    print(f"Output:     {save_dir}")
     print(f"Epochs:     {args.epochs}")
     print(f"Batch size: {args.batch_size}")
     print(f"LR:         {args.lr}")
-    print(f"Device:     {args.device}")
-    if args.pretrained:
-        print(f"Pretrained: {args.pretrained}")
+    print(f"Device:     {device}")
+    if pretrained:
+        print(f"Pretrained: {pretrained}")
     print(f"{'=' * 60}\n")
-    print(f"Running: {' '.join(cmd)}\n")
 
-    result = subprocess.run(cmd)
+    result = subprocess.run(cmd, cwd=str(ocr_root))
     if result.returncode != 0:
         print(f"\nTraining failed with exit code {result.returncode}", file=sys.stderr)
         sys.exit(result.returncode)
 
-    print(f"\nTraining complete. Model saved to: {output_dir}")
+    print(f"\nTraining complete. Model saved to: {save_dir}")
 
     # Export to ONNX if requested
     if args.export_onnx:
-        inference_dir = output_dir / "best_accuracy" / "inference"
-        if inference_dir.exists():
-            onnx_output = output_dir / "rec_finetuned.onnx"
-            print(f"\nExporting to ONNX: {onnx_output}")
+        # First export to inference format
+        export_py = ocr_root / "tools" / "export_model.py"
+        best_model = Path(save_dir) / "best_accuracy"
+        if best_model.exists():
+            inference_dir = output_dir / "inference"
             export_cmd = [
+                sys.executable,
+                str(export_py),
+                "-c",
+                str(config_yaml),
+                "-o",
+                f"Global.pretrained_model={best_model}",
+                "-o",
+                f"Global.save_inference_dir={inference_dir}",
+                "-o",
+                f"Global.character_dict_path={dict_path}",
+            ]
+            print(f"\nExporting to inference format: {inference_dir}")
+            subprocess.run(export_cmd, cwd=str(ocr_root), check=True)
+
+            # Convert to ONNX
+            onnx_output = output_dir / "rec_finetuned.onnx"
+            print(f"Converting to ONNX: {onnx_output}")
+            onnx_cmd = [
                 sys.executable,
                 "-m",
                 "paddle2onnx",
@@ -256,18 +278,17 @@ def main() -> None:
                 "--enable_onnx_checker",
                 "True",
             ]
-            subprocess.run(export_cmd, check=True)
+            subprocess.run(onnx_cmd, check=True)
             print(f"ONNX model exported to: {onnx_output}")
 
-            # Optionally install
             install_dir = Path.home() / ".ocrus" / "models"
             install_path = install_dir / "rec.onnx"
             print("\nTo install the fine-tuned model:")
             print(f"  cp {onnx_output} {install_path}")
         else:
             print(
-                f"Warning: Inference dir not found at {inference_dir}. "
-                "Run export-onnx manually.",
+                f"Warning: Best model not found at {best_model}. "
+                "Training may not have completed successfully.",
                 file=sys.stderr,
             )
 
