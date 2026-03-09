@@ -179,7 +179,9 @@ def main() -> None:
     pretrained = args.pretrained
     if pretrained and not pretrained.startswith(("http://", "https://")):
         pretrained = str(Path(pretrained).expanduser().resolve())
-        if not Path(pretrained).exists():
+        # PaddleOCR accepts path without .pdparams extension
+        p = Path(pretrained)
+        if not p.exists() and not p.with_suffix(".pdparams").exists():
             print(f"Error: Pretrained model not found: {pretrained}", file=sys.stderr)
             sys.exit(1)
 
@@ -242,22 +244,24 @@ def main() -> None:
 
     # Export to ONNX if requested
     if args.export_onnx:
-        # First export to inference format
+        # First export to inference format using custom config
         export_py = ocr_root / "tools" / "export_model.py"
         best_model = Path(save_dir) / "best_accuracy"
-        if best_model.exists():
+        if best_model.with_suffix(".pdparams").exists():
             inference_dir = output_dir / "inference"
+
+            # Update config for export
+            cfg["Global"]["pretrained_model"] = str(best_model)
+            cfg["Global"]["save_inference_dir"] = str(inference_dir)
+            export_config = output_dir / "export_config.yml"
+            with export_config.open("w", encoding="utf-8") as f:
+                yaml.dump(cfg, f, default_flow_style=False, allow_unicode=True)
+
             export_cmd = [
                 sys.executable,
                 str(export_py),
                 "-c",
-                str(config_yaml),
-                "-o",
-                f"Global.pretrained_model={best_model}",
-                "-o",
-                f"Global.save_inference_dir={inference_dir}",
-                "-o",
-                f"Global.character_dict_path={dict_path}",
+                str(export_config),
             ]
             print(f"\nExporting to inference format: {inference_dir}")
             subprocess.run(export_cmd, cwd=str(ocr_root), check=True)
