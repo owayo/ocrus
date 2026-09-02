@@ -232,6 +232,13 @@ impl OcrEngine {
             (line_bboxes, None)
         };
 
+        // Strokes are not lines. Characters whose upper stroke stands clear of the body
+        // (う, こ, き, ふ, え) split at that gap: 74 of the 845 benchmark images came back as
+        // two or three "lines", were recognized as separate fragments and concatenated into
+        // nonsense. In a square-ish frame that the ink fills, everything found is one
+        // character; a page of text has a frame much wider than it is tall.
+        let line_bboxes = merge_strokes_of_one_glyph(line_bboxes, width, height);
+
         if line_bboxes.is_empty() {
             return Ok(OcrResult {
                 pages: vec![Page {
@@ -543,6 +550,42 @@ fn correct_small_kana(text: &str, bbox: &ocrus_core::BBox, frame_height: u32) ->
     let small = small_kana_variant(only)?;
     let center = (bbox.y as f32 + bbox.height as f32 / 2.0) / frame_height as f32;
     (center >= SMALL_KANA_CENTER).then(|| small.to_string())
+}
+
+/// Frame shapes that can only hold a single character rather than lines of text.
+const GLYPH_FRAME_ASPECT: f32 = 2.0;
+/// How much of the frame the ink must cover before it is read as one character.
+const GLYPH_INK_COVERAGE: f32 = 0.4;
+
+/// Merge separately detected strokes back into the single character they belong to.
+///
+/// Row projection cannot tell a gap between text lines from the gap under the top stroke of
+/// う. What separates the two cases is the frame: a page holding several lines is much wider
+/// than one line is tall, while an isolated glyph sits in a roughly square box that its ink
+/// fills. Only that second case is merged.
+fn merge_strokes_of_one_glyph(
+    boxes: Vec<ocrus_core::BBox>,
+    width: u32,
+    height: u32,
+) -> Vec<ocrus_core::BBox> {
+    if boxes.len() < 2 || height == 0 {
+        return boxes;
+    }
+    let frame_aspect = width as f32 / height as f32;
+    if !(1.0 / GLYPH_FRAME_ASPECT..=GLYPH_FRAME_ASPECT).contains(&frame_aspect) {
+        return boxes;
+    }
+
+    let top = boxes.iter().map(|b| b.y).min().unwrap_or(0);
+    let bottom = boxes.iter().map(|b| b.y + b.height).max().unwrap_or(0);
+    let left = boxes.iter().map(|b| b.x).min().unwrap_or(0);
+    let right = boxes.iter().map(|b| b.x + b.width).max().unwrap_or(0);
+
+    if (bottom - top) as f32 / height as f32 >= GLYPH_INK_COVERAGE {
+        vec![ocrus_core::BBox::new(left, top, right - left, bottom - top)]
+    } else {
+        boxes
+    }
 }
 
 fn missing_model_error(model_dir: &Path, missing: &Path) -> OcrusError {

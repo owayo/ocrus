@@ -17,3 +17,4 @@ memmap2 = "0.9.11"
 
 [dev-dependencies]
 unicode-normalization = "0.1.25"
+serde_json = { workspace = true }
