@@ -1,6 +1,6 @@
 use image::{GrayImage, Luma};
 use imageproc::filter::gaussian_blur_f32;
-use imageproc::geometric_transformations::{Interpolation, rotate_about_center};
+use imageproc::geometric_transformations::{Border, Interpolation, rotate_about_center};
 use imageproc::noise::salt_and_pepper_noise;
 use rand::{Rng, RngExt};
 use serde::{Deserialize, Serialize};
@@ -38,7 +38,12 @@ pub fn apply_augmentation(img: &GrayImage, aug: &AugmentType, rng: &mut impl Rng
 
 pub fn augment_rotate(img: &GrayImage, angle_deg: f32) -> GrayImage {
     let theta = angle_deg.to_radians();
-    rotate_about_center(img, theta, Interpolation::Bilinear, Luma([255u8]))
+    rotate_about_center(
+        img,
+        theta,
+        Interpolation::Bilinear,
+        Border::Constant(Luma([255u8])),
+    )
 }
 
 pub fn augment_blur(img: &GrayImage, sigma: f32) -> GrayImage {

@@ -13,4 +13,4 @@ ocrus-nn = { workspace = true }
 image = { workspace = true }
 ndarray = { workspace = true }
 rayon = { workspace = true }
-memmap2 = "0.9.10"
+memmap2 = "0.9.11"

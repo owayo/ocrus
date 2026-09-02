@@ -21,16 +21,16 @@ serde_json = { workspace = true }
 anyhow = { workspace = true }
 image = { workspace = true }
 rayon = { workspace = true }
-memmap2 = "0.9.10"
+memmap2 = "0.9.11"
 ndarray = { workspace = true }
-ratatui = "0.30"
+ratatui = "0.30.2"
 
 [dev-dependencies]
 ab_glyph = "0.2.32"
-imageproc = "0.26.1"
+imageproc = "0.27.0"
 serde = { workspace = true }
-log = "0.4.29"
+log = "0.4.34"
 simplelog = "0.12.2"
 ctrlc = "3.5.2"
 unicode-normalization = "0.1.25"
-serde_yaml = "0.9.33"
+serde_yaml = "0.9.34"

@@ -8,6 +8,6 @@ license.workspace = true
 ocrus-core = { workspace = true }
 ndarray = { workspace = true }
 serde = { workspace = true }
-wide = "1.1.1"
+wide = "1.6.1"
 imageproc = { workspace = true }
 image = { workspace = true }

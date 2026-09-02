@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 use std::sync::atomic::AtomicUsize;
 
 use image::{DynamicImage, GrayImage, Luma};
-use imageproc::geometric_transformations::{Interpolation, rotate_about_center};
+use imageproc::geometric_transformations::{Border, Interpolation, rotate_about_center};
 use log::info;
 use ndarray::Array2;
 use rayon::prelude::*;
@@ -166,7 +166,7 @@ fn rotate_gray(gray: &Array2<u8>, degrees: f32) -> Array2<u8> {
         &img,
         degrees.to_radians(),
         Interpolation::Bilinear,
-        Luma([255u8]),
+        Border::Constant(Luma([255u8])),
     );
     gray_image_to_ndarray(&rotated)
 }

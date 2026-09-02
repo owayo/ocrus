@@ -8,7 +8,7 @@ dependencies = []
 [project.optional-dependencies]
 train = [
     "paddlepaddle-gpu>=3.3.0",
-    "paddlex>=3.4.2",
+    "paddlex>=3.7.2",
     "paddle2onnx>=2.1.0",
     "onnx",
     "pyyaml",
@@ -21,7 +21,7 @@ train = [
     "imgaug",
     "onnx_graphsurgeon",
 ]
-quantize = ["onnxruntime>=1.24.3"]
+quantize = ["onnxruntime>=1.29.0"]
 
 [project.scripts]
 generate-test-chars = "ocrus_scripts.generate_test_chars:main"
