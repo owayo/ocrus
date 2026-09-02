@@ -1,6 +1,64 @@
+use rayon::prelude::*;
 use wide::f32x8;
 
 use crate::tensor::NdTensor;
+
+/// out[co][j] = bias[co] + sum_k weight[co][k] * col[k][j]
+///
+/// Shared by every convolution shape: once the input is laid out as a `K x N` matrix,
+/// pointwise, general and im2col convolutions are the same computation. The loop order is
+/// the important part — walking a *row* of `col` lets each load pull eight useful floats,
+/// where walking a column (stride `n`) misses cache on every element.
+fn gemm_rows(
+    weight: &[f32],
+    col: &[f32],
+    out: &mut [f32],
+    k: usize,
+    n: usize,
+    bias: Option<&[f32]>,
+) {
+    out.par_chunks_mut(n).enumerate().for_each(|(co, out_row)| {
+        let b = bias.map_or(0.0, |bb| bb[co]);
+        let w_row = &weight[co * k..(co + 1) * k];
+        let bias_v = f32x8::splat(b);
+
+        let blocks = n / 16;
+        for block in 0..blocks {
+            let j = block * 16;
+            let mut acc0 = bias_v;
+            let mut acc1 = bias_v;
+            for (kk, &wk) in w_row.iter().enumerate() {
+                let wv = f32x8::splat(wk);
+                let row = &col[kk * n + j..kk * n + j + 16];
+                acc0 += wv * f32x8::from(&row[0..8]);
+                acc1 += wv * f32x8::from(&row[8..16]);
+            }
+            let a0: [f32; 8] = acc0.into();
+            let a1: [f32; 8] = acc1.into();
+            out_row[j..j + 8].copy_from_slice(&a0);
+            out_row[j + 8..j + 16].copy_from_slice(&a1);
+        }
+
+        let mut j = blocks * 16;
+        while j + 8 <= n {
+            let mut acc = bias_v;
+            for (kk, &wk) in w_row.iter().enumerate() {
+                acc += f32x8::splat(wk) * f32x8::from(&col[kk * n + j..kk * n + j + 8]);
+            }
+            let a: [f32; 8] = acc.into();
+            out_row[j..j + 8].copy_from_slice(&a);
+            j += 8;
+        }
+        while j < n {
+            let mut sum = b;
+            for (kk, &wk) in w_row.iter().enumerate() {
+                sum += wk * col[kk * n + j];
+            }
+            out_row[j] = sum;
+            j += 1;
+        }
+    });
+}
 
 /// 1x1 Pointwise convolution: input (N,Cin,H,W), weight (Cout,Cin,1,1), bias (Cout,)
 /// Output: (N,Cout,H,W)
@@ -23,34 +81,19 @@ pub fn conv2d_pointwise(
     let spatial = h * w;
     let mut output = NdTensor::zeros(&[n, cout, h, w]);
 
+    // A 1x1 convolution is a matrix product: the input already has the (Cin, H*W) layout
+    // that the GEMM wants, so there is nothing to unfold.
     for batch in 0..n {
-        for co in 0..cout {
-            let b = bias.map_or(0.0, |b| b.data[co]);
-            let out_offset = (batch * cout + co) * spatial;
-            // Fill with bias
-            for i in 0..spatial {
-                output.data[out_offset + i] = b;
-            }
-            // Accumulate: for each input channel, multiply weight and add
-            for ci in 0..cin {
-                let w_val = weight.data[co * cin + ci]; // weight shape is (Cout,Cin,1,1)
-                let in_offset = (batch * cin + ci) * spatial;
-
-                let w_v = f32x8::splat(w_val);
-                let chunks = spatial / 8;
-                for i in 0..chunks {
-                    let o = i * 8;
-                    let inv = f32x8::from(&input.data[in_offset + o..in_offset + o + 8]);
-                    let outv = f32x8::from(&output.data[out_offset + o..out_offset + o + 8]);
-                    let result = outv + inv * w_v;
-                    let arr: [f32; 8] = result.into();
-                    output.data[out_offset + o..out_offset + o + 8].copy_from_slice(&arr);
-                }
-                for i in (chunks * 8)..spatial {
-                    output.data[out_offset + i] += input.data[in_offset + i] * w_val;
-                }
-            }
-        }
+        let in_off = batch * cin * spatial;
+        let out_off = batch * cout * spatial;
+        gemm_rows(
+            &weight.data,
+            &input.data[in_off..in_off + cin * spatial],
+            &mut output.data[out_off..out_off + cout * spatial],
+            cin,
+            spatial,
+            bias.map(|b| b.data.as_slice()),
+        );
     }
     output
 }
@@ -81,20 +124,29 @@ pub fn conv2d_depthwise(
     let out_h = (h + 2 * pad_h - kh) / stride_h + 1;
     let out_w = (w + 2 * pad_w - kw) / stride_w + 1;
     let mut output = NdTensor::zeros(&[n, c, out_h, out_w]);
+    let out_spatial = out_h * out_w;
 
-    for batch in 0..n {
-        for ch in 0..c {
-            let b = bias.map_or(0.0, |b| b.data[ch]);
+    // One channel per task: each writes a disjoint slice of the output, and depthwise
+    // layers have enough channels (48 to 1024 here) to keep every core busy.
+    output
+        .data
+        .par_chunks_mut(out_spatial)
+        .enumerate()
+        .for_each(|(idx, out_ch)| {
+            let batch = idx / c;
+            let ch = idx % c;
+            let b = bias.map_or(0.0, |bb| bb.data[ch]);
             let in_offset = (batch * c + ch) * h * w;
-            let out_offset = (batch * c + ch) * out_h * out_w;
             let w_offset = ch * kh * kw;
+            let bias_v = f32x8::splat(b);
 
             for oh in 0..out_h {
-                // SIMD: process 8 output columns at a time
+                let row = &mut out_ch[oh * out_w..(oh + 1) * out_w];
                 let chunks = out_w / 8;
+
                 for ow_chunk in 0..chunks {
                     let ow_base = ow_chunk * 8;
-                    let mut acc = f32x8::splat(b);
+                    let mut acc = bias_v;
 
                     for ky in 0..kh {
                         let ih = oh * stride_h + ky;
@@ -102,31 +154,35 @@ pub fn conv2d_depthwise(
                             continue;
                         }
                         let ih = ih - pad_h;
-                        for kx in 0..kw {
-                            let w_val = weight.data[w_offset + ky * kw + kx];
-                            let w_v = f32x8::splat(w_val);
+                        let in_row = &input.data[in_offset + ih * w..in_offset + (ih + 1) * w];
 
-                            // Gather 8 input values
-                            let mut in_vals = [0.0f32; 8];
-                            for (i, val) in in_vals.iter_mut().enumerate() {
-                                let iw = (ow_base + i) * stride_w + kx;
-                                if iw >= pad_w && iw - pad_w < w {
-                                    *val = input.data[in_offset + ih * w + (iw - pad_w)];
+                        for kx in 0..kw {
+                            let w_v = f32x8::splat(weight.data[w_offset + ky * kw + kx]);
+                            let first = ow_base * stride_w + kx;
+                            let last = (ow_base + 7) * stride_w + kx;
+
+                            // Fast path: with stride 1 and the whole window inside the
+                            // image, the eight inputs are contiguous.
+                            let inv = if stride_w == 1 && first >= pad_w && last - pad_w < w {
+                                f32x8::from(&in_row[first - pad_w..first - pad_w + 8])
+                            } else {
+                                let mut vals = [0.0f32; 8];
+                                for (i, val) in vals.iter_mut().enumerate() {
+                                    let iw = (ow_base + i) * stride_w + kx;
+                                    if iw >= pad_w && iw - pad_w < w {
+                                        *val = in_row[iw - pad_w];
+                                    }
                                 }
-                            }
-                            let inv = f32x8::new(in_vals);
+                                f32x8::new(vals)
+                            };
                             acc += inv * w_v;
                         }
                     }
-
                     let arr: [f32; 8] = acc.into();
-                    output.data
-                        [out_offset + oh * out_w + ow_base..out_offset + oh * out_w + ow_base + 8]
-                        .copy_from_slice(&arr);
+                    row[ow_base..ow_base + 8].copy_from_slice(&arr);
                 }
 
-                // Scalar remainder
-                for ow in (chunks * 8)..out_w {
+                for (ow, slot) in row.iter_mut().enumerate().skip(chunks * 8) {
                     let mut sum = b;
                     for ky in 0..kh {
                         let ih = oh * stride_h + ky;
@@ -142,11 +198,11 @@ pub fn conv2d_depthwise(
                             }
                         }
                     }
-                    output.data[out_offset + oh * out_w + ow] = sum;
+                    *slot = sum;
                 }
             }
-        }
-    }
+        });
+
     output
 }
 
@@ -239,35 +295,15 @@ pub fn conv2d_general(
             out_w,
         );
 
-        // GEMM: weight (Cout, K) x col (K, out_spatial) = out (Cout, out_spatial)
-        for co in 0..cout {
-            let b = bias.map_or(0.0, |b| b.data[co]);
-            let w_row = &weight.data[co * k..(co + 1) * k];
-            let out_row_offset = (batch * cout + co) * out_spatial;
-
-            for j in 0..out_spatial {
-                let mut sum = b;
-                // Dot product with SIMD
-                let chunks = k / 8;
-                for i in 0..chunks {
-                    let o = i * 8;
-                    let wv = f32x8::from(&w_row[o..o + 8]);
-                    // col is (K, out_spatial) row-major: gather from strided memory
-                    let mut cv = [0.0f32; 8];
-                    for s in 0..8 {
-                        cv[s] = col[(o + s) * out_spatial + j];
-                    }
-                    let colv = f32x8::new(cv);
-                    let prod = wv * colv;
-                    let arr: [f32; 8] = prod.into();
-                    sum += arr.iter().sum::<f32>();
-                }
-                for i in (chunks * 8)..k {
-                    sum += w_row[i] * col[i * out_spatial + j];
-                }
-                output.data[out_row_offset + j] = sum;
-            }
-        }
+        let out_base = batch * cout * out_spatial;
+        gemm_rows(
+            &weight.data,
+            &col,
+            &mut output.data[out_base..out_base + cout * out_spatial],
+            k,
+            out_spatial,
+            bias.map(|b| b.data.as_slice()),
+        );
     }
     output
 }

@@ -152,10 +152,10 @@ fn recognizes_single_characters() {
     println!("  {:<18} {correct:>2}/{total:<2} ({accuracy:.0}%)", "total");
     println!("  non-empty output : {non_empty}/{total}");
     println!(
-        "  Baseline (2026-09-02, freshly converted model): 12/24 correct, 23/24 non-empty. \
-         A sudden drop to 0 correct usually means a stale .ocnn built by an older converter \
-         — such a model loads fine and answers confidently wrong. Re-convert from rec.onnx \
-         before hunting for a code regression."
+        "  Baseline (2026-09-02, f16 model): 13/24 correct, 23/24 non-empty (12/24 with f32 \
+         weights). A sudden drop to 0 usually means the model file and the executor \
+         disagree; `cargo test -p ocrus-nn --release --test ocnn_golden` replays what the \
+         converter recorded and says so directly."
     );
 
     // Only total breakage fails the run. Asserting an accuracy number here would either be

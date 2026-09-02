@@ -35,7 +35,7 @@ use ocrus_layout::{
     TextOrientation, assess_quality, detect_columns_vertical, detect_lines_ccl,
     detect_lines_projection, detect_orientation, separate_ruby, should_use_fast_path,
 };
-use ocrus_nn::{NnEngine, Tensor, model::OcnnModel};
+use ocrus_nn::{Executor, Model, NdTensor};
 use ocrus_preproc::{binarize_adaptive, normalize_line, normalize_line_vertical, to_grayscale};
 use ocrus_recognizer::charset::Charset;
 use ocrus_recognizer::{
@@ -50,8 +50,7 @@ pub const DICT_FILE: &str = "dict.txt";
 /// A loaded OCR engine: model, charset and post-processing, ready to recognize images.
 pub struct OcrEngine {
     config: EngineConfig,
-    nn: NnEngine,
-    model: OcnnModel,
+    executor: Executor,
     charset: Charset,
     /// Allowed-class mask for [`CharsetMode::Jis`]; `None` means every class is allowed.
     logit_mask: Option<Vec<bool>>,
@@ -96,13 +95,11 @@ impl OcrEngine {
             None => None,
         };
 
-        let nn = NnEngine::new()?;
-        let model = nn.load_model(&model_path)?;
+        let executor = Executor::new(Model::load(&model_path)?);
 
         Ok(Self {
             config,
-            nn,
-            model,
+            executor,
             charset,
             logit_mask,
             dict,
@@ -227,7 +224,7 @@ impl OcrEngine {
 
         // Vertical columns are rotated 90° because the model only takes horizontal lines.
         let is_vertical = orientation == TextOrientation::Vertical;
-        let line_tensors: Vec<Tensor> = line_bboxes
+        let line_tensors: Vec<NdTensor<f32>> = line_bboxes
             .par_iter()
             .map(|bbox| {
                 let line_img = if is_vertical {
@@ -237,7 +234,7 @@ impl OcrEngine {
                 };
                 let shape = line_img.shape().to_vec();
                 let data = line_img.into_raw_vec_and_offset().0;
-                Tensor::new(data, shape)
+                NdTensor::from_vec(data, &shape)
             })
             .collect();
 
@@ -246,7 +243,7 @@ impl OcrEngine {
         // for every caller, including the Python bindings that share one engine.
         let mut glyph_cache = GlyphCache::new(2);
         let mut cached_results: Vec<Option<(String, f32)>> = Vec::with_capacity(line_bboxes.len());
-        let mut uncached_tensors: Vec<Tensor> = Vec::new();
+        let mut uncached_tensors: Vec<NdTensor<f32>> = Vec::new();
 
         for (bbox, tensor) in line_bboxes.iter().zip(line_tensors.iter()) {
             let hash = gray
@@ -266,16 +263,12 @@ impl OcrEngine {
             uncached_tensors.push(tensor.clone());
         }
 
-        let outputs = if uncached_tensors.is_empty() {
-            Vec::new()
-        } else if use_fast_path && uncached_tensors.len() > 1 {
-            self.nn.run_batch(&self.model, &uncached_tensors)?
-        } else {
-            uncached_tensors
-                .iter()
-                .map(|t| self.nn.run(&self.model, std::slice::from_ref(t)))
-                .collect::<std::result::Result<Vec<_>, _>>()?
-        };
+        // One image at a time: batching only ever amortized the old engine's per-call
+        // overhead, and the executor now spends its time inside parallel kernels.
+        let outputs = uncached_tensors
+            .iter()
+            .map(|t| self.executor.run(t.clone()))
+            .collect::<Result<Vec<_>>>()?;
 
         let mut lines = Vec::with_capacity(line_bboxes.len());
         let mut inference_idx = 0;
@@ -305,7 +298,7 @@ impl OcrEngine {
                 continue;
             }
 
-            if let Some(output) = outputs.get(inference_idx).and_then(|o| o.first()) {
+            if let Some(output) = outputs.get(inference_idx) {
                 let (text, confidence) = self.decode(output);
                 let text = self.correct(text);
 
@@ -340,7 +333,7 @@ impl OcrEngine {
     }
 
     /// CTC-decode one model output, falling back to beam search for low-confidence lines.
-    fn decode(&self, output: &Tensor) -> (String, f32) {
+    fn decode(&self, output: &NdTensor<f32>) -> (String, f32) {
         let timesteps = output.shape.get(1).copied().unwrap_or(0);
         let num_classes = output.shape.get(2).copied().unwrap_or(0);
 

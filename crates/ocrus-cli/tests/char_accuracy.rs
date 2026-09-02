@@ -22,7 +22,7 @@ struct CharFailure {
 }
 
 use ocrus_layout::detect_lines_projection;
-use ocrus_nn::{NnEngine, Tensor};
+use ocrus_nn::{Executor, Model, NdTensor};
 use ocrus_preproc::{binarize_adaptive, normalize_line_scaled, to_grayscale};
 use ocrus_recognizer::{charset::Charset, ctc_greedy_decode, ctc_tla_decode};
 
@@ -197,18 +197,15 @@ fn vote_texts(texts: &[String]) -> String {
 }
 
 fn recognize_bbox_base(
-    engine: &NnEngine,
-    model: &ocrus_nn::model::OcnnModel,
+    exec: &Executor,
     charset: &Charset,
     gray: &Array2<u8>,
     bbox: &ocrus_core::BBox,
 ) -> String {
     let tensor = normalize_line_scaled(gray, bbox, 1.0);
     let shape = tensor.shape().to_vec();
-    let input = Tensor::new(tensor.into_raw_vec_and_offset().0, shape);
-    if let Ok(outputs) = engine.run(model, &[input])
-        && let Some(output) = outputs.first()
-    {
+    let input = NdTensor::from_vec(tensor.into_raw_vec_and_offset().0, &shape);
+    if let Ok(output) = exec.run(input) {
         let timesteps = output.shape[1];
         let num_classes = output.shape[2];
 
@@ -232,20 +229,19 @@ fn recognize_bbox_base(
 
 /// Recognize a single bbox using both CTC greedy and TLA, picking the better result.
 fn recognize_bbox_ensemble(
-    engine: &NnEngine,
-    model: &ocrus_nn::model::OcnnModel,
+    exec: &Executor,
     charset: &Charset,
     gray: &Array2<u8>,
     bbox: &ocrus_core::BBox,
 ) -> String {
     if !straug_tta_enabled() {
-        return recognize_bbox_base(engine, model, charset, gray, bbox);
+        return recognize_bbox_base(exec, charset, gray, bbox);
     }
 
     let variants = straug_tta_variants(gray);
     let mut texts = Vec::with_capacity(variants.len());
     for variant in &variants {
-        texts.push(recognize_bbox_base(engine, model, charset, variant, bbox));
+        texts.push(recognize_bbox_base(exec, charset, variant, bbox));
     }
 
     let voted = vote_texts(&texts);
@@ -256,12 +252,7 @@ fn recognize_bbox_ensemble(
     texts.into_iter().next().unwrap_or_default()
 }
 
-fn recognize_image(
-    engine: &NnEngine,
-    model: &ocrus_nn::model::OcnnModel,
-    charset: &Charset,
-    img: &DynamicImage,
-) -> String {
+fn recognize_image(exec: &Executor, charset: &Charset, img: &DynamicImage) -> String {
     let gray = to_grayscale(img);
     let binary = binarize_adaptive(&gray);
     let lines = detect_lines_projection(&binary);
@@ -269,10 +260,10 @@ fn recognize_image(
     let mut recognized = String::new();
     if lines.is_empty() {
         let bbox = ocrus_core::BBox::new(0, 0, gray.ncols() as u32, gray.nrows() as u32);
-        recognized = recognize_bbox_ensemble(engine, model, charset, &gray, &bbox);
+        recognized = recognize_bbox_ensemble(exec, charset, &gray, &bbox);
     } else {
         for line in &lines {
-            let text = recognize_bbox_ensemble(engine, model, charset, &gray, line);
+            let text = recognize_bbox_ensemble(exec, charset, &gray, line);
             recognized.push_str(&text);
         }
     }
@@ -382,10 +373,7 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
     info!("Categories: {}", categories.join(", "));
     info!("Log file: {}", log_path.display());
 
-    let engine = NnEngine::new().expect("Failed to create NnEngine");
-    let model = engine
-        .load_model(&model_path)
-        .expect("Failed to load model");
+    let exec = Executor::new(Model::load(&model_path).expect("Failed to load model"));
     let charset = Charset::from_file(&dict_path).expect("Failed to load charset");
 
     // Optionally load quantized model for A/B comparison
@@ -399,9 +387,7 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
             qpath.display()
         );
         info!("A/B test enabled: FP32 vs INT8 ({})", qpath.display());
-        engine
-            .load_model(qpath)
-            .expect("Failed to load quantized model")
+        Executor::new(Model::load(qpath).expect("Failed to load quantized model"))
     });
 
     let font_names = load_font_names(&workspace_root);
@@ -471,7 +457,7 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
                 };
 
                 // FP32 inference
-                let recognized = recognize_image(&engine, &model, &charset, &img);
+                let recognized = recognize_image(&exec, &charset, &img);
 
                 let rec_c = recognized.chars().find(|c| !c.is_whitespace());
                 let is_correct = rec_c.is_some_and(|r| chars_match(r, exp_c));
@@ -501,8 +487,8 @@ fn run_accuracy_test(categories: &[&str], step_label: &str) {
                 }
 
                 // INT8 inference (A/B comparison)
-                if let Some(ref q_model) = quantized_model {
-                    let recognized_q = recognize_image(&engine, q_model, &charset, &img);
+                if let Some(q_exec) = quantized_model.as_ref() {
+                    let recognized_q = recognize_image(q_exec, &charset, &img);
 
                     let rec_c_q = recognized_q.chars().find(|c| !c.is_whitespace());
                     let is_correct_q = rec_c_q.is_some_and(|r| chars_match(r, exp_c));

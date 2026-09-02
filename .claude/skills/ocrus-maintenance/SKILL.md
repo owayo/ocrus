@@ -38,6 +38,26 @@ ocrus-cli         ocrus-python + python/ocrus（PyO3 / maturin）
 （`normalize_line(g,b)` は `normalize_line_scaled(g,b,1.0)` と同一）を通り、
 デコードだけ greedy と TLA を併用する。ほぼ本番と同じ経路だと思ってよい。
 
+## このリポジトリの方針
+
+**下位互換は一切不要。** モデルフォーマットも API も、古い版を読むためのコードを残さない。
+`.ocnn` のヘッダには版番号があり、読めない版は「再変換しろ」と言って止まる。
+2 つ目の経路を抱えると、バグも 2 倍、検証も 2 倍になる。変換はやり直せば済む。
+
+無駄なものを実装に残さないこと。使われなくなった関数・フォーマット・フラグは、
+「いつか使うかも」で残さず**その場で消す**。消し忘れは次に読む人の負担になる。
+
+**モデルフォーマットは毎回見直す。** 「決めたから終わり」ではない。メンテナンスのたびに
+[docs/ocnn-format.md](../../../docs/ocnn-format.md) の「これからも見直すもの」を読み、
+その回に効く改善があれば手を付ける。判断材料は毎回実測する（手順 3）。
+
+| 見るところ | 直近の実測値（2026-09-02） | 改善の余地 |
+| --- | --- | --- |
+| サイズ | 40.2MB（f16） | int8 で約 21MB。`wide` の int8 内積が弱いので保留中 |
+| 推論 | W=104 で 62ms（conv が 83%） | カーネル向けレイアウト（`layout` フィールドは用意済み） |
+| ロード | 1.2ms（JSON 解析） | CBOR 化で数百 µs。いま困っていない |
+| 正しさ | ゴールデン 2/2 | 層ごとの参照出力を持たせる案 |
+
 ## AI が実行するもの / ユーザーに渡すもの
 
 `AGENTS.md` のルール: **長時間かかるコマンドは AI 側で実行しない。** AI セッションが終わると
@@ -48,6 +68,7 @@ ocrus-cli         ocrus-python + python/ocrus（PyO3 / maturin）
 | `depup --dry-run` / `depup --install` | `char_accuracy` の各 step（step1 は約 36 分） |
 | `cargo build` / `test` / `clippy` / `fmt` | `generate_test_images`（全フォント分の画像生成） |
 | `cargo test -p ocrus-engine --test smoke`（約 20 秒） | ONNX → .ocnn 変換、モデルのダウンロード |
+| `cargo test -p ocrus-nn --test ocnn_golden`（1 秒未満） | |
 | `maturin build` と `pytest python/tests` | ファインチューニング、量子化、`uv sync --extra train` |
 | ログと失敗リストの解析 | |
 
@@ -163,12 +184,28 @@ cargo test -p ocrus-engine --release --test smoke -- --nocapture
 
 `--release` を付けること。debug ビルドの推論は 100 倍以上遅く、1 枚で数分かかる。
 
-基準値（2026-09-02 実測、正しい `rec.ocnn` を入れた状態）:
-`sample_ja.png` は 2 行で「こんにちは世界 / 日本語OCRテスト」、単文字は 12/24 正解・23/24 非空。
+モデルファイルの健全性は、ゴールデン検証（1 秒未満）で確かめる。
+
+```bash
+cargo test -p ocrus-nn --release --test ocnn_golden -- --nocapture
+```
+
+**フォーマットの見直しはここで判断する。** サイズ・ロード時間・推論時間・op ごとの内訳を
+その回の実測値として報告に残し、上の表と比べて改善余地が開いていないか見る。
+op ごとの内訳は `Executor::run_profiled()` で取れる。
+
+基準値（2026-09-02 実測、`rec.ocnn` f16）:
+`sample_ja.png` は 2 行で「こんにちは世界 / 日本語OCRテスト」、単文字は 13/24 正解・23/24 非空（f16。f32 重みなら 12/24）。
 
 **全部空になったり単文字が 0/24 になったら、まずモデル成果物を疑う。**
-古い変換器で作られた `.ocnn` は、信頼度 0.9 で堂々と誤答しつつ正常にロードされる
-（2026-09-02 に実際に起きた）。切り分けは ocrus-model-improvement を参照。
+古い変換器で作られたモデルは、信頼度 0.9 で堂々と誤答しつつ正常にロードされる
+（2026-09-02 に実際に起きた）。`.ocnn` にはゴールデンが埋まっているので、これで一発で分かる。
+
+```bash
+cargo test -p ocrus-nn --release --test ocnn_golden -- --nocapture
+```
+
+落ちたらモデルを作り直す（[docs/ocnn-format.md](../../../docs/ocnn-format.md)）。
 
 ## 4. 精度の回帰はユーザーに依頼する
 
@@ -257,6 +294,10 @@ sample_ja: N 行 / 単文字: n/24 正解, m/24 非空
 ## 精度
 （測っていないなら「未測定」と明記する。依頼したなら渡したコマンドと、
  返ってきたログのパス、compare_accuracy.py の結果）
+
+## モデルフォーマット
+サイズ / ロード / 推論（W=104）/ ゴールデン検証の結果
+（前回値と比べてどうか。改善に着手したならその内容、しないなら「今回は見送り」と理由）
 
 ## コミット
 | ハッシュ | 内容 |

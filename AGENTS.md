@@ -6,7 +6,7 @@
 
 - ONNX Runtime (ort) などの外部推論ライブラリに依存しない
 - 自作推論エンジン `ocrus-nn` で PP-OCRv5 モデルを純 Rust で実行
-- `.ocnn` バイナリモデルフォーマット（mmap 対応、Conv+BN+ReLU 融合）
+- `.ocnn` バイナリモデルフォーマット（mmap、型付きグラフ、f16、ゴールデン検証つき）
 - SIMD (`wide` crate) による前処理・推論の高速化
 - ビルドに C/C++ コンパイラや cmake を必要としない
 
@@ -199,12 +199,32 @@ cargo bench          # Benchmarks
 cargo test -p ocrus-engine --release --test smoke -- --nocapture
 ```
 
+## Model Format (.ocnn)
+
+The current format is `.ocnn`; see [docs/ocnn-format.md](docs/ocnn-format.md). Highlights:
+
+- **Typed, named op parameters** (the old format packed them into an anonymous `[u32; 10]`)
+- **SSA values**; shape-only subgraphs folded into `(W*mul + add)/div` dimension expressions
+- **f16 weights by default**: 80.5 MB → 40.2 MB, same golden argmax, ~16% faster
+- **Embedded golden outputs**: `cargo test -p ocrus-nn --release --test v3_golden` proves a
+  model file computes what its converter measured. A stale artifact used to load happily and
+  answer confidently wrong; that class of bug is now caught.
+
+```bash
+# ONNX -> .ocnn
+uv run --with onnx --with onnxruntime --with numpy \n  python scripts/src/ocrus_scripts/convert_to_ocnn.py \n  ~/.ocrus/models/rec.onnx -o ~/.ocrus/models/rec.ocnn --dtype f16
+```
+
+**No backward compatibility.** The version lives in the header; a model from an older
+format is rejected with "re-convert it" rather than read by a second code path. The
+v1/v2 loader and executor have been deleted.
+
 ## Models
 
 Models are not included in the repo. Run `models/download.sh` to download.
 Default model directory: `~/.ocrus/models/` (override with `OCRUS_MODEL_DIR`)
 
-- `rec.ocnn` - PP-OCRv5 recognition model (.ocnn format, pure Rust inference)
+- `rec.ocnn` - PP-OCRv5 recognition model (.ocnn format, f16, 40 MB)
 - `dict.txt` - Character dictionary (18,383 chars)
 - Input shape: `(1, 3, 48, W)`, normalize: `(px/255 - 0.5) / 0.5`
 - ONNX→.ocnn conversion: `scripts/src/ocrus_scripts/convert_to_ocnn.py`

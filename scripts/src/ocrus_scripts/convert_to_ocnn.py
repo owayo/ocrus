@@ -1,1035 +1,1217 @@
-#!/usr/bin/env python3
-"""Convert ONNX model to .ocnn v2 format for ocrus-nn inference engine."""
+"""ONNX を `.ocnn` に変換する。
+
+旧フォーマットとの違いは 3 つ。
+
+1. **名前と型のあるパラメータ** — 無名の `u32[10]` をやめ、
+   op ごとに意味のあるフィールドを持つ
+2. **形状計算をグラフから追い出す** — Shape/Gather/Slice/Concat が動的形状のためだけに
+   存在していたのをやめ、幅 W の affine 式（`(W*mul + add) / div`）に畳む
+3. **ゴールデン出力を埋め込む** — 変換時に onnxruntime で測った argmax 列を記録し、
+   実行側が「このファイルは本当にこう計算するのか」を確かめられるようにする
+
+形状は記号推論しない。**複数の幅で実際に onnxruntime を回して実測し、
+affine 式に当てはめる**。
+当てはまらない次元があれば変換を失敗させる。推測で通してしまうより、止まる方が安い。
+
+使い方:
+    uv run --with onnx --with onnxruntime --with numpy python convert_to_ocnn.py \
+        ~/.ocrus/models/rec.onnx -o ~/.ocrus/models/rec.ocnn
+"""
 
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import struct
 import sys
-from collections import defaultdict
+import zlib
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import numpy as np
+import onnx
+from onnx import numpy_helper
 
 MAGIC = b"OCNN"
-VERSION = 2
+HEADER_LEN = 64
+ALIGN = 64
+VERSION_MAJOR = 3
+VERSION_MINOR = 0
+CONVERTER = "ocrus convert_to_ocnn 1.0"
 
-# Layer type enum (must match Rust LayerType)
-LAYER_TYPES = {
-    "Conv": 1,
-    "ConvDepthwise": 2,
-    "BatchNormalization": 3,
-    "Relu": 4,
-    "HardSwish": 5,
-    "MaxPool": 6,
-    "AveragePool": 7,
-    "Gemm": 8,
-    "Reshape": 9,
-    "Flatten": 10,
-    "Transpose": 11,
-    "Add": 12,
-    "Mul": 13,
-    "Sub": 14,
-    "Div": 15,
-    "MatMul": 16,
-    "Sigmoid": 17,
-    "Softmax": 18,
-    "Concat": 19,
-    "Slice": 20,
-    "Squeeze": 21,
-    "Unsqueeze": 22,
-    "ReduceMean": 24,
-    "Pow": 25,
-    "Sqrt": 26,
-    "LayerNorm": 27,
-    "Gather": 29,
-    "Shape": 30,
+#: 形状の当てはめと検証に使う幅。WIDTH_ALIGN=8 の倍数を選ぶ。
+DEFAULT_WIDTHS = (64, 96, 160, 320)
+TARGET_HEIGHT = 48
+
+
+class ConversionError(RuntimeError):
+    """変換を続行できない。黙って壊れたモデルを出すよりここで止める。"""
+
+
+# --------------------------------------------------------------------------------------
+# 次元の表現
+# --------------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Dim:
+    """定数、または幅 W の affine 式 `(W * mul + add) / div`。"""
+
+    const: int | None = None
+    sym: int | None = None
+    mul: int = 1
+    add: int = 0
+    div: int = 1
+
+    def to_json(self) -> dict[str, int]:
+        """Rust 側の `Dim` と同じ形にする。
+
+        Returns:
+            `{"c": n}` または `{"sym": .., "mul": .., "add": .., "div": ..}`。
+
+        """
+        if self.const is not None:
+            return {"c": int(self.const)}
+        return {
+            "sym": int(self.sym or 0),
+            "mul": int(self.mul),
+            "add": int(self.add),
+            "div": int(self.div),
+        }
+
+    def eval(self, width: int) -> int:
+        """幅を与えて具体値にする。
+
+        Args:
+            width: 記号 W の値。
+
+        Returns:
+            次元の大きさ。
+
+        """
+        if self.const is not None:
+            return self.const
+        return (width * self.mul + self.add) // self.div
+
+
+def fit_dim(values: dict[int, int]) -> Dim | None:
+    """幅ごとの実測値から次元の式を当てはめる。
+
+    Args:
+        values: 幅 -> その幅で観測された次元の大きさ。
+
+    Returns:
+        当てはまった `Dim`。当てはまらなければ None。
+
+    """
+    observed = sorted(values.items())
+    firsts = {v for _, v in observed}
+    if len(firsts) == 1:
+        return Dim(const=observed[0][1])
+
+    # W に比例する形だけを試す。この層構成では stride による割り算しか出てこない。
+    for div in (1, 2, 4, 8, 16, 32, 64):
+        for mul in (1, 2, 3, 4):
+            adds = {v * div - w * mul for w, v in observed}
+            if len(adds) != 1:
+                continue
+            add = adds.pop()
+            candidate = Dim(sym=0, mul=mul, add=add, div=div)
+            if all(candidate.eval(w) == v for w, v in observed):
+                return candidate
+    return None
+
+
+# --------------------------------------------------------------------------------------
+# ONNX の読み取り
+# --------------------------------------------------------------------------------------
+
+
+@dataclass
+class Graph:
+    """変換途中のグラフ。"""
+
+    nodes: list[Any]
+    consts: dict[str, np.ndarray]
+    input_name: str
+    output_name: str
+    producer: dict[str, Any] = field(default_factory=dict)
+    consumers: dict[str, list[Any]] = field(default_factory=dict)
+
+    def rebuild_index(self) -> None:
+        """Rebuild the producer / consumer index."""
+        self.producer = {}
+        self.consumers = {}
+        for node in self.nodes:
+            for out in node.output:
+                self.producer[out] = node
+            for inp in node.input:
+                self.consumers.setdefault(inp, []).append(node)
+
+
+def attr(node: Any, name: str, default: Any = None) -> Any:
+    """ONNX ノードの属性を取り出す。
+
+    Args:
+        node: 対象ノード。
+        name: 属性名。
+        default: 見つからないときの値。
+
+    Returns:
+        属性値。
+
+    """
+    for a in node.attribute:
+        if a.name != name:
+            continue
+        if a.type == onnx.AttributeProto.INT:
+            return a.i
+        if a.type == onnx.AttributeProto.FLOAT:
+            return a.f
+        if a.type == onnx.AttributeProto.INTS:
+            return list(a.ints)
+        if a.type == onnx.AttributeProto.FLOATS:
+            return list(a.floats)
+        if a.type == onnx.AttributeProto.STRING:
+            return a.s.decode()
+        if a.type == onnx.AttributeProto.TENSOR:
+            return numpy_helper.to_array(a.t)
+    return default
+
+
+def load_graph(path: Path) -> tuple[Any, Graph]:
+    """ONNX を読み、Constant ノードを定数表に畳んだグラフを返す。
+
+    Args:
+        path: ONNX ファイル。
+
+    Returns:
+        (onnx モデル, 変換用グラフ)。
+
+    Raises:
+        ConversionError: 入力か出力が 1 つでない。
+
+    """
+    model = onnx.load(str(path))
+    g = model.graph
+
+    consts: dict[str, np.ndarray] = {
+        init.name: numpy_helper.to_array(init) for init in g.initializer
+    }
+    nodes = []
+    for node in g.node:
+        if node.op_type == "Constant":
+            consts[node.output[0]] = np.asarray(attr(node, "value"))
+        else:
+            nodes.append(node)
+
+    if len(g.input) != 1 or len(g.output) != 1:
+        raise ConversionError(
+            "入力 1・出力 1 のモデルだけを扱う"
+            f"（実際は入力 {len(g.input)} 出力 {len(g.output)}）"
+        )
+
+    graph = Graph(
+        nodes=nodes,
+        consts=consts,
+        input_name=g.input[0].name,
+        output_name=g.output[0].name,
+    )
+    graph.rebuild_index()
+    return model, graph
+
+
+# --------------------------------------------------------------------------------------
+# onnxruntime による実測
+# --------------------------------------------------------------------------------------
+
+
+def lcg_input(seed: int, width: int) -> np.ndarray:
+    """Rust の `golden_input` と同じ擬似乱数入力を作る。
+
+    Args:
+        seed: 乱数種。
+        width: 画像幅。
+
+    Returns:
+        `(1, 3, 48, W)` の float32 配列。
+
+    """
+    n = 3 * TARGET_HEIGHT * width
+    out = np.empty(n, dtype=np.float32)
+    state = seed & 0xFFFFFFFF
+    for i in range(n):
+        state = (state * 1664525 + 1013904223) & 0xFFFFFFFF
+        out[i] = np.float32((state >> 8) / 16777216.0 * 2.0 - 1.0)
+    return out.reshape(1, 3, TARGET_HEIGHT, width)
+
+
+def probe_all_values(
+    model: Any, widths: tuple[int, ...], seed: int
+) -> dict[int, dict[str, np.ndarray]]:
+    """全中間出力を露出させた ONNX を各幅で実行し、値を集める。
+
+    形状の当てはめにも、形状計算グラフの畳み込みにも、これ 1 つで足りる。
+
+    Args:
+        model: onnx モデル。
+        widths: 実行する幅。
+        seed: 入力の乱数種。
+
+    Returns:
+        幅 -> {値名: 配列}。
+
+    """
+    import onnxruntime as ort
+
+    probe = onnx.ModelProto()
+    probe.CopyFrom(model)
+    existing = {o.name for o in probe.graph.output}
+    for node in probe.graph.node:
+        for out in node.output:
+            if out and out not in existing:
+                probe.graph.output.extend([onnx.ValueInfoProto(name=out)])
+                existing.add(out)
+
+    sess = ort.InferenceSession(
+        probe.SerializeToString(), providers=["CPUExecutionProvider"]
+    )
+    input_name = sess.get_inputs()[0].name
+    names = [o.name for o in sess.get_outputs()]
+
+    result: dict[int, dict[str, np.ndarray]] = {}
+    for width in widths:
+        outputs = sess.run(None, {input_name: lcg_input(seed, width)})
+        result[width] = dict(zip(names, outputs, strict=True))
+    return result
+
+
+# --------------------------------------------------------------------------------------
+# 形状計算グラフの畳み込み
+# --------------------------------------------------------------------------------------
+
+
+def fold_constants(graph: Graph, probes: dict[int, dict[str, np.ndarray]]) -> int:
+    """入力が全て定数のノードを、実測値そのものに畳む。
+
+    onnxruntime が既に全中間値を出しているので、計算し直す必要はない。幅を変えても
+    同じ値であることを確かめてから定数にするので、動的な値を誤って畳むことはない。
+
+    Args:
+        graph: 対象グラフ。書き換える。
+        probes: 幅ごとの実測値。
+
+    Returns:
+        畳んだノード数。
+
+    """
+    widths = sorted(probes)
+    removed: set[int] = set()
+    folded = 0
+
+    for node in graph.nodes:
+        inputs = [i for i in node.input if i]
+        if not inputs or not all(i in graph.consts for i in inputs):
+            continue
+        out = node.output[0]
+        if any(out not in probes[w] for w in widths):
+            continue
+        values = [np.asarray(probes[w][out]) for w in widths]
+        first = values[0]
+        if not all(
+            v.shape == first.shape and np.array_equal(v, first) for v in values[1:]
+        ):
+            continue
+        graph.consts[out] = first
+        removed.add(id(node))
+        folded += 1
+
+    if removed:
+        graph.nodes = [n for n in graph.nodes if id(n) not in removed]
+        graph.rebuild_index()
+    return folded
+
+
+#: 形状計算に現れる op。Shape から派生した値だけを追う。
+SHAPE_OPS = {
+    "Shape",
+    "Gather",
+    "Concat",
+    "Unsqueeze",
+    "Squeeze",
+    "Slice",
+    "Cast",
+    "Add",
+    "Sub",
+    "Mul",
+    "Div",
 }
 
-LAYER_DESCRIPTOR_SIZE = 80
-CONSTANT_ENTRY_SIZE = 32
-HEADER_SIZE = 16
 
-# Ops whose weights are packed inline (not via Constant table)
-INLINE_WEIGHT_OPS = {"Conv", "ConvDepthwise", "BatchNormalization", "Gemm"}
+def find_shape_values(
+    graph: Graph, probes: dict[int, dict[str, np.ndarray]]
+) -> dict[str, list[Dim]]:
+    """形状計算にしか使われていない値を特定し、次元の式に変換する。
 
+    `Shape` から始まり、整数の小さな 1 次元配列として流れていく値だけを対象にする。
 
-def convert_onnx_to_ocnn(onnx_path: str, output_path: str):
-    """Convert ONNX model to .ocnn v2 binary format."""
-    try:
-        import onnx
-        from onnx import numpy_helper
-    except ImportError:
-        print("Error: onnx package required. Install with: pip install onnx")
-        sys.exit(1)
+    Args:
+        graph: 対象グラフ。
+        probes: 幅ごとの実測値。
 
-    model = onnx.load(onnx_path)
-    graph = model.graph
+    Returns:
+        値名 -> 次元式の並び。
 
-    # Build initializer lookup
-    initializers: dict[str, np.ndarray] = {}
-    for init in graph.initializer:
-        initializers[init.name] = numpy_helper.to_array(init)
+    """
+    widths = sorted(probes)
+    shape_like: dict[str, list[Dim]] = {}
 
-    # Extract Constant op values
-    constant_op_values: dict[str, np.ndarray] = {}
-    for node in graph.node:
-        if node.op_type == "Constant":
-            val = _extract_constant_value(node)
-            if val is not None and len(node.output) > 0:
-                constant_op_values[node.output[0]] = val
+    def observed(name: str) -> dict[int, np.ndarray] | None:
+        vals = {}
+        for w in widths:
+            if name not in probes[w]:
+                return None
+            vals[w] = np.asarray(probes[w][name])
+        return vals
 
-    # Build DAG: tensor_name -> producing node index (excluding Constant/Identity ops)
-    # Also track Shape op outputs for dynamic shape resolution
-    shape_outputs: set[str] = set()
-    non_compute_nodes: list[str] = []
-    compute_nodes: list[Any] = []
-
-    # Identity pass-through mapping: output_name -> input_name
-    identity_map: dict[str, str] = {}
-
-    for node in graph.node:
-        if node.op_type == "Constant":
-            non_compute_nodes.append(node.op_type)
+    for node in graph.nodes:
+        if node.op_type not in SHAPE_OPS:
             continue
-        if node.op_type == "Identity":
-            # Map Identity output to its input (pass-through)
-            if len(node.input) > 0 and len(node.output) > 0:
-                identity_map[node.output[0]] = node.input[0]
+        # Shape から派生した値だけを追う
+        if node.op_type != "Shape" and not any(
+            inp in shape_like or inp in graph.consts for inp in node.input
+        ):
             continue
-        compute_nodes.append(node)
-
-    # Resolve chained Identity mappings (A -> B -> C becomes A -> C)
-    def _resolve_identity(name: str) -> str:
-        visited: set[str] = set()
-        while name in identity_map and name not in visited:
-            visited.add(name)
-            name = identity_map[name]
-        return name
-
-    # Rewrite compute node inputs to resolve Identity references
-    for node in compute_nodes:
-        for i, inp_name in enumerate(node.input):
-            if inp_name in identity_map:
-                node.input[i] = _resolve_identity(inp_name)
-
-    # Topological order is preserved from ONNX graph
-    # Build output_name -> layer_index mapping
-    output_to_layer: dict[str, int] = {}
-    for idx, node in enumerate(compute_nodes):
-        for out in node.output:
-            output_to_layer[out] = idx
-
-    # Collect all constant data (initializers + Constant ops not used as inline weights)
-    # We need to identify which initializers are used as inline weights
-    inline_weight_tensors: set[str] = set()
-    all_weights = {**initializers, **constant_op_values}
-    for node in compute_nodes:
-        if node.op_type in ("Conv", "ConvDepthwise"):
-            # weight and bias are inline
-            if len(node.input) > 1 and node.input[1] in all_weights:
-                inline_weight_tensors.add(node.input[1])
-            if len(node.input) > 2 and node.input[2] and node.input[2] in all_weights:
-                inline_weight_tensors.add(node.input[2])
-        elif node.op_type == "BatchNormalization":
-            for i in range(1, 5):
-                if i < len(node.input) and node.input[i] in all_weights:
-                    inline_weight_tensors.add(node.input[i])
-        elif node.op_type == "Gemm":
-            if len(node.input) > 1 and node.input[1] in all_weights:
-                inline_weight_tensors.add(node.input[1])
-            if len(node.input) > 2 and node.input[2] and node.input[2] in all_weights:
-                inline_weight_tensors.add(node.input[2])
-
-    # Build constant table: tensor_name -> constant_index
-    constant_table: dict[str, int] = {}
-    constant_entries: list[dict] = []  # {shape, data_bytes}
-    constant_data_chunks: list[bytes] = []
-    constant_data_offset = 0
-
-    def _add_constant(name: str, arr: np.ndarray) -> int:
-        if name in constant_table:
-            return constant_table[name]
-        data = arr.astype(np.float32).tobytes()
-        shape = list(arr.shape)
-        entry = {
-            "data_offset": constant_data_offset,
-            "data_size": len(data),
-            "ndim": len(shape),
-            "shape": shape,
-        }
-        idx = len(constant_entries)
-        constant_entries.append(entry)
-        constant_data_chunks.append(data)
-        constant_table[name] = idx
-        return idx
-
-    # Pre-scan: register constants needed by compute nodes
-    for node in compute_nodes:
-        for inp_name in node.input:
-            if not inp_name:
-                continue
-            if inp_name in inline_weight_tensors:
-                continue
-            if inp_name in output_to_layer:
-                continue
-            # Check if it's a graph input (not initializer, not constant op)
-            is_graph_input = any(gi.name == inp_name for gi in graph.input)
-            if is_graph_input and inp_name not in initializers:
-                continue
-            # It's a constant (initializer or Constant op value)
-            arr = None
-            if inp_name in constant_op_values:
-                arr = constant_op_values[inp_name]
-            elif inp_name in initializers:
-                arr = initializers[inp_name]
-            elif inp_name in shape_outputs:
-                # Shape output - will be resolved dynamically, skip
-                continue
-            if arr is not None:
-                _add_constant(inp_name, arr)
-                constant_data_offset = sum(len(c) for c in constant_data_chunks)
-
-    # Convert each compute node
-    layers: list[dict] = []
-    layer_weight_chunks: list[bytes] = []
-    layer_weight_offset = 0
-    op_counts: dict[str, int] = defaultdict(int)
-
-    for node in compute_nodes:
-        op = node.op_type
-        result = _convert_node_v2(
-            node,
-            op,
-            initializers,
-            constant_op_values,
-            constant_table,
-            output_to_layer,
-            shape_outputs,
-            layer_weight_offset,
-        )
-        if result is None:
-            print(f"Warning: skipping unsupported op '{op}' (node: {node.name})")
+        if node.op_type != "Shape" and not any(inp in shape_like for inp in node.input):
             continue
 
-        desc, weights = result
-        layers.append(desc)
-        op_counts[op] += 1
-        if weights is not None:
-            layer_weight_chunks.append(weights)
-            layer_weight_offset += len(weights)
+        out = node.output[0]
+        vals = observed(out)
+        if vals is None:
+            continue
+        sample = vals[widths[0]]
+        if sample.dtype.kind not in "iu" or sample.ndim > 1 or sample.size > 8:
+            continue
 
-    # Compute total constant data size
-    total_constant_data = sum(len(c) for c in constant_data_chunks)
+        dims = []
+        ok = True
+        for axis in range(sample.size if sample.ndim else 1):
+            per_width = {
+                w: int(np.ravel(arr)[axis] if arr.ndim else arr)
+                for w, arr in vals.items()
+            }
+            fitted = fit_dim(per_width)
+            if fitted is None:
+                ok = False
+                break
+            dims.append(fitted)
+        if ok:
+            shape_like[out] = dims
 
-    # Adjust layer weight offsets: layer weights come after constant data
-    for desc in layers:
-        if desc["param_size"] > 0:
-            desc["param_offset"] += total_constant_data
-
-    # Write .ocnn v2 file
-    with open(output_path, "wb") as f:
-        # Header (16 bytes)
-        f.write(MAGIC)
-        f.write(struct.pack("<I", VERSION))
-        f.write(struct.pack("<I", len(layers)))
-        f.write(struct.pack("<I", len(constant_entries)))
-
-        # Constant table (32 bytes each)
-        for entry in constant_entries:
-            _write_constant_entry(f, entry)
-
-        # Layer descriptors (80 bytes each)
-        for desc in layers:
-            _write_descriptor_v2(f, desc)
-
-        # Weight data: constants first, then layer weights
-        for chunk in constant_data_chunks:
-            f.write(chunk)
-        for chunk in layer_weight_chunks:
-            f.write(chunk)
-
-    total_weight_size = total_constant_data + layer_weight_offset
-    print(f"Converted {onnx_path} -> {output_path}")
-    print("  Format: .ocnn v2")
-    print(f"  Layers: {len(layers)}")
-    print(f"  Constants: {len(constant_entries)}")
-    print(f"  Total weight size: {total_weight_size} bytes")
-    print("  Op breakdown:")
-    for op_name, count in sorted(op_counts.items()):
-        print(f"    {op_name}: {count}")
+    return shape_like
 
 
-def _extract_constant_value(node) -> np.ndarray | None:
-    """Extract value from a Constant op node.
+# --------------------------------------------------------------------------------------
+# 融合
+# --------------------------------------------------------------------------------------
+
+
+def fold_batchnorm(graph: Graph) -> int:
+    """Conv の直後の BatchNormalization を Conv の重みに畳む。
+
+    Args:
+        graph: 対象グラフ。書き換える。
 
     Returns:
-        The constant tensor as ndarray, or None if not found.
+        畳んだ数。
 
     """
-    from onnx import numpy_helper
+    folded = 0
+    removed = set()
+    for node in list(graph.nodes):
+        if node.op_type != "BatchNormalization":
+            continue
+        src = graph.producer.get(node.input[0])
+        if src is None or src.op_type != "Conv":
+            continue
+        if len(graph.consumers.get(node.input[0], [])) != 1:
+            continue
 
-    for attr in node.attribute:
-        if attr.name == "value":
-            return numpy_helper.to_array(attr.t)
-    return None
+        scale, bias, mean, var = (graph.consts.get(n) for n in node.input[1:5])
+        if any(x is None for x in (scale, bias, mean, var)):
+            continue
+        eps = float(attr(node, "epsilon", 1e-5))
+
+        w = graph.consts[src.input[1]].astype(np.float32)
+        b = (
+            graph.consts[src.input[2]].astype(np.float32)
+            if len(src.input) > 2 and src.input[2] in graph.consts
+            else np.zeros(w.shape[0], dtype=np.float32)
+        )
+        factor = scale.astype(np.float32) / np.sqrt(var.astype(np.float32) + eps)
+        graph.consts[src.input[1]] = w * factor.reshape(-1, 1, 1, 1)
+        new_bias = (b - mean.astype(np.float32)) * factor + bias.astype(np.float32)
+
+        bias_name = f"{src.name or src.output[0]}__bias"
+        graph.consts[bias_name] = new_bias.astype(np.float32)
+        while len(src.input) < 3:
+            src.input.append("")
+        src.input[2] = bias_name
+
+        # BN の出力を Conv の出力に付け替える
+        old_out = node.output[0]
+        for consumer in graph.consumers.get(old_out, []):
+            for i, name in enumerate(consumer.input):
+                if name == old_out:
+                    consumer.input[i] = src.output[0]
+        if old_out == graph.output_name:
+            graph.output_name = src.output[0]
+        removed.add(id(node))
+        folded += 1
+
+    if removed:
+        graph.nodes = [n for n in graph.nodes if id(n) not in removed]
+        graph.rebuild_index()
+    return folded
 
 
-def _resolve_input(
-    inp_name: str,
-    constant_table: dict[str, int],
-    output_to_layer: dict[str, int],
-    shape_outputs: set[str],
-) -> int | None:
-    """Resolve an input name to an i32 reference.
+ACT_OPS = {"Relu": "relu", "Sigmoid": "sigmoid"}
+
+
+def fold_activation(graph: Graph) -> dict[str, str]:
+    """Conv の直後の活性化を Conv に取り込む。
+
+    Args:
+        graph: 対象グラフ。書き換える。
 
     Returns:
-        >= 0: layer index
-        < 0: -(constant_index + 1)
-        None: graph input or unresolvable
+        Conv の出力名 -> 活性化の種類。
 
     """
-    if not inp_name:
-        return None
-    if inp_name in output_to_layer:
-        return output_to_layer[inp_name]
-    if inp_name in constant_table:
-        return -(constant_table[inp_name] + 1)
-    if inp_name in shape_outputs:
-        # Shape outputs are dynamic; encode as special marker
-        return None
-    return None
+    acts: dict[str, str] = {}
+    removed = set()
+    for node in list(graph.nodes):
+        if node.op_type not in ACT_OPS:
+            continue
+        src = graph.producer.get(node.input[0])
+        if src is None or src.op_type != "Conv":
+            continue
+        if len(graph.consumers.get(node.input[0], [])) != 1:
+            continue
+        # Sigmoid は SE ブロックの門にも使われる。Conv 直後のものだけ畳む。
+        acts[src.output[0]] = ACT_OPS[node.op_type]
+
+        old_out = node.output[0]
+        for consumer in graph.consumers.get(old_out, []):
+            for i, name in enumerate(consumer.input):
+                if name == old_out:
+                    consumer.input[i] = src.output[0]
+        if old_out == graph.output_name:
+            graph.output_name = src.output[0]
+        removed.add(id(node))
+
+    if removed:
+        graph.nodes = [n for n in graph.nodes if id(n) not in removed]
+        graph.rebuild_index()
+    return acts
 
 
-def _make_descriptor(
-    layer_type: int,
-    num_inputs: int,
-    param_offset: int,
-    param_size: int,
-    config: list[int],
-    inputs: list[int],
-) -> dict:
-    """Create a v2 layer descriptor dict.
+def fold_layernorm(graph: Graph) -> int:
+    """分解された LayerNorm を 1 つの op に畳む。
+
+    `ReduceMean → Sub → Pow → ReduceMean → Add → Sqrt → Div → Mul → Add` の並びを探す。
+
+    Args:
+        graph: 対象グラフ。書き換える。
 
     Returns:
-        Descriptor dict with padded config and inputs.
+        融合した数。
 
     """
-    cfg = (config + [0] * 10)[:10]
-    inp = (inputs + [0] * 4)[:4]
-    return {
-        "layer_type": layer_type,
-        "num_inputs": num_inputs,
-        "param_offset": param_offset,
-        "param_size": param_size,
-        "config": cfg,
-        "inputs": inp,
-    }
+    fused = 0
+    removed: set[int] = set()
 
+    def consumer(name: str, op_type: str) -> Any | None:
+        """その値を読む、指定 op type のノードを 1 つ返す。
 
-def _convert_node_v2(
-    node,
-    op: str,
-    initializers: dict[str, np.ndarray],
-    constant_op_values: dict[str, np.ndarray],
-    constant_table: dict[str, int],
-    output_to_layer: dict[str, int],
-    shape_outputs: set[str],
-    weight_offset: int,
-) -> tuple[dict, bytes | None] | None:
-    """Convert a single ONNX node to v2 layer descriptor + weights.
+        中間値が複数のノードに読まれるのは普通のこと（LayerNorm では Sub の出力を
+        Pow と Div が両方読む）なので、「唯一の消費者」で判定してはいけない。
 
-    Returns:
-        Tuple of (descriptor dict, weight bytes) or None if unsupported.
+        Args:
+            name: 読まれる値の名前。
+            op_type: 探すノードの op type。
 
-    """
+        Returns:
+            該当が 1 つならそのノード、0 個か 2 個以上なら None。
 
-    def _resolve(name: str) -> int:
-        r = _resolve_input(name, constant_table, output_to_layer, shape_outputs)
-        return r if r is not None else 0
+        """
+        cs = [
+            c
+            for c in graph.consumers.get(name, [])
+            if id(c) not in removed and c.op_type == op_type
+        ]
+        return cs[0] if len(cs) == 1 else None
 
-    if op == "Conv":
-        return _convert_conv_v2(
-            node,
-            initializers,
-            constant_op_values,
-            output_to_layer,
-            weight_offset,
+    for mean1 in list(graph.nodes):
+        if mean1.op_type != "ReduceMean" or id(mean1) in removed:
+            continue
+        x = mean1.input[0]
+        sub = consumer(mean1.output[0], "Sub")
+        if sub is None or sub.input[0] != x:
+            continue
+        pow_node = consumer(sub.output[0], "Pow")
+        if pow_node is None:
+            continue
+        mean2 = consumer(pow_node.output[0], "ReduceMean")
+        if mean2 is None:
+            continue
+        add_eps = consumer(mean2.output[0], "Add")
+        if add_eps is None:
+            continue
+        sqrt = consumer(add_eps.output[0], "Sqrt")
+        if sqrt is None:
+            continue
+        div = consumer(sqrt.output[0], "Div")
+        if div is None or div.input[1] != sqrt.output[0]:
+            continue
+        mul = consumer(div.output[0], "Mul")
+        if mul is None:
+            continue
+        add_beta = consumer(mul.output[0], "Add")
+        if add_beta is None:
+            continue
+
+        eps_name = [n for n in add_eps.input if n != mean2.output[0]]
+        gamma_name = [n for n in mul.input if n != div.output[0]]
+        beta_name = [n for n in add_beta.input if n != mul.output[0]]
+        if not (eps_name and gamma_name and beta_name):
+            continue
+        if gamma_name[0] not in graph.consts or beta_name[0] not in graph.consts:
+            continue
+        eps_val = graph.consts.get(eps_name[0])
+        if eps_val is None:
+            continue
+
+        axes = attr(mean1, "axes", [-1])
+        ln = onnx.helper.make_node(
+            "OcrusLayerNorm",
+            inputs=[x, gamma_name[0], beta_name[0]],
+            outputs=[add_beta.output[0]],
+            name=f"layernorm_{fused}",
         )
-    elif op == "BatchNormalization":
-        return _convert_batchnorm_v2(
-            node,
-            initializers,
-            constant_op_values,
-            output_to_layer,
-            weight_offset,
-        )
-    elif op in ("Relu", "HardSwish", "Sigmoid", "Sqrt"):
-        inputs = [_resolve(node.input[0])]
-        return _make_descriptor(LAYER_TYPES[op], 1, 0, 0, [], inputs), None
-    elif op in ("MaxPool", "AveragePool"):
-        return _convert_pool_v2(node, op, output_to_layer)
-    elif op == "Gemm":
-        return _convert_gemm_v2(
-            node,
-            initializers,
-            constant_op_values,
-            output_to_layer,
-            weight_offset,
-        )
-    elif op == "Reshape":
-        return _convert_reshape_v2(
-            node,
-            initializers,
-            constant_op_values,
-            constant_table,
-            output_to_layer,
-            shape_outputs,
-        )
-    elif op == "Flatten":
-        attrs = {a.name: a for a in node.attribute}
-        axis = attrs["axis"].i if "axis" in attrs else 1
-        inputs = [_resolve(node.input[0])]
-        config = [axis]
-        return _make_descriptor(LAYER_TYPES["Flatten"], 1, 0, 0, config, inputs), None
-    elif op == "Transpose":
-        return _convert_transpose_v2(node, output_to_layer)
-    elif op in ("Add", "Sub", "Mul", "Div"):
-        inputs_ref = [_resolve(node.input[0]), _resolve(node.input[1])]
-        return (
-            _make_descriptor(LAYER_TYPES[op], 2, 0, 0, [], inputs_ref),
-            None,
-        )
-    elif op == "MatMul":
-        inputs_ref = [_resolve(node.input[0]), _resolve(node.input[1])]
-        return (
-            _make_descriptor(LAYER_TYPES["MatMul"], 2, 0, 0, [], inputs_ref),
-            None,
-        )
-    elif op == "Softmax":
-        attrs = {a.name: a for a in node.attribute}
-        axis = attrs["axis"].i if "axis" in attrs else -1
-        inputs_ref = [_resolve(node.input[0])]
-        config = [_i32_as_u32(axis)]
-        return (
-            _make_descriptor(LAYER_TYPES["Softmax"], 1, 0, 0, config, inputs_ref),
-            None,
-        )
-    elif op == "Concat":
-        return _convert_concat_v2(
-            node,
-            output_to_layer,
-            constant_table,
-            shape_outputs,
-            weight_offset,
-        )
-    elif op == "Slice":
-        return _convert_slice_v2(
-            node,
-            initializers,
-            constant_op_values,
-            constant_table,
-            output_to_layer,
-            shape_outputs,
-        )
-    elif op == "Squeeze":
-        return _convert_squeeze_v2(
-            node,
-            initializers,
-            constant_op_values,
-            output_to_layer,
-            constant_table,
-            shape_outputs,
-        )
-    elif op == "Unsqueeze":
-        return _convert_unsqueeze_v2(
-            node,
-            initializers,
-            constant_op_values,
-            output_to_layer,
-            constant_table,
-            shape_outputs,
-        )
-    elif op == "ReduceMean":
-        return _convert_reducemean_v2(node, output_to_layer)
-    elif op == "Pow":
-        inputs_ref = [_resolve(node.input[0]), _resolve(node.input[1])]
-        return (
-            _make_descriptor(LAYER_TYPES["Pow"], 2, 0, 0, [], inputs_ref),
-            None,
-        )
-    elif op == "Shape":
-        inputs_ref = [_resolve(node.input[0])]
-        return (
-            _make_descriptor(
-                LAYER_TYPES["Shape"],
-                1,
-                0,
-                0,
-                [],
-                inputs_ref,
-            ),
-            None,
-        )
-    elif op == "Gather":
-        inputs_ref = [_resolve(node.input[0]), _resolve(node.input[1])]
-        attrs = {a.name: a for a in node.attribute}
-        axis = attrs["axis"].i if "axis" in attrs else 0
-        config = [_i32_as_u32(axis)]
-        return (
-            _make_descriptor(LAYER_TYPES["Gather"], 2, 0, 0, config, inputs_ref),
-            None,
-        )
-    return None
-
-
-def _i32_as_u32(val: int) -> int:
-    """Convert a signed i32 value to its u32 bit representation.
-
-    Returns:
-        The u32 bit-cast value.
-
-    """
-    return struct.unpack("<I", struct.pack("<i", val))[0]
-
-
-def _f32_as_u32(val: float) -> int:
-    """Convert f32 to u32 bit representation.
-
-    Returns:
-        The u32 bit-cast value.
-
-    """
-    return struct.unpack("<I", struct.pack("<f", val))[0]
-
-
-def _get_constant_array(
-    name: str,
-    initializers: dict[str, np.ndarray],
-    constant_op_values: dict[str, np.ndarray],
-) -> np.ndarray | None:
-    """Get array from initializer or Constant op.
-
-    Returns:
-        The array if found, or None.
-
-    """
-    if name in constant_op_values:
-        return constant_op_values[name]
-    if name in initializers:
-        return initializers[name]
-    return None
-
-
-# --- v2 converters ---
-
-
-def _convert_conv_v2(
-    node, initializers, constant_op_values, output_to_layer, weight_offset
-):
-    attrs = {a.name: a for a in node.attribute}
-    weight = _get_constant_array(node.input[1], initializers, constant_op_values)
-    if weight is None:
-        return None
-
-    cout, cin, kh, kw = weight.shape
-    group = attrs.get("group", None)
-    group_val = group.i if group else 1
-
-    strides = list(attrs["strides"].ints) if "strides" in attrs else [1, 1]
-    pads = list(attrs["pads"].ints) if "pads" in attrs else [0, 0, 0, 0]
-
-    # auto_pad: 0=NOTSET, 1=SAME_UPPER, 2=SAME_LOWER
-    auto_pad = 0
-    if "auto_pad" in attrs:
-        ap = attrs["auto_pad"].s.decode()
-        if ap == "SAME_UPPER":
-            auto_pad = 1
-        elif ap == "SAME_LOWER":
-            auto_pad = 2
-
-    is_depthwise = group_val == cout and cin == 1
-    layer_type = LAYER_TYPES["ConvDepthwise"] if is_depthwise else LAYER_TYPES["Conv"]
-
-    bias_name = node.input[2] if len(node.input) > 2 and node.input[2] else None
-    bias = (
-        _get_constant_array(bias_name, initializers, constant_op_values)
-        if bias_name
-        else None
-    )
-    has_bias = bias is not None
-
-    weight_data = weight.astype(np.float32).tobytes()
-    if bias is not None:
-        weight_data += bias.astype(np.float32).tobytes()
-
-    config = [
-        cout,
-        cin,
-        kh,
-        kw,
-        strides[0],
-        strides[1],
-        pads[0],
-        pads[1],
-        int(has_bias),
-        auto_pad,
-    ]
-
-    # Resolve data input
-    inp_ref = _resolve_input(node.input[0], {}, output_to_layer, set())
-    inputs = [inp_ref if inp_ref is not None else 0]
-
-    return (
-        _make_descriptor(
-            layer_type, 1, weight_offset, len(weight_data), config, inputs
-        ),
-        weight_data,
-    )
-
-
-def _convert_batchnorm_v2(
-    node, initializers, constant_op_values, output_to_layer, weight_offset
-):
-    gamma = _get_constant_array(node.input[1], initializers, constant_op_values)
-    beta = _get_constant_array(node.input[2], initializers, constant_op_values)
-    mean = _get_constant_array(node.input[3], initializers, constant_op_values)
-    var = _get_constant_array(node.input[4], initializers, constant_op_values)
-
-    if gamma is None:
-        return None
-
-    channels = len(gamma)
-    attrs = {a.name: a for a in node.attribute}
-    eps = attrs.get("epsilon", None)
-    eps_val = eps.f if eps else 1e-5
-
-    weight_data = (
-        gamma.astype(np.float32).tobytes()
-        + beta.astype(np.float32).tobytes()
-        + mean.astype(np.float32).tobytes()
-        + var.astype(np.float32).tobytes()
-    )
-
-    config = [channels, _f32_as_u32(eps_val)]
-
-    inp_ref = _resolve_input(node.input[0], {}, output_to_layer, set())
-    inputs = [inp_ref if inp_ref is not None else 0]
-
-    return (
-        _make_descriptor(
-            LAYER_TYPES["BatchNormalization"],
-            1,
-            weight_offset,
-            len(weight_data),
-            config,
-            inputs,
-        ),
-        weight_data,
-    )
-
-
-def _convert_pool_v2(node, op, output_to_layer):
-    attrs = {a.name: a for a in node.attribute}
-    kernel = list(attrs["kernel_shape"].ints) if "kernel_shape" in attrs else [2, 2]
-    strides = list(attrs["strides"].ints) if "strides" in attrs else [2, 2]
-    pads = list(attrs["pads"].ints) if "pads" in attrs else [0, 0, 0, 0]
-
-    # auto_pad: 0=NOTSET, 1=SAME_UPPER, 2=SAME_LOWER
-    auto_pad = 0
-    if "auto_pad" in attrs:
-        ap = attrs["auto_pad"].s.decode()
-        if ap == "SAME_UPPER":
-            auto_pad = 1
-        elif ap == "SAME_LOWER":
-            auto_pad = 2
-
-    ceil_mode = attrs["ceil_mode"].i if "ceil_mode" in attrs else 0
-
-    config = [
-        kernel[0],
-        kernel[1],
-        strides[0],
-        strides[1],
-        pads[0],
-        pads[1],
-        auto_pad,
-        ceil_mode,
-    ]
-    layer_type = (
-        LAYER_TYPES["MaxPool"] if op == "MaxPool" else LAYER_TYPES["AveragePool"]
-    )
-
-    inp_ref = _resolve_input(node.input[0], {}, output_to_layer, set())
-    inputs = [inp_ref if inp_ref is not None else 0]
-
-    return _make_descriptor(layer_type, 1, 0, 0, config, inputs), None
-
-
-def _convert_gemm_v2(
-    node, initializers, constant_op_values, output_to_layer, weight_offset
-):
-    weight = _get_constant_array(node.input[1], initializers, constant_op_values)
-    if weight is None:
-        return None
-
-    out_f, in_f = weight.shape
-    bias_name = node.input[2] if len(node.input) > 2 and node.input[2] else None
-    bias = (
-        _get_constant_array(bias_name, initializers, constant_op_values)
-        if bias_name
-        else None
-    )
-    has_bias = bias is not None
-
-    weight_data = weight.astype(np.float32).tobytes()
-    if bias is not None:
-        weight_data += bias.astype(np.float32).tobytes()
-
-    config = [out_f, in_f, int(has_bias)]
-
-    inp_ref = _resolve_input(node.input[0], {}, output_to_layer, set())
-    inputs = [inp_ref if inp_ref is not None else 0]
-
-    return (
-        _make_descriptor(
-            LAYER_TYPES["Gemm"], 1, weight_offset, len(weight_data), config, inputs
-        ),
-        weight_data,
-    )
-
-
-def _convert_reshape_v2(
-    node,
-    initializers,
-    constant_op_values,
-    constant_table,
-    output_to_layer,
-    shape_outputs,
-):
-    def _resolve(name):
-        return _resolve_input(name, constant_table, output_to_layer, shape_outputs)
-
-    data_input = _resolve(node.input[0])
-    inputs = [data_input if data_input is not None else 0]
-    num_inputs = 1
-
-    # Try to get static shape
-    shape_name = node.input[1] if len(node.input) > 1 else None
-    shape_arr = None
-    if shape_name:
-        shape_arr = _get_constant_array(shape_name, initializers, constant_op_values)
-
-    if shape_arr is not None:
-        # Static shape: encode in config
-        shape_list = shape_arr.flatten().astype(np.int64).tolist()
-        ndim = len(shape_list)
-        config = [ndim]
-        for s in shape_list[:9]:
-            if s == -1:
-                config.append(0xFFFFFFFF)
-            else:
-                config.append(_i32_as_u32(int(s)))
-    else:
-        # Dynamic shape: reference via inputs[1]
-        if shape_name:
-            shape_ref = _resolve(shape_name)
-            if shape_ref is not None:
-                inputs.append(shape_ref)
-                num_inputs = 2
-        config = [0]  # ndim=0 signals dynamic
-
-    return (
-        _make_descriptor(LAYER_TYPES["Reshape"], num_inputs, 0, 0, config, inputs),
-        None,
-    )
-
-
-def _convert_transpose_v2(node, output_to_layer):
-    attrs = {a.name: a for a in node.attribute}
-    perm = list(attrs["perm"].ints) if "perm" in attrs else []
-    ndim = len(perm)
-    config = [ndim] + [_i32_as_u32(p) for p in perm[:9]]
-
-    inp_ref = _resolve_input(node.input[0], {}, output_to_layer, set())
-    inputs = [inp_ref if inp_ref is not None else 0]
-
-    return (
-        _make_descriptor(LAYER_TYPES["Transpose"], 1, 0, 0, config, inputs),
-        None,
-    )
-
-
-def _convert_concat_v2(
-    node, output_to_layer, constant_table, shape_outputs, weight_offset
-):
-    attrs = {a.name: a for a in node.attribute}
-    axis = attrs["axis"].i if "axis" in attrs else 0
-
-    inputs_ref = []
-    for inp_name in node.input:
-        r = _resolve_input(inp_name, constant_table, output_to_layer, shape_outputs)
-        inputs_ref.append(r if r is not None else 0)
-
-    num_inputs = len(inputs_ref)
-    config = [_i32_as_u32(axis)]
-
-    if num_inputs <= 4:
-        return (
-            _make_descriptor(
-                LAYER_TYPES["Concat"],
-                num_inputs,
-                0,
-                0,
-                config,
-                inputs_ref,
-            ),
-            None,
-        )
-
-    # >4 inputs: first 4 in descriptor, rest in weight data
-    first4 = inputs_ref[:4]
-    extra = inputs_ref[4:]
-    extra_bytes = b"".join(struct.pack("<i", v) for v in extra)
-    return (
-        _make_descriptor(
-            LAYER_TYPES["Concat"],
-            num_inputs,
-            weight_offset,
-            len(extra_bytes),
-            config,
-            first4,
-        ),
-        extra_bytes,
-    )
-
-
-def _convert_slice_v2(
-    node,
-    initializers,
-    constant_op_values,
-    constant_table,
-    output_to_layer,
-    shape_outputs,
-):
-    """Convert Slice op.
-
-    ONNX Slice: input, starts, ends, axes (optional), steps (optional)
-    For static parameters, encode in config.
-    For dynamic, use input references.
-
-    Returns:
-        Tuple of (descriptor dict, None) for Slice layer.
-
-    """
-
-    def _resolve(name):
-        return _resolve_input(name, constant_table, output_to_layer, shape_outputs)
-
-    data_ref = _resolve(node.input[0])
-    inputs = [data_ref if data_ref is not None else 0]
-    num_inputs = 1
-
-    # Try to extract static slice params
-    starts_arr = (
-        _get_constant_array(node.input[1], initializers, constant_op_values)
-        if len(node.input) > 1 and node.input[1]
-        else None
-    )
-    ends_arr = (
-        _get_constant_array(node.input[2], initializers, constant_op_values)
-        if len(node.input) > 2 and node.input[2]
-        else None
-    )
-    axes_arr = (
-        _get_constant_array(node.input[3], initializers, constant_op_values)
-        if len(node.input) > 3 and node.input[3]
-        else None
-    )
-    steps_arr = (
-        _get_constant_array(node.input[4], initializers, constant_op_values)
-        if len(node.input) > 4 and node.input[4]
-        else None
-    )
-
-    if starts_arr is not None and ends_arr is not None:
-        # Static slice: single axis for now
-        starts = starts_arr.flatten().astype(np.int64).tolist()
-        ends = ends_arr.flatten().astype(np.int64).tolist()
-        if axes_arr is not None:
-            axes = axes_arr.flatten().astype(np.int64).tolist()
-        else:
-            axes = list(range(len(starts)))
-        if steps_arr is not None:
-            steps = steps_arr.flatten().astype(np.int64).tolist()
-        else:
-            steps = [1] * len(starts)
-
-        if len(starts) == 1:
-            config = [
-                _i32_as_u32(int(axes[0])),
-                _i32_as_u32(int(starts[0])),
-                _i32_as_u32(int(ends[0])),
-                _i32_as_u32(int(steps[0])),
+        ln.attribute.extend(
+            [
+                onnx.helper.make_attribute("axis", int(axes[-1])),
+                onnx.helper.make_attribute("epsilon", float(np.ravel(eps_val)[0])),
             ]
+        )
+        idx = graph.nodes.index(mean1)
+        graph.nodes.insert(idx, ln)
+        for n in (mean1, sub, pow_node, mean2, add_eps, sqrt, div, mul, add_beta):
+            removed.add(id(n))
+        fused += 1
+
+    if removed:
+        graph.nodes = [n for n in graph.nodes if id(n) not in removed]
+        graph.rebuild_index()
+    return fused
+
+
+# --------------------------------------------------------------------------------------
+# .ocnn の組み立て
+# --------------------------------------------------------------------------------------
+
+
+class Builder:
+    """値・テンソル・ノードを積み上げて `.ocnn` を書き出す。"""
+
+    def __init__(self, dtype: str) -> None:
+        """空の Builder を作る。
+
+        Args:
+            dtype: 重みの保存形式（f32 / f16）。
+
+        """
+        self.dtype = dtype
+        self.values: list[dict[str, Any]] = []
+        self.value_id: dict[str, int] = {}
+        self.tensors: list[dict[str, Any]] = []
+        self.tensor_id: dict[str, int] = {}
+        self.blobs: list[bytes] = []
+        self.nodes: list[dict[str, Any]] = []
+        self.payload_len = 0
+
+    def value(self, name: str, shape: list[Dim] | None = None) -> int:
+        """値 ID を割り当てる（既にあれば再利用）。
+
+        Args:
+            name: ONNX の値名。
+            shape: 分かっていれば次元式。
+
+        Returns:
+            値 ID。
+
+        """
+        if name in self.value_id:
+            if shape is not None and not self.values[self.value_id[name]]["shape"]:
+                self.values[self.value_id[name]]["shape"] = [d.to_json() for d in shape]
+            return self.value_id[name]
+        vid = len(self.values)
+        self.value_id[name] = vid
+        self.values.append(
+            {"name": name, "shape": [d.to_json() for d in shape] if shape else []}
+        )
+        return vid
+
+    def tensor(self, name: str, array: np.ndarray) -> int:
+        """定数テンソルを登録する（同名は再利用）。
+
+        Args:
+            name: テンソル名。
+            array: 中身。
+
+        Returns:
+            テンソル ID。
+
+        """
+        if name in self.tensor_id:
+            return self.tensor_id[name]
+
+        arr = np.ascontiguousarray(array)
+        if arr.dtype.kind == "f":
+            stored = arr.astype(np.float16 if self.dtype == "f16" else np.float32)
+            dtype = "f16" if self.dtype == "f16" else "f32"
         else:
-            # Multi-axis: use inputs for starts/ends/axes/steps via constant table
-            config = [len(starts)]
-            for i in range(1, 5):
-                if i < len(node.input) and node.input[i]:
-                    r = _resolve(node.input[i])
-                    if r is not None:
-                        inputs.append(r)
-                        num_inputs += 1
-    else:
-        # Dynamic slice params: reference via inputs
-        config = [0]  # signal dynamic
-        for i in range(1, min(len(node.input), 5)):
-            if node.input[i]:
-                r = _resolve(node.input[i])
-                if r is not None:
-                    inputs.append(r)
-                    num_inputs += 1
+            stored = arr.astype(np.float32)
+            dtype = "f32"
 
-    return (
-        _make_descriptor(LAYER_TYPES["Slice"], num_inputs, 0, 0, config, inputs),
-        None,
+        pad = (-self.payload_len) % ALIGN
+        if pad:
+            self.blobs.append(b"\0" * pad)
+            self.payload_len += pad
+        blob = stored.tobytes()
+
+        tid = len(self.tensors)
+        self.tensor_id[name] = tid
+        self.tensors.append(
+            {
+                "name": name,
+                "dtype": dtype,
+                "layout": "row",
+                "shape": [int(d) for d in arr.shape],
+                "offset": self.payload_len,
+                "len": len(blob),
+                "crc32": zlib.crc32(blob),
+            }
+        )
+        self.blobs.append(blob)
+        self.payload_len += len(blob)
+        return tid
+
+    def node(
+        self, name: str, op: dict[str, Any], inputs: list[dict[str, int]], output: int
+    ) -> None:
+        """ノードを 1 つ積む。
+
+        Args:
+            name: 名前（診断用）。
+            op: op とそのパラメータ。
+            inputs: 入力参照。
+            output: 出力値 ID。
+
+        """
+        self.nodes.append({"name": name, "inputs": inputs, "output": output, **op})
+
+    def write(self, path: Path, meta_extra: dict[str, Any]) -> None:
+        """ファイルに書き出す。
+
+        Args:
+            path: 出力先。
+            meta_extra: メタデータに足す項目。
+
+        """
+        meta = {
+            "converter": CONVERTER,
+            "created_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "symbols": ["W"],
+            "values": self.values,
+            "tensors": self.tensors,
+            "nodes": self.nodes,
+            **meta_extra,
+        }
+        meta_bytes = json.dumps(
+            meta, ensure_ascii=False, separators=(",", ":")
+        ).encode()
+        payload = b"".join(self.blobs)
+
+        meta_offset = HEADER_LEN
+        data_offset = meta_offset + len(meta_bytes)
+        data_offset += (-data_offset) % ALIGN
+
+        header = bytearray(HEADER_LEN)
+        header[0:4] = MAGIC
+        # 版番号はヘッダに持つ。ファイル名には出さない。
+        struct.pack_into("<II", header, 4, VERSION_MAJOR, VERSION_MINOR)
+        struct.pack_into(
+            "<QQQQ", header, 16, meta_offset, len(meta_bytes), data_offset, len(payload)
+        )
+        struct.pack_into("<II", header, 48, zlib.crc32(meta_bytes), zlib.crc32(payload))
+
+        with path.open("wb") as f:
+            f.write(header)
+            f.write(meta_bytes)
+            f.write(b"\0" * (data_offset - meta_offset - len(meta_bytes)))
+            f.write(payload)
+
+
+def dims_of(name: str, probes: dict[int, dict[str, np.ndarray]]) -> list[Dim] | None:
+    """実測から値の形状式を当てはめる。
+
+    Args:
+        name: 値名。
+        probes: 幅ごとの実測値。
+
+    Returns:
+        次元式の並び。当てはまらなければ None。
+
+    """
+    widths = sorted(probes)
+    if any(name not in probes[w] for w in widths):
+        return None
+    rank = probes[widths[0]][name].ndim
+    dims = []
+    for axis in range(rank):
+        fitted = fit_dim({w: int(probes[w][name].shape[axis]) for w in widths})
+        if fitted is None:
+            return None
+        dims.append(fitted)
+    return dims
+
+
+# --------------------------------------------------------------------------------------
+# ノードの出力
+# --------------------------------------------------------------------------------------
+
+BINARY = {"Add": "add", "Sub": "sub", "Mul": "mul", "Div": "div", "Pow": "pow"}
+UNARY = {"Relu": "relu", "Sigmoid": "sigmoid", "Sqrt": "sqrt"}
+
+
+def pads_of(
+    node: Any, probes: dict[int, dict[str, np.ndarray]] | None = None
+) -> list[int]:
+    """ONNX の pads を `[top, left, bottom, right]` にする。
+
+    `auto_pad` が指定されている場合は、実測した入出力の形から必要なパディングを逆算し、
+    どの幅でも同じ値になることを確かめたうえで明示値に置き換える。幅によって変わるなら
+    式で表せないので変換を失敗させる。
+
+    Args:
+        node: Conv / Pool ノード。
+        probes: 幅ごとの実測値。auto_pad の解決に要る。
+
+    Returns:
+        4 要素のパディング。
+
+    Raises:
+        ConversionError: auto_pad を静的に解決できない。
+
+    """
+    auto = attr(node, "auto_pad", "NOTSET")
+    if auto in ("NOTSET", "VALID"):
+        pads = attr(node, "pads", [0, 0, 0, 0])
+        return [int(pads[0]), int(pads[1]), int(pads[2]), int(pads[3])]
+    if auto not in ("SAME_UPPER", "SAME_LOWER") or probes is None:
+        raise ConversionError(f"auto_pad={auto!r} は未対応")
+
+    name = node.name or node.output[0]
+    kernel = attr(node, "kernel_shape")
+    if kernel is None:
+        raise ConversionError(f"{name}: auto_pad の解決に kernel_shape が要る")
+    strides = attr(node, "strides", [1, 1])
+
+    resolved: set[tuple[int, int, int, int]] = set()
+    for w in sorted(probes):
+        src, dst = node.input[0], node.output[0]
+        if src not in probes[w] or dst not in probes[w]:
+            raise ConversionError(f"{name}: auto_pad の解決に必要な実測値が無い")
+        in_shape = probes[w][src].shape
+        out_shape = probes[w][dst].shape
+        pads = []
+        for axis in (0, 1):
+            total = max(
+                0,
+                (out_shape[2 + axis] - 1) * int(strides[axis])
+                + int(kernel[axis])
+                - in_shape[2 + axis],
+            )
+            begin = total // 2 if auto == "SAME_UPPER" else total - total // 2
+            pads.append((begin, total - begin))
+        resolved.add((pads[0][0], pads[1][0], pads[0][1], pads[1][1]))
+
+    if len(resolved) != 1:
+        raise ConversionError(
+            f"{name}: auto_pad={auto} のパディングが幅で変わる（{sorted(resolved)}）"
+        )
+    return list(resolved.pop())
+
+
+def build_model(
+    graph: Graph,
+    probes: dict[int, dict[str, np.ndarray]],
+    shape_values: dict[str, list[Dim]],
+    acts: dict[str, str],
+    dtype: str,
+) -> Builder:
+    """グラフを `.ocnn` の値・テンソル・ノードに変換する。
+
+    Args:
+        graph: 融合済みグラフ。
+        probes: 幅ごとの実測値。
+        shape_values: 形状計算に畳んだ値。
+        acts: Conv 出力名 -> 融合した活性化。
+        dtype: 重みの保存形式。
+
+    Returns:
+        組み立て済み Builder。
+
+    Raises:
+        ConversionError: 未対応の op や解決できない形状があった。
+
+    """
+    b = Builder(dtype)
+    b.value(
+        graph.input_name,
+        [Dim(const=1), Dim(const=3), Dim(const=TARGET_HEIGHT), Dim(sym=0)],
     )
 
+    def ref(name: str) -> dict[str, int]:
+        if name in graph.consts:
+            return {"t": b.tensor(name, graph.consts[name])}
+        if name not in b.value_id:
+            raise ConversionError(
+                f"値 {name} が未定義のまま参照された（トポロジカル順の乱れ）"
+            )
+        return {"v": b.value_id[name]}
 
-def _convert_squeeze_v2(
-    node,
-    initializers,
-    constant_op_values,
-    output_to_layer,
-    constant_table=None,
-    shape_outputs=None,
-):
-    ct = constant_table or {}
-    so = shape_outputs or set()
+    def out_value(node: Any) -> int:
+        return b.value(node.output[0], dims_of(node.output[0], probes) or None)
 
-    def _resolve(name):
-        return _resolve_input(name, ct, output_to_layer, so)
+    def slice_scalar(node: Any, idx: int, default: int | None = None) -> Dim:
+        name = node.name or node.output[0]
+        if len(node.input) <= idx or not node.input[idx]:
+            if default is None:
+                raise ConversionError(f"Slice {name} の引数 {idx} が無い")
+            return Dim(const=default)
+        src = node.input[idx]
+        if src in shape_values:
+            return shape_values[src][0]
+        if src in graph.consts:
+            return Dim(const=int(np.ravel(graph.consts[src])[0]))
+        raise ConversionError(f"Slice {name} の引数 {src} を静的に解決できなかった")
 
-    inp_ref = _resolve(node.input[0])
-    inputs = [inp_ref if inp_ref is not None else 0]
+    for node in graph.nodes:
+        op_type = node.op_type
+        name = node.name or node.output[0]
 
-    # ONNX 13+: axes as second input; older: as attribute
-    axes = []
-    if len(node.input) > 1 and node.input[1]:
-        arr = _get_constant_array(node.input[1], initializers, constant_op_values)
-        if arr is not None:
-            axes = arr.flatten().astype(np.int64).tolist()
-    else:
-        attrs = {a.name: a for a in node.attribute}
-        if "axes" in attrs:
-            axes = list(attrs["axes"].ints)
+        # 形状計算に畳んだノードは実行グラフから消える
+        if node.output[0] in shape_values:
+            continue
 
-    config = [len(axes)] + [_i32_as_u32(int(a)) for a in axes[:9]]
+        if op_type == "Conv":
+            strides = attr(node, "strides", [1, 1])
+            dilations = attr(node, "dilations", [1, 1])
+            inputs = [ref(node.input[0]), ref(node.input[1])]
+            if len(node.input) > 2 and node.input[2]:
+                inputs.append(ref(node.input[2]))
+            b.node(
+                name,
+                {
+                    "op": "conv2d",
+                    "stride": [int(strides[0]), int(strides[1])],
+                    "pad": pads_of(node, probes),
+                    "dilation": [int(dilations[0]), int(dilations[1])],
+                    "groups": int(attr(node, "group", 1)),
+                    "act": acts.get(node.output[0], "none"),
+                },
+                inputs,
+                out_value(node),
+            )
+        elif op_type in ("MaxPool", "AveragePool"):
+            kernel = attr(node, "kernel_shape", [1, 1])
+            strides = attr(node, "strides", [1, 1])
+            b.node(
+                name,
+                {
+                    "op": "pool",
+                    "kind": "max" if op_type == "MaxPool" else "avg",
+                    "kernel": [int(kernel[0]), int(kernel[1])],
+                    "stride": [int(strides[0]), int(strides[1])],
+                    "pad": pads_of(node, probes),
+                    "global": False,
+                },
+                [ref(node.input[0])],
+                out_value(node),
+            )
+        elif op_type == "MatMul":
+            b.node(
+                name,
+                {"op": "mat_mul", "trans_b": False},
+                [ref(node.input[0]), ref(node.input[1])],
+                out_value(node),
+            )
+        elif op_type == "OcrusLayerNorm":
+            b.node(
+                name,
+                {
+                    "op": "layer_norm",
+                    "axis": int(attr(node, "axis", -1)),
+                    "eps": float(attr(node, "epsilon", 1e-5)),
+                },
+                [ref(node.input[0]), ref(node.input[1]), ref(node.input[2])],
+                out_value(node),
+            )
+        elif op_type == "Softmax":
+            b.node(
+                name,
+                {"op": "softmax", "axis": int(attr(node, "axis", -1))},
+                [ref(node.input[0])],
+                out_value(node),
+            )
+        elif op_type == "Reshape":
+            target = node.input[1]
+            if target in shape_values:
+                shape = shape_values[target]
+            elif target in graph.consts:
+                shape = [Dim(const=int(v)) for v in np.ravel(graph.consts[target])]
+            else:
+                raise ConversionError(
+                    f"Reshape {name} の形状入力 {target} を静的に解決できなかった"
+                )
+            # ONNX では 0 は「入力の同じ軸をそのまま使う」。フォーマットにこの癖を
+            # 持ち込まず、ここで具体的な次元に解決しておく。
+            if any(d.const == 0 for d in shape):
+                src_dims = dims_of(node.input[0], probes)
+                if src_dims is None:
+                    raise ConversionError(
+                        f"Reshape {name}: 0 次元の解決に必要な入力形状が分からない"
+                    )
+                shape = [
+                    src_dims[i] if d.const == 0 else d for i, d in enumerate(shape)
+                ]
+            b.node(
+                name,
+                {"op": "reshape", "shape": [d.to_json() for d in shape]},
+                [ref(node.input[0])],
+                out_value(node),
+            )
+        elif op_type == "Transpose":
+            perm = attr(node, "perm")
+            if perm is None:
+                raise ConversionError(f"Transpose {name} に perm が無い")
+            b.node(
+                name,
+                {"op": "transpose", "perm": [int(p) for p in perm]},
+                [ref(node.input[0])],
+                out_value(node),
+            )
+        elif op_type == "Concat":
+            b.node(
+                name,
+                {"op": "concat", "axis": int(attr(node, "axis", 0))},
+                [ref(i) for i in node.input],
+                out_value(node),
+            )
+        elif op_type == "Slice":
+            axes_src = node.input[3] if len(node.input) > 3 and node.input[3] else None
+            axis = (
+                int(np.ravel(graph.consts[axes_src])[0])
+                if axes_src and axes_src in graph.consts
+                else 0
+            )
+            step = slice_scalar(node, 4, 1)
+            if step.const is None:
+                raise ConversionError(f"Slice {name} の step が動的")
+            b.node(
+                name,
+                {
+                    "op": "slice",
+                    "axis": axis,
+                    "start": slice_scalar(node, 1).to_json(),
+                    "end": slice_scalar(node, 2).to_json(),
+                    "step": int(step.const),
+                },
+                [ref(node.input[0])],
+                out_value(node),
+            )
+        elif op_type == "ReduceMean":
+            b.node(
+                name,
+                {
+                    "op": "reduce_mean",
+                    "axes": [int(a) for a in attr(node, "axes", [-1])],
+                    "keepdims": bool(attr(node, "keepdims", 1)),
+                },
+                [ref(node.input[0])],
+                out_value(node),
+            )
+        elif op_type in BINARY:
+            b.node(
+                name,
+                {"op": "binary", "kind": BINARY[op_type]},
+                [ref(node.input[0]), ref(node.input[1])],
+                out_value(node),
+            )
+        elif op_type in UNARY:
+            b.node(
+                name,
+                {"op": "unary", "kind": UNARY[op_type]},
+                [ref(node.input[0])],
+                out_value(node),
+            )
+        elif op_type in ("Squeeze", "Unsqueeze"):
+            axes = attr(node, "axes")
+            if axes is None and len(node.input) > 1 and node.input[1] in graph.consts:
+                axes = [int(v) for v in np.ravel(graph.consts[node.input[1]])]
+            if axes is None:
+                raise ConversionError(f"{op_type} {name} の axes を解決できなかった")
+            b.node(
+                name,
+                {"op": op_type.lower(), "axes": [int(a) for a in axes]},
+                [ref(node.input[0])],
+                out_value(node),
+            )
+        elif op_type == "Identity":
+            b.node(name, {"op": "identity"}, [ref(node.input[0])], out_value(node))
+        else:
+            raise ConversionError(
+                f"未対応の op: {op_type} ({name})。実行系に追加するか、変換時に畳むこと"
+            )
 
-    return (
-        _make_descriptor(LAYER_TYPES["Squeeze"], 1, 0, 0, config, inputs),
-        None,
+    return b
+
+
+def golden_records(
+    probes: dict[int, dict[str, np.ndarray]],
+    output_name: str,
+    widths: tuple[int, ...],
+    seed: int,
+) -> list[dict[str, Any]]:
+    """実測した出力から、検証用の argmax 列を記録する。
+
+    実測は既に onnxruntime で取ってあるので、ここで測り直さない。
+    融合でグラフを書き換える前の出力名を使うこと
+    （融合は proto を書き換えるので、後から流し直せない）。
+
+    Args:
+        probes: 幅ごとの実測値。
+        output_name: 元グラフの出力名。
+        widths: 記録する幅。
+        seed: 入力に使った乱数種。
+
+    Returns:
+        ゴールデンレコードの並び。
+
+    Raises:
+        ConversionError: 実測に無い幅を指定した。
+
+    """
+    records = []
+    for width in widths:
+        if width not in probes or output_name not in probes[width]:
+            raise ConversionError(f"幅 {width} の実測が無い。--widths に含めること")
+        out = probes[width][output_name]
+        records.append(
+            {
+                "seed": seed,
+                "width": width,
+                "out_shape": [int(d) for d in out.shape],
+                "argmax": [int(i) for i in out[0].argmax(axis=-1)],
+            }
+        )
+    return records
+
+
+def main() -> int:
+    """コマンドラインから変換を実行する。
+
+    Returns:
+        終了コード。
+
+    """
+    parser = argparse.ArgumentParser(description="ONNX を .ocnn に変換する")
+    parser.add_argument("input", help="入力の ONNX")
+    parser.add_argument("-o", "--output", required=True, help="出力の .ocnn")
+    parser.add_argument(
+        "--dtype",
+        choices=("f32", "f16"),
+        default="f16",
+        help="重みの保存形式（既定 f16: サイズ半分、精度は同じ、キャッシュ効率で速い）",
     )
-
-
-def _convert_unsqueeze_v2(
-    node,
-    initializers,
-    constant_op_values,
-    output_to_layer,
-    constant_table=None,
-    shape_outputs=None,
-):
-    ct = constant_table or {}
-    so = shape_outputs or set()
-
-    def _resolve(name):
-        return _resolve_input(name, ct, output_to_layer, so)
-
-    inp_ref = _resolve(node.input[0])
-    inputs = [inp_ref if inp_ref is not None else 0]
-
-    # ONNX 13+: axes as second input; older: as attribute
-    axes = []
-    if len(node.input) > 1 and node.input[1]:
-        arr = _get_constant_array(node.input[1], initializers, constant_op_values)
-        if arr is not None:
-            axes = arr.flatten().astype(np.int64).tolist()
-    else:
-        attrs = {a.name: a for a in node.attribute}
-        if "axes" in attrs:
-            axes = list(attrs["axes"].ints)
-
-    config = [len(axes)] + [_i32_as_u32(int(a)) for a in axes[:9]]
-
-    return (
-        _make_descriptor(LAYER_TYPES["Unsqueeze"], 1, 0, 0, config, inputs),
-        None,
+    parser.add_argument(
+        "--widths",
+        default=",".join(str(w) for w in DEFAULT_WIDTHS),
+        help="形状の当てはめと検証に使う幅",
     )
-
-
-def _convert_reducemean_v2(node, output_to_layer):
-    attrs = {a.name: a for a in node.attribute}
-    axes = list(attrs["axes"].ints) if "axes" in attrs else [-1]
-    keepdims = attrs["keepdims"].i if "keepdims" in attrs else 1
-
-    config = [len(axes)]
-    for a in axes[:8]:
-        config.append(_i32_as_u32(int(a)))
-    # Pad to fill, then keepdims at the end
-    while len(config) < 9:
-        config.append(0)
-    config.append(keepdims)
-
-    inp_ref = _resolve_input(node.input[0], {}, output_to_layer, set())
-    inputs = [inp_ref if inp_ref is not None else 0]
-
-    return (
-        _make_descriptor(LAYER_TYPES["ReduceMean"], 1, 0, 0, config, inputs),
-        None,
+    parser.add_argument(
+        "--seed", type=int, default=12345, help="ゴールデン入力の乱数種"
     )
-
-
-# --- Binary writers ---
-
-
-def _write_constant_entry(f, entry: dict):
-    """Write a 32-byte constant table entry."""
-    buf = bytearray(CONSTANT_ENTRY_SIZE)
-    struct.pack_into("<Q", buf, 0, entry["data_offset"])
-    struct.pack_into("<Q", buf, 8, entry["data_size"])
-    struct.pack_into("<I", buf, 16, entry["ndim"])
-    shape = entry["shape"]
-    for i in range(3):
-        if i < len(shape):
-            struct.pack_into("<I", buf, 20 + i * 4, shape[i])
-    f.write(buf)
-
-
-def _write_descriptor_v2(f, desc: dict):
-    """Write an 80-byte v2 layer descriptor."""
-    buf = bytearray(LAYER_DESCRIPTOR_SIZE)
-    buf[0] = desc["layer_type"]
-    buf[1] = desc["num_inputs"]
-    # bytes 2-7: reserved
-    struct.pack_into("<Q", buf, 8, desc["param_offset"])
-    struct.pack_into("<Q", buf, 16, desc["param_size"])
-    for i, val in enumerate(desc["config"][:10]):
-        struct.pack_into("<I", buf, 24 + i * 4, val & 0xFFFFFFFF)
-    for i, val in enumerate(desc["inputs"][:4]):
-        struct.pack_into("<i", buf, 64 + i * 4, val)
-    f.write(buf)
-
-
-def main():
-    """CLI entry point for ONNX to .ocnn conversion."""
-    parser = argparse.ArgumentParser(description="Convert ONNX to .ocnn v2")
-    parser.add_argument("input", help="Input ONNX model path")
-    parser.add_argument("-o", "--output", required=True, help="Output .ocnn path")
+    parser.add_argument(
+        "--golden-widths", default="64,160", help="ゴールデンを記録する幅"
+    )
     args = parser.parse_args()
-    convert_onnx_to_ocnn(args.input, args.output)
+
+    widths = tuple(int(w) for w in args.widths.split(","))
+    onnx_path = Path(args.input).expanduser()
+
+    print(f"読み込み: {onnx_path}")
+    model, graph = load_graph(onnx_path)
+    # 融合はこの proto を書き換えるので、元の出力名をいま控える
+    original_output = graph.output_name
+    print(f"  ノード {len(graph.nodes)} / 定数 {len(graph.consts)}")
+
+    print(f"onnxruntime で実測（幅 {widths}）...")
+    probes = probe_all_values(model, widths, args.seed)
+
+    folded = fold_constants(graph, probes)
+    print(f"  定数に畳んだノード: {folded}")
+
+    shape_values = find_shape_values(graph, probes)
+    print(f"  形状計算に畳んだ値: {len(shape_values)}")
+
+    bn = fold_batchnorm(graph)
+    acts = fold_activation(graph)
+    ln = fold_layernorm(graph)
+    print(f"  融合: BatchNorm {bn} / 活性化 {len(acts)} / LayerNorm {ln}")
+    print(f"  融合後のノード: {len(graph.nodes)}")
+
+    builder = build_model(graph, probes, shape_values, acts, args.dtype)
+    print(f"  出力ノード {len(builder.nodes)} / テンソル {len(builder.tensors)}")
+
+    golden_widths = tuple(int(w) for w in args.golden_widths.split(","))
+    golden = golden_records(probes, original_output, golden_widths, args.seed)
+    print(f"  ゴールデン {len(golden)} 件（幅 {golden_widths}）")
+
+    out_path = Path(args.output).expanduser()
+    builder.write(
+        out_path,
+        {
+            "source": {
+                "file": onnx_path.name,
+                "sha256": hashlib.sha256(onnx_path.read_bytes()).hexdigest(),
+                "opset": int(model.opset_import[0].version),
+            },
+            "inputs": [builder.value_id[graph.input_name]],
+            "outputs": [builder.value_id[graph.output_name]],
+            "golden": golden,
+        },
+    )
+    size = out_path.stat().st_size
+    print(f"書き出し: {out_path}  {size / 1048576:.1f} MB")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

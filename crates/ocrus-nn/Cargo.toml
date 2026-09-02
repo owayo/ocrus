@@ -8,3 +8,6 @@ license.workspace = true
 ocrus-core = { workspace = true }
 wide = "1.6.1"
 memmap2 = "0.9.11"
+rayon = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }

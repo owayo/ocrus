@@ -1752,6 +1752,9 @@ version = "0.1.0"
 dependencies = [
  "memmap2",
  "ocrus-core",
+ "rayon",
+ "serde",
+ "serde_json",
  "wide",
 ]
 

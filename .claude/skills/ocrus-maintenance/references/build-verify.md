@@ -50,6 +50,8 @@ cargo run --release -p ocrus-cli -- recognize testdata/sample_ja.png --format js
 | `maturin` が Python を見つけられない | 対象の interpreter が無い | `uvx maturin build -i python3.12` のように明示する。wheel は abi3-py310 なので 3.10 以上ならどれでもよい |
 | wheel は作れたが `import ocrus` で落ちる | `[lib] name` と `module-name` の対応が崩れた | `crates/ocrus-python/Cargo.toml` の `#[pymodule] fn _native` と `python/pyproject.toml` の `module-name = "ocrus._native"` が一致していることを確認 |
 | `cargo build` が `include_str!` で落ちる | `data/test_chars/*.txt` が消えた／移動した | `Charset::from_jis_embedded()` がコンパイル時に読んでいる。ファイルを戻す |
+| モデルが `format version ... Re-convert` で落ちる | 古いフォーマットのモデル | 下位互換は持たない方針。`convert_to_ocnn.py` で変換し直す |
+| `ocnn_golden` が argmax の不一致で落ちる | モデルと実行系が食い違っている | 変換し直して再確認。直らなければ実行系のバグ |
 | CLI と Python で結果が違う | パイプラインが二重化している | 認識ロジックは `ocrus-engine` にしか置かない。CLI か Python 側にロジックが漏れていないか確認する |
 
 ## テストの構造
@@ -57,7 +59,8 @@ cargo run --release -p ocrus-cli -- recognize testdata/sample_ja.png --format js
 | テスト | 場所 | モデル | 時間 |
 | --- | --- | --- | --- |
 | 単体テスト | 各 crate の `src/` 内 | 不要 | 数秒 |
-| 推論精度（数値の一致） | `crates/ocrus-nn/tests/precision.rs` | 不要 | 数秒 |
+| カーネルの数値一致 | `crates/ocrus-nn/tests/precision.rs` | 不要 | 数秒 |
+| モデルのゴールデン検証 | `crates/ocrus-nn/tests/ocnn_golden.rs` | 要（無ければ self-skip） | 1 秒未満 |
 | OCR スモーク | `crates/ocrus-engine/tests/smoke.rs` | 要（無ければ self-skip） | 約 20 秒 |
 | Python バインディング | `python/tests/test_ocrus.py` | 要（無ければ self-skip） | 約 30 秒 |
 | 文字精度 | `crates/ocrus-cli/tests/char_accuracy.rs` | 要 | step1 約 36 分 / step2 約 3 分 |

@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use wide::f32x8;
 
 use crate::tensor::NdTensor;
@@ -22,7 +23,6 @@ pub fn matmul(a: &NdTensor<f32>, b: &NdTensor<f32>) -> NdTensor<f32> {
                     &a.data[a_off..a_off + m * k],
                     &b.data,
                     &mut out.data[o_off..o_off + m * n],
-                    m,
                     k,
                     n,
                 );
@@ -40,7 +40,7 @@ fn matmul_2d(a: &NdTensor<f32>, b: &NdTensor<f32>) -> NdTensor<f32> {
     let n = b.shape[1];
     assert_eq!(b.shape[0], k, "matmul: inner dims mismatch");
     let mut out = NdTensor::zeros(&[m, n]);
-    gemm(&a.data, &b.data, &mut out.data, m, k, n);
+    gemm(&a.data, &b.data, &mut out.data, k, n);
     out
 }
 
@@ -60,7 +60,6 @@ fn matmul_batched(a: &NdTensor<f32>, b: &NdTensor<f32>) -> NdTensor<f32> {
             &a.data[a_off..a_off + m * k],
             &b.data[b_off..b_off + k * n],
             &mut out.data[o_off..o_off + m * n],
-            m,
             k,
             n,
         );
@@ -86,7 +85,6 @@ fn matmul_4d(a: &NdTensor<f32>, b: &NdTensor<f32>) -> NdTensor<f32> {
                 &a.data[a_off..a_off + m * k],
                 &b.data[b_off..b_off + k * n],
                 &mut out.data[o_off..o_off + m * n],
-                m,
                 k,
                 n,
             );
@@ -97,37 +95,52 @@ fn matmul_4d(a: &NdTensor<f32>, b: &NdTensor<f32>) -> NdTensor<f32> {
 
 /// General matrix multiply: C = A * B
 /// A: (m, k), B: (k, n), C: (m, n)
-fn gemm(a: &[f32], b: &[f32], c: &mut [f32], m: usize, k: usize, n: usize) {
-    for i in 0..m {
+fn gemm(a: &[f32], b: &[f32], c: &mut [f32], k: usize, n: usize) {
+    /// Columns handled per accumulator block. 64 floats keep the accumulators in
+    /// registers while `b` is read as whole cache lines.
+    const JB: usize = 64;
+
+    // Loop order is what matters: reading a column of `b` one element at a time (stride
+    // `n`) misses cache on every access, so instead broadcast one element of `a` and walk
+    // a *row* of `b` contiguously, keeping the partial sums in vector accumulators.
+    c.par_chunks_mut(n).enumerate().for_each(|(i, c_row)| {
         let a_row = &a[i * k..(i + 1) * k];
-        let c_row = &mut c[i * n..(i + 1) * n];
-        for j in 0..n {
-            let chunks = k / 8;
+
+        let mut j0 = 0;
+        while j0 + JB <= n {
+            let mut acc = [f32x8::ZERO; JB / 8];
+            for (kk, &av) in a_row.iter().enumerate() {
+                let bv = f32x8::splat(av);
+                let b_row = &b[kk * n + j0..kk * n + j0 + JB];
+                for (v, slot) in acc.iter_mut().enumerate() {
+                    *slot += bv * f32x8::from(&b_row[v * 8..v * 8 + 8]);
+                }
+            }
+            for (v, slot) in acc.iter().enumerate() {
+                let arr: [f32; 8] = (*slot).into();
+                c_row[j0 + v * 8..j0 + v * 8 + 8].copy_from_slice(&arr);
+            }
+            j0 += JB;
+        }
+
+        while j0 + 8 <= n {
             let mut acc = f32x8::ZERO;
-            for ch in 0..chunks {
-                let off = ch * 8;
-                let av = f32x8::from(&a_row[off..off + 8]);
-                // Gather b column values
-                let bv = f32x8::from([
-                    b[(off) * n + j],
-                    b[(off + 1) * n + j],
-                    b[(off + 2) * n + j],
-                    b[(off + 3) * n + j],
-                    b[(off + 4) * n + j],
-                    b[(off + 5) * n + j],
-                    b[(off + 6) * n + j],
-                    b[(off + 7) * n + j],
-                ]);
-                acc += av * bv;
+            for (kk, &av) in a_row.iter().enumerate() {
+                acc += f32x8::splat(av) * f32x8::from(&b[kk * n + j0..kk * n + j0 + 8]);
             }
             let arr: [f32; 8] = acc.into();
-            let mut dot: f32 = arr.iter().sum();
-            for ki in (chunks * 8)..k {
-                dot += a_row[ki] * b[ki * n + j];
-            }
-            c_row[j] = dot;
+            c_row[j0..j0 + 8].copy_from_slice(&arr);
+            j0 += 8;
         }
-    }
+        while j0 < n {
+            let mut sum = 0.0f32;
+            for (kk, &av) in a_row.iter().enumerate() {
+                sum += av * b[kk * n + j0];
+            }
+            c_row[j0] = sum;
+            j0 += 1;
+        }
+    });
 }
 
 #[cfg(test)]
