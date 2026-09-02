@@ -26,6 +26,10 @@ models/*.onnx
 
 models/pretrained/
 
+# ファインチューニングの出力（チェックポイントは 1 つ 350MB 級で
+# GitHub の 100MB 制限を超える。履歴に入れない）
+finetune_output/
+
 # Model directory
 .ocrus/
 
