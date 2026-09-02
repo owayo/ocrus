@@ -34,9 +34,9 @@ ocrus-cli         ocrus-python + python/ocrus（PyO3 / maturin）
 **認識のロジックは ocrus-engine にしかない。** CLI も Python も薄い皮で、同じ結果を返す。
 「CLI では直ったが Python では直っていない」が起きない形になっているので、ここを崩さないこと。
 
-例外が 1 つある。精度テスト `crates/ocrus-cli/tests/char_accuracy.rs` は、
-本番と**別の**正規化（`normalize_line_scaled`）とデコーダ（TLA）を使っている。
-評価用の実験経路であって、本番パイプラインではない。数字を比べるときは必ずこれを意識する。
+精度テスト `crates/ocrus-cli/tests/char_accuracy.rs` は本番と同じ正規化
+（`normalize_line(g,b)` は `normalize_line_scaled(g,b,1.0)` と同一）を通り、
+デコードだけ greedy と TLA を併用する。ほぼ本番と同じ経路だと思ってよい。
 
 ## AI が実行するもの / ユーザーに渡すもの
 
@@ -163,10 +163,11 @@ cargo test -p ocrus-engine --release --test smoke -- --nocapture
 
 `--release` を付けること。debug ビルドの推論は 100 倍以上遅く、1 枚で数分かかる。
 
-**単文字の正解率はいま 0% で、それが現状の正しい値**（`non-empty` は 18/24 前後）。
-本番パイプラインは `char_accuracy` が使っている改善（幅スケーリング正規化と TLA デコード）を
-まだ取り込んでいない。数字が 0% でも「壊れた」ではない。0% から動いた／`non-empty` が
-大きく減ったときだけ疑う。この差を埋めるのが ocrus-model-improvement の仕事。
+**単文字の正解率はいま 0% だが、これは既知の不具合であって「今回の変更で壊れた」ではない。**
+`.ocnn` モデル（または ocrus-nn の実行）が ONNX と違う logits を返すことが実測で確認されている
+（同じ入力テンソルで ONNX は 'あ'、`.ocnn` は 'ｏ〗'）。char_accuracy も 0.0% に落ちている。
+依存更新の切り分けとしては **0% のままかどうか**と `non-empty` の件数を見ればよい。
+不具合の追跡は ocrus-model-improvement の「いま分かっている最大の一手」。
 
 ## 4. 精度の回帰はユーザーに依頼する
 

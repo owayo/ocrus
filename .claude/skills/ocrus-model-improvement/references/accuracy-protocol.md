@@ -8,10 +8,12 @@
 
 - 比較は NFKC 正規化を通した上で行う（`chars_match`）
 - モデルは `$OCRUS_MODEL_DIR`、既定は `~/.ocrus/models` の `rec.ocnn`
-- 正規化は `normalize_line_scaled`、デコードは TLA。**本番パイプラインとは別経路**
+- 正規化は `normalize_line_scaled(g, b, 1.0)`（= 本番の `normalize_line` と同一）、
+  デコードは greedy と TLA の併用。本番との差はデコードだけ
 
-つまりこの数字は「ocrus の実用精度」ではなく「認識モデルと評価経路の素の力」。
-利用者が体験する精度は `ocrus-engine` を通ったもので、いまは大きく下回る。
+**2026-09-02 時点で step2 は 0.0%**（2026-03-10 のログは 76.9% / 68.6%）。
+`.ocnn` と ONNX が同じ入力で違う結果を返すことが確認されている。
+過去のログの数値は、この不具合が直るまで再現しない。
 
 ## step とカテゴリ
 
@@ -82,4 +84,5 @@ OCRUS_QUANTIZED_MODEL=path/to/rec_int8.ocnn \
 
 `cargo test -p ocrus-engine --release --test smoke -- --nocapture` は
 **本番パイプライン**を 24 枚だけ通す。約 20 秒で終わるが、精度の指標ではない
-（現状は 0/24 正解が正しい値）。壊れていないことの確認に使い、精度の判断には使わない。
+（`.ocnn` の不具合により現状は 0/24）。壊れていないことの確認に使い、
+精度の判断には使わない。

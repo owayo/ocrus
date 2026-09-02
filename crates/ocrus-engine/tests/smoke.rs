@@ -152,10 +152,10 @@ fn recognizes_single_characters() {
     println!("  {:<18} {correct:>2}/{total:<2} ({accuracy:.0}%)", "total");
     println!("  non-empty output : {non_empty}/{total}");
     println!(
-        "  NOTE: single characters through the *production* pipeline. Not comparable with \
-         char_accuracy, which normalizes with normalize_line_scaled and decodes with TLA. \
-         Production currently scores ~0% here while char_accuracy scores ~70% on the same \
-         images; that gap is the open task in todo.md, not a regression."
+        "  NOTE: 0% is a known defect, not a regression from your change. The .ocnn model \
+         (or the ocrus-nn graph execution) disagrees with rec.onnx on the very same input \
+         tensor: ONNX decodes the right character where .ocnn does not, and char_accuracy \
+         scores 0% too. See the ocrus-model-improvement skill."
     );
 
     // Only total breakage fails the run. Asserting an accuracy number here would either be
