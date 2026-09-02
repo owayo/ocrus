@@ -40,6 +40,10 @@ logs/
 fonts/
 
 
+# Python virtualenvs
+.venv/
+venv/
+
 # Python build artifacts
 dist/
 *.egg-info/
