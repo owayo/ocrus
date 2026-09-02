@@ -15,10 +15,15 @@ impl Charset {
     }
 
     /// Load charset from a text file (one character per line).
-    /// Empty lines are treated as space characters (PaddleOCR convention).
+    ///
+    /// Empty lines are treated as space characters, and a space is appended at the end:
+    /// PaddleOCR builds its label list as `[blank] + dict + [space]` (`use_space_char`), so
+    /// without that trailing entry the charset is one class short of the model. The last
+    /// class then decoded as nothing — spaces were silently dropped from recognized text —
+    /// and `--charset jis` panicked because the logit mask came out one element too small.
     pub fn from_file(path: &std::path::Path) -> std::io::Result<Self> {
         let content = std::fs::read_to_string(path)?;
-        let chars: Vec<char> = content
+        let mut chars: Vec<char> = content
             .lines()
             .map(|l| {
                 if l.is_empty() {
@@ -28,6 +33,7 @@ impl Charset {
                 }
             })
             .collect();
+        chars.push(' ');
         Ok(Self { chars })
     }
 

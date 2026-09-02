@@ -19,7 +19,7 @@
 
 use std::path::{Path, PathBuf};
 
-use ocrus_core::EngineConfigBuilder;
+use ocrus_core::{CharsetMode, EngineConfigBuilder};
 use ocrus_engine::{OcrEngine, models_ready};
 use rayon::prelude::*;
 
@@ -49,7 +49,14 @@ fn matches(got: char, expected: char) -> bool {
 #[test]
 #[ignore = "runs the whole production pipeline over ~850 images"]
 fn production_pipeline_character_accuracy() {
-    let config = EngineConfigBuilder::new().build();
+    let mut builder = EngineConfigBuilder::new();
+    if std::env::var("OCRUS_ACC_JIS").is_ok() {
+        builder = builder.charset(CharsetMode::Jis);
+    }
+    if std::env::var("OCRUS_ACC_ACCURATE").is_ok() {
+        builder = builder.mode(ocrus_core::OcrMode::Accurate);
+    }
+    let config = builder.build();
     if !models_ready(&config.model_dir) {
         eprintln!("skip: no model in {}", config.model_dir.display());
         return;
@@ -86,6 +93,7 @@ fn production_pipeline_character_accuracy() {
     let started = std::time::Instant::now();
     let mut grand_correct = 0usize;
     let mut grand_total = 0usize;
+    let mut failures: Vec<String> = Vec::new();
 
     for category in &categories {
         let chars = category_chars(&root, category);
@@ -96,7 +104,7 @@ fn production_pipeline_character_accuracy() {
 
         // One task per image: the pipeline itself is parallel inside, but at this size
         // running images concurrently keeps every core busy.
-        let results: Vec<(bool, bool)> = fonts
+        let results: Vec<(bool, bool, String)> = fonts
             .iter()
             .flat_map(|font| chars.iter().map(move |ch| (font, *ch)))
             .par_bridge()
@@ -106,14 +114,36 @@ fn production_pipeline_character_accuracy() {
                     .join(category)
                     .join(format!("U+{:04X}.png", ch as u32));
                 let result = engine.recognize_path(&path).ok()?;
+                let conf = result
+                    .pages
+                    .first()
+                    .and_then(|p| p.lines.first())
+                    .map(|l| l.confidence)
+                    .unwrap_or(0.0);
                 let got = result.full_text().chars().find(|c| !c.is_whitespace());
-                Some((got.is_some_and(|g| matches(g, ch)), got.is_none()))
+                let ok = got.is_some_and(|g| matches(g, ch));
+                let record = if ok {
+                    String::new()
+                } else {
+                    // Same shape as test_results/failures_*.json so failure_report.py works.
+                    format!(
+                        r#"{{"character":"{ch}","category":"{category}","font_name":"{font}","expected":"{ch}","recognized":"{}","confidence":{conf:.3}}}"#,
+                        got.map(|c| c.to_string()).unwrap_or_default().replace('"', "\\\""),
+                    )
+                };
+                Some((ok, got.is_none(), record))
             })
             .collect();
 
         let total = results.len();
-        let correct = results.iter().filter(|(ok, _)| *ok).count();
-        let empty = results.iter().filter(|(_, e)| *e).count();
+        let correct = results.iter().filter(|(ok, _, _)| *ok).count();
+        let empty = results.iter().filter(|(_, e, _)| *e).count();
+        failures.extend(
+            results
+                .iter()
+                .filter(|(_, _, r)| !r.is_empty())
+                .map(|(_, _, r)| r.clone()),
+        );
         let pct = if total > 0 {
             correct as f64 / total as f64 * 100.0
         } else {
@@ -134,6 +164,17 @@ fn production_pipeline_character_accuracy() {
         "合計"
     );
     println!("  {:.1}s", started.elapsed().as_secs_f64());
+
+    // The failure list is what tells you *which* characters to work on; the percentage
+    // alone never does.
+    let out = root.join("test_results/failures_production.json");
+    std::fs::create_dir_all(out.parent().unwrap()).ok();
+    std::fs::write(&out, format!("[{}]", failures.join(","))).expect("cannot write failures");
+    println!(
+        "  {} 件の失敗を {} に書き出した",
+        failures.len(),
+        out.display()
+    );
 
     assert!(grand_total > 0, "no test images were read");
 }

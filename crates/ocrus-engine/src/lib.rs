@@ -36,7 +36,9 @@ use ocrus_layout::{
     detect_lines_projection, detect_orientation, separate_ruby, should_use_fast_path,
 };
 use ocrus_nn::{Executor, Model, NdTensor};
-use ocrus_preproc::{binarize_adaptive, normalize_line, normalize_line_vertical, to_grayscale};
+use ocrus_preproc::{
+    binarize_adaptive, normalize_line, normalize_line_vertical, thicken, thin, to_grayscale,
+};
 use ocrus_recognizer::charset::Charset;
 use ocrus_recognizer::{
     DictCorrector, GlyphCache, ctc_beam_decode, ctc_greedy_decode, ctc_greedy_decode_masked,
@@ -240,19 +242,33 @@ impl OcrEngine {
             });
         }
 
+        // In accurate mode the same crop is read three ways — as rendered, with strokes
+        // thickened, and with them thinned — and the answers are voted on. A glyph whose
+        // strokes are too fine or too heavy for its size reads differently under each.
+        let variants: Vec<ndarray::Array2<u8>> = if matches!(self.config.mode, OcrMode::Accurate) {
+            vec![gray.clone(), thicken(&gray), thin(&gray)]
+        } else {
+            vec![gray.clone()]
+        };
+
         // Vertical columns are rotated 90° because the model only takes horizontal lines.
         let is_vertical = orientation == TextOrientation::Vertical;
-        let line_tensors: Vec<NdTensor<f32>> = line_bboxes
+        let line_tensors: Vec<Vec<NdTensor<f32>>> = line_bboxes
             .par_iter()
             .map(|bbox| {
-                let line_img = if is_vertical {
-                    normalize_line_vertical(&gray, bbox)
-                } else {
-                    normalize_line(&gray, bbox)
-                };
-                let shape = line_img.shape().to_vec();
-                let data = line_img.into_raw_vec_and_offset().0;
-                NdTensor::from_vec(data, &shape)
+                variants
+                    .iter()
+                    .map(|src| {
+                        let line_img = if is_vertical {
+                            normalize_line_vertical(src, bbox)
+                        } else {
+                            normalize_line(src, bbox)
+                        };
+                        let shape = line_img.shape().to_vec();
+                        let data = line_img.into_raw_vec_and_offset().0;
+                        NdTensor::from_vec(data, &shape)
+                    })
+                    .collect()
             })
             .collect();
 
@@ -261,7 +277,7 @@ impl OcrEngine {
         // for every caller, including the Python bindings that share one engine.
         let mut glyph_cache = GlyphCache::new(2);
         let mut cached_results: Vec<Option<(String, f32)>> = Vec::with_capacity(line_bboxes.len());
-        let mut uncached_tensors: Vec<NdTensor<f32>> = Vec::new();
+        let mut uncached_tensors: Vec<Vec<NdTensor<f32>>> = Vec::new();
 
         for (bbox, tensor) in line_bboxes.iter().zip(line_tensors.iter()) {
             let hash = gray
@@ -285,7 +301,12 @@ impl OcrEngine {
         // overhead, and the executor now spends its time inside parallel kernels.
         let outputs = uncached_tensors
             .iter()
-            .map(|t| self.executor.run(t.clone()))
+            .map(|variants| {
+                variants
+                    .iter()
+                    .map(|t| self.executor.run(t.clone()))
+                    .collect::<Result<Vec<_>>>()
+            })
             .collect::<Result<Vec<_>>>()?;
 
         let mut lines = Vec::with_capacity(line_bboxes.len());
@@ -317,7 +338,8 @@ impl OcrEngine {
             }
 
             if let Some(output) = outputs.get(inference_idx) {
-                let (text, confidence) = self.decode(output);
+                let (text, confidence) = self.decode_voted(output);
+                let text = correct_small_kana(&text, bbox, height).unwrap_or(text);
                 let text = self.correct(text);
 
                 let hash = gray
@@ -348,6 +370,42 @@ impl OcrEngine {
                 lines,
             }],
         })
+    }
+
+    /// Decode every variant of a line and take the answer they agree on.
+    ///
+    /// Agreement is the useful signal here: CTC confidences are not comparable between
+    /// differently preprocessed inputs, but two variants landing on the same string is
+    /// evidence in a way one variant's score is not. With a single variant this is just
+    /// [`Self::decode`].
+    fn decode_voted(&self, outputs: &[NdTensor<f32>]) -> (String, f32) {
+        let decoded: Vec<(String, f32)> = outputs.iter().map(|o| self.decode(o)).collect();
+        let Some((first_text, first_conf)) = decoded.first().cloned() else {
+            return (String::new(), 0.0);
+        };
+        if decoded.len() == 1 {
+            return (first_text, first_conf);
+        }
+
+        let mut best: Option<(String, f32, usize)> = None;
+        for (text, conf) in &decoded {
+            let votes = decoded.iter().filter(|(t, _)| t == text).count();
+            let better = match &best {
+                None => true,
+                Some((_, best_conf, best_votes)) => {
+                    votes > *best_votes || (votes == *best_votes && conf > best_conf)
+                }
+            };
+            if better {
+                best = Some((text.clone(), *conf, votes));
+            }
+        }
+        // A tie between three different answers falls back to the unmodified crop, which is
+        // the one the model was trained to expect.
+        match best {
+            Some((text, conf, votes)) if votes > 1 => (text, conf),
+            _ => (first_text, first_conf),
+        }
     }
 
     /// CTC-decode one model output, falling back to beam search for low-confidence lines.
@@ -425,6 +483,66 @@ const VERTICAL_ASPECT: f32 = 1.5;
 
 fn looks_vertical(width: u32, height: u32) -> bool {
     height as f32 >= width as f32 * VERTICAL_ASPECT
+}
+
+/// The small (捨て仮名) counterpart of a full-size kana, if it has one.
+fn small_kana_variant(c: char) -> Option<char> {
+    Some(match c {
+        'あ' => 'ぁ',
+        'い' => 'ぃ',
+        'う' => 'ぅ',
+        'え' => 'ぇ',
+        'お' => 'ぉ',
+        'つ' => 'っ',
+        'や' => 'ゃ',
+        'ゆ' => 'ゅ',
+        'よ' => 'ょ',
+        'わ' => 'ゎ',
+        'か' => 'ゕ',
+        'け' => 'ゖ',
+        'ア' => 'ァ',
+        'イ' => 'ィ',
+        'ウ' => 'ゥ',
+        'エ' => 'ェ',
+        'オ' => 'ォ',
+        'ツ' => 'ッ',
+        'ヤ' => 'ャ',
+        'ユ' => 'ュ',
+        'ヨ' => 'ョ',
+        'ワ' => 'ヮ',
+        'カ' => 'ヵ',
+        'ケ' => 'ヶ',
+        _ => return None,
+    })
+}
+
+/// Where the ink sits vertically, as a fraction of the frame. Small kana are drawn in the
+/// lower part of the em box, which is the one cue that survives the crop.
+const SMALL_KANA_CENTER: f32 = 0.525;
+
+/// Rewrite a single recognized kana to its small form when the ink sits low in the frame.
+///
+/// The model resizes every crop to the same height, so あ and ぁ arrive looking identical —
+/// half of all remaining errors on the kana benchmark are exactly this confusion. Size does
+/// not separate them (the ranges overlap: small reaches 0.41 of the frame, full-size starts
+/// at 0.07), but vertical position does: measured over 200 rendered glyphs, small kana sit
+/// at 0.52–0.59 of the frame height and full-size ones at 0.30–0.52. Sweeping the
+/// threshold over the benchmark gives a plateau at 0.52–0.53 (82.4% / 82.2%) that falls
+/// away sharply on both sides (0.51 → 80.2%, 0.55 → 77.5%), so the value sits in the
+/// middle of that plateau rather than on the measured peak.
+///
+/// Only applied to a single-character result. Within a line of text the crop covers many
+/// characters, so there is no per-character geometry to read — and there the model has the
+/// neighbouring characters to judge size against, which is why it gets those right anyway.
+fn correct_small_kana(text: &str, bbox: &ocrus_core::BBox, frame_height: u32) -> Option<String> {
+    let mut chars = text.chars();
+    let only = chars.next()?;
+    if chars.next().is_some() || frame_height == 0 {
+        return None;
+    }
+    let small = small_kana_variant(only)?;
+    let center = (bbox.y as f32 + bbox.height as f32 / 2.0) / frame_height as f32;
+    (center >= SMALL_KANA_CENTER).then(|| small.to_string())
 }
 
 fn missing_model_error(model_dir: &Path, missing: &Path) -> OcrusError {
