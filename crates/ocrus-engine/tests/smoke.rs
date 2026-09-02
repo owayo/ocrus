@@ -152,10 +152,10 @@ fn recognizes_single_characters() {
     println!("  {:<18} {correct:>2}/{total:<2} ({accuracy:.0}%)", "total");
     println!("  non-empty output : {non_empty}/{total}");
     println!(
-        "  NOTE: 0% is a known defect, not a regression from your change. The .ocnn model \
-         (or the ocrus-nn graph execution) disagrees with rec.onnx on the very same input \
-         tensor: ONNX decodes the right character where .ocnn does not, and char_accuracy \
-         scores 0% too. See the ocrus-model-improvement skill."
+        "  Baseline (2026-09-02, freshly converted model): 12/24 correct, 23/24 non-empty. \
+         A sudden drop to 0 correct usually means a stale .ocnn built by an older converter \
+         — such a model loads fine and answers confidently wrong. Re-convert from rec.onnx \
+         before hunting for a code regression."
     );
 
     // Only total breakage fails the run. Asserting an accuracy number here would either be
