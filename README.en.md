@@ -96,6 +96,27 @@ ocrus recognize image.png --ruby
 ocrus recognize image.png --cascade path/to/cascade_model.ocnn
 ```
 
+### From Python
+
+```python
+import ocrus
+
+engine = ocrus.OcrEngine()              # load the model once and reuse it
+result = engine.recognize("page.png")   # path / bytes / numpy array / PIL Image
+
+print(result.full_text())
+for line in result.pages[0].lines:
+    print(line.bbox.as_tuple(), round(line.confidence, 3), line.text)
+```
+
+It calls the same pipeline as the CLI, so `to_json()` matches `--format json`.
+numpy is optional (arrays are read through the buffer protocol).
+See [python/README.md](python/README.md).
+
+```bash
+cd python && uvx maturin build --release --out ../target/wheels   # build the wheel
+```
+
 ### Interactive TUI
 
 ```bash
@@ -191,7 +212,9 @@ flowchart LR
 | `ocrus-layout` | Layout analysis (projection, CCL, vertical, quality gate, ruby separation) |
 | `ocrus-recognizer` | CTC recognition (greedy + beam search, JIS charset, dict correction, cascade) |
 | `ocrus-nn` | Pure Rust inference engine (.ocnn format, SIMD ops, mmap model loading) |
-| `ocrus-cli` | CLI entry point |
+| `ocrus-engine` | OCR pipeline (preproc → layout → inference → decode) |
+| `ocrus-cli` | CLI entry point (thin wrapper over `ocrus-engine`) |
+| `ocrus-python` | PyO3 bindings, built as the `ocrus` wheel with maturin |
 | `ocrus-dataset` | Training data generation (font rendering, augmentation, font style filtering) |
 
 ## Fine-tuning
@@ -444,10 +467,16 @@ Failures are saved incrementally after each category completes. If interrupted w
 
 ```bash
 cargo build          # Build all crates
-cargo test           # Run all tests
+cargo test           # Run all tests (no model needed; OCR tests self-skip)
 cargo clippy         # Lint
 cargo fmt            # Format
 cargo bench          # Benchmarks
+
+# End-to-end OCR smoke check (~20s, needs the model)
+cargo test -p ocrus-engine --release --test smoke -- --nocapture
+
+# Python binding tests (run from the repository root)
+python -m pytest python/tests -q
 ```
 
 ## License

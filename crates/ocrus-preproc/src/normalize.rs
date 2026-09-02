@@ -6,11 +6,12 @@ const TARGET_HEIGHT: u32 = 48;
 const NUM_CHANNELS: usize = 3;
 /// Maximum width after resize (prevents OOM on very wide lines).
 const MAX_WIDTH: usize = 2048;
-/// Minimum width after resize (PaddleOCR pads to 320 for recognition).
-/// Short inputs are right-padded with PAD_VALUE to this width.
-const MIN_WIDTH: usize = 320;
-/// Background fill value after PaddleOCR normalization: (255/255 - 0.5)/0.5 = 1.0
-const PAD_VALUE: f32 = 1.0;
+/// Minimum width after resize, aligned to 8 pixels (model stride).
+/// PaddleOCR dynamically pads to the widest image in a batch; for single-image
+/// inference we just round up to the next multiple of 8.
+const WIDTH_ALIGN: usize = 8;
+/// Background fill value matching PaddleOCR: zero-padded pixels → (0/255 - 0.5)/0.5 = -1.0
+const PAD_VALUE: f32 = -1.0;
 
 /// SIMD constants for normalization: (px/255.0 - 0.5)/0.5 = px/127.5 - 1.0
 const SIMD_SCALE: f32 = 1.0 / 127.5;
@@ -20,16 +21,32 @@ const SIMD_OFFSET: f32 = -1.0;
 /// Output shape: (1, 3, TARGET_HEIGHT, new_width), values normalized by PaddleOCR convention.
 /// Handles images of any size: small crops are padded, wide lines are capped at MAX_WIDTH.
 pub fn normalize_line(gray: &ndarray::Array2<u8>, bbox: &BBox) -> Array4<f32> {
-    normalize_line_inner(gray, bbox, false)
+    normalize_line_scaled(gray, bbox, 1.0)
+}
+
+/// Normalize with a width scale factor. `width_scale > 1.0` expands the tensor width
+/// relative to the natural aspect ratio, adding more padding. This gives the CTC decoder
+/// more timesteps, improving accuracy for short inputs (e.g. single characters).
+pub fn normalize_line_scaled(
+    gray: &ndarray::Array2<u8>,
+    bbox: &BBox,
+    width_scale: f32,
+) -> Array4<f32> {
+    normalize_line_inner(gray, bbox, false, width_scale)
 }
 
 /// Normalize a vertical text column: crop, rotate 90° clockwise, then resize like a horizontal line.
 /// Use this for vertical text columns where height >> width.
 pub fn normalize_line_vertical(gray: &ndarray::Array2<u8>, bbox: &BBox) -> Array4<f32> {
-    normalize_line_inner(gray, bbox, true)
+    normalize_line_inner(gray, bbox, true, 1.0)
 }
 
-fn normalize_line_inner(gray: &ndarray::Array2<u8>, bbox: &BBox, rotate: bool) -> Array4<f32> {
+fn normalize_line_inner(
+    gray: &ndarray::Array2<u8>,
+    bbox: &BBox,
+    rotate: bool,
+    width_scale: f32,
+) -> Array4<f32> {
     let (img_h, img_w) = (gray.nrows() as u32, gray.ncols() as u32);
 
     // Clamp bbox to image bounds
@@ -57,36 +74,52 @@ fn normalize_line_inner(gray: &ndarray::Array2<u8>, bbox: &BBox, rotate: bool) -
     let scale = TARGET_HEIGHT as f32 / crop_h as f32;
     let content_w = ((crop_w as f32 * scale).round().max(1.0) as usize).min(MAX_WIDTH);
     let new_h = TARGET_HEIGHT as usize;
-    // Pad to minimum width (PaddleOCR pads to 320); content is left-aligned
-    let new_w = content_w.max(MIN_WIDTH);
+    // Apply width_scale and round up to next multiple of WIDTH_ALIGN (model stride = 8)
+    let scaled_w = ((content_w as f32 * width_scale).round().max(1.0) as usize).min(MAX_WIDTH);
+    let new_w = (scaled_w + WIDTH_ALIGN - 1) / WIDTH_ALIGN * WIDTH_ALIGN;
 
-    // Recalculate effective scale for width to handle MAX_WIDTH capping
-    let effective_w_scale = crop_w as f32 / content_w as f32;
-
-    // Nearest-neighbor resize from crop region
-    // First, collect resized grayscale row by row, then SIMD-normalize
+    // Bilinear resize from crop region, then SIMD-normalize
     // Tensor is initialized with PAD_VALUE so right-padding is automatic
     let mut resized = Array4::from_elem((1, NUM_CHANNELS, new_h, new_w), PAD_VALUE);
 
     let scale_vec = f32x8::splat(SIMD_SCALE);
     let offset_vec = f32x8::splat(SIMD_OFFSET);
 
-    for ry in 0..new_h {
-        let crop_y = ((ry as f32 / scale) as usize).min(crop_h - 1);
+    // Helper: sample a pixel from the crop (or rotated crop) with bounds clamping
+    let sample = |cy: usize, cx: usize| -> u8 {
+        if rotate {
+            let orig_y = cx.min(raw_crop_h - 1) + y0;
+            let orig_x = (raw_crop_w - 1 - cy.min(raw_crop_w - 1)) + x0;
+            gray[[orig_y, orig_x]]
+        } else {
+            gray[[cy.min(crop_h - 1) + y0, cx.min(crop_w - 1) + x0]]
+        }
+    };
 
-        // Collect source pixels for this row (only the content region, not padding)
-        let row_pixels: Vec<u8> = (0..content_w)
+    for ry in 0..new_h {
+        let src_y = ry as f32 * crop_h as f32 / new_h as f32;
+
+        // Collect source pixels for this row using bilinear interpolation
+        let row_pixels: Vec<f32> = (0..content_w)
             .map(|rx| {
-                let crop_x = ((rx as f32 * effective_w_scale) as usize).min(crop_w - 1);
-                if rotate {
-                    // 90° counter-clockwise: vertical top→bottom maps to horizontal left→right
-                    // rotated[ry, rx] = original[rx, W-1-ry]
-                    let orig_y = crop_x + y0;
-                    let orig_x = (raw_crop_w - 1 - crop_y) + x0;
-                    gray[[orig_y, orig_x]]
-                } else {
-                    gray[[crop_y + y0, crop_x + x0]]
-                }
+                let src_x = rx as f32 * crop_w as f32 / content_w as f32;
+
+                let x0i = (src_x as usize).min(crop_w.saturating_sub(1));
+                let y0i = (src_y as usize).min(crop_h.saturating_sub(1));
+                let x1i = (x0i + 1).min(crop_w - 1);
+                let y1i = (y0i + 1).min(crop_h - 1);
+
+                let xf = src_x - x0i as f32;
+                let yf = src_y - y0i as f32;
+
+                let p00 = sample(y0i, x0i) as f32;
+                let p10 = sample(y0i, x1i) as f32;
+                let p01 = sample(y1i, x0i) as f32;
+                let p11 = sample(y1i, x1i) as f32;
+
+                let top = p00 + (p10 - p00) * xf;
+                let bot = p01 + (p11 - p01) * xf;
+                top + (bot - top) * yf
             })
             .collect();
 
@@ -98,7 +131,7 @@ fn normalize_line_inner(gray: &ndarray::Array2<u8>, bbox: &BBox, rotate: bool) -
             let base = i * 8;
             let mut px = [0.0f32; 8];
             for j in 0..8 {
-                px[j] = row_pixels[base + j] as f32;
+                px[j] = row_pixels[base + j];
             }
             let v = f32x8::new(px);
             let normalized = v * scale_vec + offset_vec;
@@ -116,7 +149,7 @@ fn normalize_line_inner(gray: &ndarray::Array2<u8>, bbox: &BBox, rotate: bool) -
         let start = chunks * 8;
         for i in 0..remainder {
             let rx = start + i;
-            let normalized = row_pixels[rx] as f32 * SIMD_SCALE + SIMD_OFFSET;
+            let normalized = row_pixels[rx] * SIMD_SCALE + SIMD_OFFSET;
             for c in 0..NUM_CHANNELS {
                 resized[[0, c, ry, rx]] = normalized;
             }

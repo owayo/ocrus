@@ -12,7 +12,7 @@
 
 ## Architecture
 
-Cargo workspace with 7 crates:
+Cargo workspace with 9 crates:
 
 | Crate | Role |
 |-------|------|
@@ -21,18 +21,30 @@ Cargo workspace with 7 crates:
 | `ocrus-layout` | Layout analysis (projection, CCL, vertical, quality gate, ruby separation) |
 | `ocrus-recognizer` | CTC recognition (greedy + beam search, JIS charset, dict correction, cascade) |
 | `ocrus-nn` | Pure Rust inference engine (.ocnn format, SIMD ops, mmap model loading) |
+| `ocrus-engine` | **OCR pipeline** (preproc → layout → inference → decode). CLI and Python both call this |
 | `ocrus-dataset` | Training data generation (font rendering, pre-rendered images, augmentation, font style filtering) |
-| `ocrus-cli` | CLI entry point |
+| `ocrus-cli` | CLI entry point (thin wrapper over `ocrus-engine`) |
+| `ocrus-python` | PyO3 bindings, built as the `ocrus` wheel with maturin (`python/`) |
 
 ## Dependency Graph
 
 ```
-ocrus-cli → ocrus-core, ocrus-preproc, ocrus-layout, ocrus-recognizer, ocrus-nn, memmap2, rayon
+ocrus-cli → ocrus-engine, ocrus-core, ocrus-dataset, clap
+ocrus-python → ocrus-engine, ocrus-core, pyo3
+ocrus-engine → ocrus-core, ocrus-preproc, ocrus-layout, ocrus-recognizer, ocrus-nn, memmap2, rayon, image
 ocrus-preproc → ocrus-core, wide, image
 ocrus-layout → ocrus-core, wide, serde, imageproc, image
 ocrus-recognizer → ocrus-core, ocrus-nn, daachorse, img_hash
 ocrus-nn → ocrus-core, memmap2, wide
 ```
+
+**Recognition logic lives only in `ocrus-engine`.** The CLI and the Python bindings are thin
+translation layers, so both always produce the same result. Do not add pipeline logic to
+either of them.
+
+Note: `crates/ocrus-cli/tests/char_accuracy.rs` runs its *own* path (`normalize_line_scaled`
++ TLA decode), which is not what production uses. Its numbers are not comparable with the
+engine's output.
 
 ## Pipeline
 
@@ -55,6 +67,31 @@ ocrus recognize image.png --ruby               # Ruby (furigana) separation
 ocrus recognize image.png --cascade model.ocnn # Cascade recognition
 ocrus bench image.png                          # Run benchmarks
 ```
+
+## Python Bindings
+
+Same pipeline, exposed as the `ocrus` package (PyO3 + maturin, abi3 wheels).
+
+```python
+import ocrus
+
+engine = ocrus.OcrEngine(mode="accurate", charset="jis")   # load the model once
+result = engine.recognize("page.png")                      # path / bytes / numpy / PIL
+
+print(result.full_text())
+result.to_json()      # identical to `ocrus recognize --format json`
+```
+
+```bash
+cd python && uvx maturin build --release --out ../target/wheels   # build the wheel
+uv run --with ./target/wheels/<wheel> --with pytest python -m pytest python/tests -q
+```
+
+- Source layout: `crates/ocrus-python` (Rust) + `python/ocrus` (wrapper, stubs)
+- numpy is optional: arrays are read through the buffer protocol
+- Run pytest from the repo root; from inside `python/` the source package shadows the wheel
+- `pyo3/extension-module` must stay out of the crate's default features, otherwise
+  `cargo test --workspace` fails to link on Linux/macOS
 
 ## Key Features
 
@@ -146,14 +183,20 @@ Results are exported to:
 ## AI Agent Rules
 
 - 長時間かかるコマンド（E2Eテスト、モデル変換など）はAI側で実行せず、ユーザーに実行を依頼すること。AIセッション終了時にコマンドも終了してしまうため。
+- 依存更新・ビルド確認・コミットまでの定期保守は `.claude/skills/ocrus-maintenance`、
+  精度改善（char_accuracy の解析と実験）は `.claude/skills/ocrus-model-improvement` に手順がある。
+  「メンテナンスして」「精度を上げて」の依頼ではまずそれぞれのスキルを読むこと。
 
 ## Development
 
 ```bash
 cargo build          # Build all crates
-cargo test           # Run all tests
+cargo test           # Run all tests (no model required; OCR tests self-skip)
 cargo clippy         # Lint
 cargo bench          # Benchmarks
+
+# End-to-end OCR smoke check (~20s, needs the model)
+cargo test -p ocrus-engine --release --test smoke -- --nocapture
 ```
 
 ## Models

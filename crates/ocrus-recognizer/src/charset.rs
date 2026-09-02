@@ -100,6 +100,41 @@ impl Charset {
         Self { chars }
     }
 
+    /// Create a strict JIS charset embedded at compile time.
+    ///
+    /// Same character set as [`from_jis_strict`] but baked into the binary, so it works
+    /// without `data/test_chars/` on disk. Library consumers (the Python bindings, an
+    /// installed `ocrus` binary) have no way to locate the source tree, so they use this.
+    pub fn from_jis_embedded() -> Self {
+        const SOURCES: &[&str] = &[
+            include_str!("../../../data/test_chars/fullwidth_alnum.txt"),
+            include_str!("../../../data/test_chars/fullwidth_symbols.txt"),
+            include_str!("../../../data/test_chars/halfwidth_alnum.txt"),
+            include_str!("../../../data/test_chars/halfwidth_symbols.txt"),
+            include_str!("../../../data/test_chars/hiragana.txt"),
+            include_str!("../../../data/test_chars/jis_level1.txt"),
+            include_str!("../../../data/test_chars/jis_level2.txt"),
+            include_str!("../../../data/test_chars/jis_level3.txt"),
+            include_str!("../../../data/test_chars/jis_level4.txt"),
+            include_str!("../../../data/test_chars/joyo_kanji.txt"),
+            include_str!("../../../data/test_chars/katakana.txt"),
+        ];
+
+        let mut chars_set = std::collections::HashSet::new();
+        for source in SOURCES {
+            for ch in source.chars() {
+                if !ch.is_whitespace() {
+                    chars_set.insert(ch);
+                }
+            }
+        }
+
+        let mut chars: Vec<char> = chars_set.into_iter().collect();
+        chars.sort_unstable();
+
+        Self { chars }
+    }
+
     /// Create a strict JIS X 0208 charset from data files.
     ///
     /// Reads all `.txt` files under `data_dir` (e.g. `data/test_chars/`) and collects

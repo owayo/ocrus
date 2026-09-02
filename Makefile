@@ -1,4 +1,4 @@
-.PHONY: build release install clean test fmt check help
+.PHONY: build release install clean test fmt check help smoke wheel pytest
 
 # Default target
 .DEFAULT_GOAL := help
@@ -37,6 +37,17 @@ clean: ## Clean build artifacts
 
 bench: ## Run benchmarks
 	cargo bench
+
+## Python bindings
+
+smoke: ## Run the end-to-end OCR smoke check (needs the model, ~20s)
+	cargo test -p ocrus-engine --release --test smoke -- --nocapture
+
+wheel: ## Build the Python wheel into target/wheels/
+	cd python && maturin build --release --out ../target/wheels
+
+pytest: ## Run the Python binding tests (install the wheel first)
+	python -m pytest python/tests -q
 
 ## Help
 

@@ -4,7 +4,9 @@ members = [
     "crates/ocrus-preproc",
     "crates/ocrus-layout",
     "crates/ocrus-recognizer",
+    "crates/ocrus-engine",
     "crates/ocrus-cli",
+    "crates/ocrus-python",
     "crates/ocrus-dataset",
     "crates/ocrus-nn",
 ]
@@ -39,6 +41,7 @@ ocrus-core = { path = "crates/ocrus-core" }
 ocrus-preproc = { path = "crates/ocrus-preproc" }
 ocrus-layout = { path = "crates/ocrus-layout" }
 ocrus-recognizer = { path = "crates/ocrus-recognizer" }
+ocrus-engine = { path = "crates/ocrus-engine" }
 ocrus-dataset = { path = "crates/ocrus-dataset" }
 ocrus-nn = { path = "crates/ocrus-nn" }
 

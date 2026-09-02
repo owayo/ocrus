@@ -39,3 +39,8 @@ logs/
 # Test fonts (local copies)
 fonts/
 
+
+# Python build artifacts
+dist/
+*.egg-info/
+.pytest_cache/

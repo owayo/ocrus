@@ -31,13 +31,39 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test --workspace --verbose
 
       - name: Run clippy
         run: cargo clippy -- -D warnings
 
       - name: Check formatting
-        run: cargo fmt -- --check
+        run: cargo fmt --all -- --check
+
+  python:
+    name: Python bindings
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build wheel
+        run: |
+          pip install maturin pytest
+          cd python && maturin build --release --out ../dist
+
+      - name: Install and test
+        # The OCR tests skip themselves without a model, so this checks the binding
+        # surface: import, argument handling, error types.
+        run: |
+          pip install dist/*.whl
+          python -m pytest python/tests -q
 
   build:
     name: Build
@@ -62,4 +88,4 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release --target ${{ matrix.target }} -p ocrus-cli

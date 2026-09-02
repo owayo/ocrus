@@ -96,6 +96,26 @@ ocrus recognize image.png --ruby
 ocrus recognize image.png --cascade path/to/cascade_model.ocnn
 ```
 
+### Python から使う
+
+```python
+import ocrus
+
+engine = ocrus.OcrEngine()              # モデルは 1 度だけ読む（使い回す）
+result = engine.recognize("page.png")   # パス / バイト列 / numpy 配列 / PIL Image
+
+print(result.full_text())
+for line in result.pages[0].lines:
+    print(line.bbox.as_tuple(), round(line.confidence, 3), line.text)
+```
+
+CLI と同じパイプラインを呼ぶので、結果も `--format json` と同じ形になります。
+numpy は任意（配列は buffer protocol 経由で読みます）。詳細は [python/README.md](python/README.md)。
+
+```bash
+cd python && uvx maturin build --release --out ../target/wheels   # wheel をビルド
+```
+
 ### 対話型 TUI
 
 ```bash
@@ -193,7 +213,9 @@ flowchart LR
 | `ocrus-layout` | レイアウト解析（射影、CCL、縦書き、品質ゲート、ルビ分離） |
 | `ocrus-recognizer` | CTC 認識（Greedy + Beam Search、JIS 文字セット、辞書補正、カスケード） |
 | `ocrus-nn` | 純 Rust 推論エンジン（.ocnn フォーマット、SIMD 演算、mmap モデルロード） |
-| `ocrus-cli` | CLI エントリポイント |
+| `ocrus-engine` | OCR パイプライン本体（前処理 → レイアウト → 推論 → デコード） |
+| `ocrus-cli` | CLI エントリポイント（`ocrus-engine` の薄いラッパ） |
+| `ocrus-python` | PyO3 バインディング（maturin で `ocrus` wheel をビルド） |
 | `ocrus-dataset` | 訓練データ生成（フォントレンダリング、オーグメンテーション、フォントスタイルフィルタ） |
 
 ## ファインチューニング
@@ -446,10 +468,16 @@ OCRUS_QUANTIZED_MODEL=rec_int8.onnx \
 
 ```bash
 cargo build          # 全クレートをビルド
-cargo test           # 全テスト実行
+cargo test           # 全テスト実行（モデル不要。OCR テストは自動で skip）
 cargo clippy         # リント
 cargo fmt            # フォーマット
 cargo bench          # ベンチマーク
+
+# OCR のスモーク確認（約 20 秒、モデルが要る）
+cargo test -p ocrus-engine --release --test smoke -- --nocapture
+
+# Python バインディングのテスト（リポジトリのルートから）
+python -m pytest python/tests -q
 ```
 
 ## ライセンス

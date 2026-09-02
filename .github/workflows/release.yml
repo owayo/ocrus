@@ -119,8 +119,10 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
+      # -p が要る: ルートに ocrus-bench パッケージがあるため、指定しないと
+      # ワークスペースのメンバではなくそれだけがビルドされ、ocrus バイナリが作られない。
       - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release --target ${{ matrix.target }} -p ocrus-cli
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -128,9 +130,49 @@ jobs:
           name: ${{ matrix.asset_name }}
           path: ./target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
 
+  build-wheels:
+    name: Build Python Wheels
+    needs: prepare-release
+    if: ${{ inputs.dry_run != true }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64
+          - os: macos-latest
+            target: x86_64
+          - os: macos-latest
+            target: aarch64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare-release.outputs.tag }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # abi3-py310: one wheel per platform covers every CPython >= 3.10.
+      - name: Build wheel
+        uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          target: ${{ matrix.target }}
+          args: --release --out ../dist
+          working-directory: python
+          manylinux: auto
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}-${{ matrix.target }}
+          path: dist/*.whl
+
   publish-release:
     name: Publish Release
-    needs: [prepare-release, build-and-release]
+    needs: [prepare-release, build-and-release, build-wheels]
     if: ${{ inputs.dry_run != true }}
     runs-on: ubuntu-latest
     steps:
@@ -144,7 +186,11 @@ jobs:
           mkdir -p release-assets
           for dir in artifacts/*/; do
             name=$(basename "$dir")
-            find "$dir" -type f -exec cp {} "release-assets/$name" \;
+            case "$name" in
+              # Wheels keep their own filenames: the platform tags are part of the name.
+              wheels-*) find "$dir" -name '*.whl' -exec cp {} release-assets/ \; ;;
+              *) find "$dir" -type f -exec cp {} "release-assets/$name" \; ;;
+            esac
           done
           ls -la release-assets/
 

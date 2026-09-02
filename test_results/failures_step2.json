@@ -1,0 +1,1619 @@
+[
+  {
+    "character": "ぉ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ぉ",
+    "recognized": "お"
+  },
+  {
+    "character": "ぁ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ぁ",
+    "recognized": "あ"
+  },
+  {
+    "character": "ぃ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ぃ",
+    "recognized": "い"
+  },
+  {
+    "character": "ぺ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ぺ",
+    "recognized": "ペ"
+  },
+  {
+    "character": "ゎ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ゎ",
+    "recognized": "わ"
+  },
+  {
+    "character": "ゅ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ゅ",
+    "recognized": "ゆ"
+  },
+  {
+    "character": "ゃ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ゃ",
+    "recognized": "や"
+  },
+  {
+    "character": "ゐ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ゐ",
+    "recognized": ""
+  },
+  {
+    "character": "ょ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ょ",
+    "recognized": "よ"
+  },
+  {
+    "character": "え",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "え",
+    "recognized": "a"
+  },
+  {
+    "character": "う",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "う",
+    "recognized": "a"
+  },
+  {
+    "character": "ふ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ふ",
+    "recognized": "a"
+  },
+  {
+    "character": "ぇ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ぇ",
+    "recognized": "a"
+  },
+  {
+    "character": "ぶ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ぶ",
+    "recognized": "e"
+  },
+  {
+    "character": "っ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "っ",
+    "recognized": "つ"
+  },
+  {
+    "character": "ぅ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ぅ",
+    "recognized": "a"
+  },
+  {
+    "character": "ぷ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ぷ",
+    "recognized": "e"
+  },
+  {
+    "character": "ご",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ご",
+    "recognized": "e"
+  },
+  {
+    "character": "こ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "こ",
+    "recognized": "a"
+  },
+  {
+    "character": "カ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "カ",
+    "recognized": "力"
+  },
+  {
+    "character": "ノ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ノ",
+    "recognized": "」"
+  },
+  {
+    "character": "メ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "メ",
+    "recognized": "×"
+  },
+  {
+    "character": "ィ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ィ",
+    "recognized": "イ"
+  },
+  {
+    "character": "ァ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ァ",
+    "recognized": "ア"
+  },
+  {
+    "character": "ハ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ハ",
+    "recognized": "八"
+  },
+  {
+    "character": "ロ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ロ",
+    "recognized": "□"
+  },
+  {
+    "character": "ェ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ェ",
+    "recognized": "工"
+  },
+  {
+    "character": "ゥ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ゥ",
+    "recognized": "ウ"
+  },
+  {
+    "character": "ヘ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ヘ",
+    "recognized": "入"
+  },
+  {
+    "character": "ャ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ャ",
+    "recognized": "ヤ"
+  },
+  {
+    "character": "エ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "エ",
+    "recognized": "工"
+  },
+  {
+    "character": "ヮ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ヮ",
+    "recognized": "ワ"
+  },
+  {
+    "character": "ベ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ベ",
+    "recognized": "べ"
+  },
+  {
+    "character": "ォ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ォ",
+    "recognized": "オ"
+  },
+  {
+    "character": "ッ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ッ",
+    "recognized": "ツ"
+  },
+  {
+    "character": "オ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "オ",
+    "recognized": "才"
+  },
+  {
+    "character": "ョ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ョ",
+    "recognized": "ヨ"
+  },
+  {
+    "character": "ヰ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ヰ",
+    "recognized": "年"
+  },
+  {
+    "character": "ュ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ュ",
+    "recognized": "ユ"
+  },
+  {
+    "character": "ヱ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ヱ",
+    "recognized": "ア"
+  },
+  {
+    "character": "ヶ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ヶ",
+    "recognized": "ケ"
+  },
+  {
+    "character": "ヵ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ヵ",
+    "recognized": "力"
+  },
+  {
+    "character": "ジ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ジ",
+    "recognized": "e"
+  },
+  {
+    "character": "デ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "デ",
+    "recognized": "_"
+  },
+  {
+    "character": "テ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "テ",
+    "recognized": "a"
+  },
+  {
+    "character": "ラ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ラ",
+    "recognized": "a"
+  },
+  {
+    "character": "ミ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ミ",
+    "recognized": "e"
+  },
+  {
+    "character": "ニ",
+    "category": "katakana",
+    "font_name": "BIZ-UDGothic",
+    "expected": "ニ",
+    "recognized": "e"
+  },
+  {
+    "character": "ぁ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ぁ",
+    "recognized": "あ"
+  },
+  {
+    "character": "ぃ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ぃ",
+    "recognized": "い"
+  },
+  {
+    "character": "ゅ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ゅ",
+    "recognized": "ゆ"
+  },
+  {
+    "character": "ぉ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ぉ",
+    "recognized": "お"
+  },
+  {
+    "character": "ゃ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ゃ",
+    "recognized": "や"
+  },
+  {
+    "character": "う",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "う",
+    "recognized": "a"
+  },
+  {
+    "character": "さ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "さ",
+    "recognized": "七"
+  },
+  {
+    "character": "え",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "え",
+    "recognized": "上"
+  },
+  {
+    "character": "き",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "き",
+    "recognized": "キ"
+  },
+  {
+    "character": "ふ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ふ",
+    "recognized": "a"
+  },
+  {
+    "character": "ょ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ょ",
+    "recognized": "よ"
+  },
+  {
+    "character": "っ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "っ",
+    "recognized": "つ"
+  },
+  {
+    "character": "ぇ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ぇ",
+    "recognized": "产"
+  },
+  {
+    "character": "ぎ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ぎ",
+    "recognized": "ギ"
+  },
+  {
+    "character": "ぅ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ぅ",
+    "recognized": "a"
+  },
+  {
+    "character": "ら",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ら",
+    "recognized": "业"
+  },
+  {
+    "character": "ゎ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ゎ",
+    "recognized": "わ"
+  },
+  {
+    "character": "ぺ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ぺ",
+    "recognized": "ペ"
+  },
+  {
+    "character": "ゐ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ゐ",
+    "recognized": "為"
+  },
+  {
+    "character": "こ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "こ",
+    "recognized": "7"
+  },
+  {
+    "character": "ざ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ざ",
+    "recognized": "ギ"
+  },
+  {
+    "character": "ぶ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ぶ",
+    "recognized": ">"
+  },
+  {
+    "character": "ぷ",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ぷ",
+    "recognized": "小"
+  },
+  {
+    "character": "ご",
+    "category": "hiragana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ご",
+    "recognized": "a"
+  },
+  {
+    "character": "カ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "カ",
+    "recognized": "力"
+  },
+  {
+    "character": "ァ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ァ",
+    "recognized": "ア"
+  },
+  {
+    "character": "ャ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ャ",
+    "recognized": "ヤ"
+  },
+  {
+    "character": "ィ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ィ",
+    "recognized": "イ"
+  },
+  {
+    "character": "ロ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ロ",
+    "recognized": "口"
+  },
+  {
+    "character": "ハ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ハ",
+    "recognized": "八"
+  },
+  {
+    "character": "ェ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ェ",
+    "recognized": "工"
+  },
+  {
+    "character": "ョ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ョ",
+    "recognized": "ヨ"
+  },
+  {
+    "character": "ッ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ッ",
+    "recognized": "ツ"
+  },
+  {
+    "character": "ゥ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ゥ",
+    "recognized": "ウ"
+  },
+  {
+    "character": "ヘ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ヘ",
+    "recognized": "へ"
+  },
+  {
+    "character": "ヮ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ヮ",
+    "recognized": "ワ"
+  },
+  {
+    "character": "ュ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ュ",
+    "recognized": "ユ"
+  },
+  {
+    "character": "エ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "エ",
+    "recognized": "工"
+  },
+  {
+    "character": "ベ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ベ",
+    "recognized": "べ"
+  },
+  {
+    "character": "ォ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ォ",
+    "recognized": "オ"
+  },
+  {
+    "character": "ヰ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ヰ",
+    "recognized": "年"
+  },
+  {
+    "character": "ヱ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ヱ",
+    "recognized": "了"
+  },
+  {
+    "character": "ヵ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ヵ",
+    "recognized": "力"
+  },
+  {
+    "character": "ヶ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ヶ",
+    "recognized": "ケ"
+  },
+  {
+    "character": "ネ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ネ",
+    "recognized": "a"
+  },
+  {
+    "character": "ラ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ラ",
+    "recognized": "a"
+  },
+  {
+    "character": "デ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "デ",
+    "recognized": "e"
+  },
+  {
+    "character": "テ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "テ",
+    "recognized": "a"
+  },
+  {
+    "character": "ミ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ミ",
+    "recognized": "e"
+  },
+  {
+    "character": "ニ",
+    "category": "katakana",
+    "font_name": "BIZ-UDMincho",
+    "expected": "ニ",
+    "recognized": "a"
+  },
+  {
+    "character": "ぁ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ぁ",
+    "recognized": "あ"
+  },
+  {
+    "character": "ぃ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ぃ",
+    "recognized": "い"
+  },
+  {
+    "character": "ゎ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ゎ",
+    "recognized": "わ"
+  },
+  {
+    "character": "ゐ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ゐ",
+    "recognized": ""
+  },
+  {
+    "character": "っ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "っ",
+    "recognized": "つ"
+  },
+  {
+    "character": "ゃ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ゃ",
+    "recognized": "や"
+  },
+  {
+    "character": "ゅ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ゅ",
+    "recognized": "ゆ"
+  },
+  {
+    "character": "ょ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ょ",
+    "recognized": "よ"
+  },
+  {
+    "character": "ぺ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ぺ",
+    "recognized": "ペ"
+  },
+  {
+    "character": "ぉ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ぉ",
+    "recognized": "お"
+  },
+  {
+    "character": "こ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "こ",
+    "recognized": "e"
+  },
+  {
+    "character": "う",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "う",
+    "recognized": "a"
+  },
+  {
+    "character": "ぅ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ぅ",
+    "recognized": "a"
+  },
+  {
+    "character": "え",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "え",
+    "recognized": "a"
+  },
+  {
+    "character": "ぇ",
+    "category": "hiragana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ぇ",
+    "recognized": "a"
+  },
+  {
+    "character": "カ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "カ",
+    "recognized": "力"
+  },
+  {
+    "character": "ゥ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ゥ",
+    "recognized": "ウ"
+  },
+  {
+    "character": "ィ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ィ",
+    "recognized": "イ"
+  },
+  {
+    "character": "ァ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ァ",
+    "recognized": "ア"
+  },
+  {
+    "character": "ェ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ェ",
+    "recognized": "工"
+  },
+  {
+    "character": "ャ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ャ",
+    "recognized": "ヤ"
+  },
+  {
+    "character": "ハ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ハ",
+    "recognized": "八"
+  },
+  {
+    "character": "ヘ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ヘ",
+    "recognized": "へ"
+  },
+  {
+    "character": "ョ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ョ",
+    "recognized": "ヨ"
+  },
+  {
+    "character": "ベ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ベ",
+    "recognized": "べ"
+  },
+  {
+    "character": "エ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "エ",
+    "recognized": "工"
+  },
+  {
+    "character": "ヮ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ヮ",
+    "recognized": "ワ"
+  },
+  {
+    "character": "ッ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ッ",
+    "recognized": "ツ"
+  },
+  {
+    "character": "ュ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ュ",
+    "recognized": "ユ"
+  },
+  {
+    "character": "ヰ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ヰ",
+    "recognized": "井"
+  },
+  {
+    "character": "ヱ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ヱ",
+    "recognized": "ア"
+  },
+  {
+    "character": "ォ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ォ",
+    "recognized": "オ"
+  },
+  {
+    "character": "ヵ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ヵ",
+    "recognized": "力"
+  },
+  {
+    "character": "ヶ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ヶ",
+    "recognized": "ケ"
+  },
+  {
+    "character": "シ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "シ",
+    "recognized": "e"
+  },
+  {
+    "character": "デ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "デ",
+    "recognized": "e"
+  },
+  {
+    "character": "ジ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ジ",
+    "recognized": "ン"
+  },
+  {
+    "character": "テ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "テ",
+    "recognized": "a"
+  },
+  {
+    "character": "ミ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ミ",
+    "recognized": "e"
+  },
+  {
+    "character": "ラ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ラ",
+    "recognized": "a"
+  },
+  {
+    "character": "ニ",
+    "category": "katakana",
+    "font_name": "HiraginoKakuGothic W3",
+    "expected": "ニ",
+    "recognized": "e"
+  },
+  {
+    "character": "ぁ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ぁ",
+    "recognized": "あ"
+  },
+  {
+    "character": "ぃ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ぃ",
+    "recognized": "い"
+  },
+  {
+    "character": "ゅ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ゅ",
+    "recognized": "ゆ"
+  },
+  {
+    "character": "ぺ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ぺ",
+    "recognized": "ペ"
+  },
+  {
+    "character": "ょ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ょ",
+    "recognized": "よ"
+  },
+  {
+    "character": "ぷ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ぷ",
+    "recognized": "ふ"
+  },
+  {
+    "character": "う",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "う",
+    "recognized": "a"
+  },
+  {
+    "character": "ゃ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ゃ",
+    "recognized": "や"
+  },
+  {
+    "character": "え",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "え",
+    "recognized": "a"
+  },
+  {
+    "character": "ゎ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ゎ",
+    "recognized": "わ"
+  },
+  {
+    "character": "ぉ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ぉ",
+    "recognized": "お"
+  },
+  {
+    "character": "っ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "っ",
+    "recognized": "つ"
+  },
+  {
+    "character": "ぇ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ぇ",
+    "recognized": "2"
+  },
+  {
+    "character": "ゐ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ゐ",
+    "recognized": "為"
+  },
+  {
+    "character": "ご",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ご",
+    "recognized": "e"
+  },
+  {
+    "character": "こ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "こ",
+    "recognized": "业"
+  },
+  {
+    "character": "ぅ",
+    "category": "hiragana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ぅ",
+    "recognized": "产"
+  },
+  {
+    "character": "カ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "カ",
+    "recognized": "力"
+  },
+  {
+    "character": "ィ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ィ",
+    "recognized": "イ"
+  },
+  {
+    "character": "ァ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ァ",
+    "recognized": "ア"
+  },
+  {
+    "character": "ゥ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ゥ",
+    "recognized": "ウ"
+  },
+  {
+    "character": "ェ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ェ",
+    "recognized": "工"
+  },
+  {
+    "character": "ッ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ッ",
+    "recognized": "ツ"
+  },
+  {
+    "character": "ャ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ャ",
+    "recognized": "ヤ"
+  },
+  {
+    "character": "ロ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ロ",
+    "recognized": "口"
+  },
+  {
+    "character": "ヘ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ヘ",
+    "recognized": "へ"
+  },
+  {
+    "character": "エ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "エ",
+    "recognized": "工"
+  },
+  {
+    "character": "ヱ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ヱ",
+    "recognized": "エ"
+  },
+  {
+    "character": "ハ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ハ",
+    "recognized": "八"
+  },
+  {
+    "character": "ォ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ォ",
+    "recognized": "オ"
+  },
+  {
+    "character": "ヮ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ヮ",
+    "recognized": "ワ"
+  },
+  {
+    "character": "ベ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ベ",
+    "recognized": "べ"
+  },
+  {
+    "character": "ペ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ペ",
+    "recognized": "ぺ"
+  },
+  {
+    "character": "ヰ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ヰ",
+    "recognized": "年"
+  },
+  {
+    "character": "ョ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ョ",
+    "recognized": "ヨ"
+  },
+  {
+    "character": "ュ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ュ",
+    "recognized": "ユ"
+  },
+  {
+    "character": "ヵ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ヵ",
+    "recognized": "力"
+  },
+  {
+    "character": "ヶ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ヶ",
+    "recognized": "ケ"
+  },
+  {
+    "character": "デ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "デ",
+    "recognized": "e"
+  },
+  {
+    "character": "ネ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ネ",
+    "recognized": "a"
+  },
+  {
+    "character": "テ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "テ",
+    "recognized": "a"
+  },
+  {
+    "character": "ラ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ラ",
+    "recognized": "a"
+  },
+  {
+    "character": "ミ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ミ",
+    "recognized": "e"
+  },
+  {
+    "character": "ニ",
+    "category": "katakana",
+    "font_name": "HiraginoMincho ProN",
+    "expected": "ニ",
+    "recognized": "a"
+  },
+  {
+    "character": "ぁ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ぁ",
+    "recognized": "あ"
+  },
+  {
+    "character": "ぃ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ぃ",
+    "recognized": "い"
+  },
+  {
+    "character": "べ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "べ",
+    "recognized": "ベ"
+  },
+  {
+    "character": "ゎ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ゎ",
+    "recognized": "わ"
+  },
+  {
+    "character": "っ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "っ",
+    "recognized": "つ"
+  },
+  {
+    "character": "く",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "く",
+    "recognized": "へ"
+  },
+  {
+    "character": "ぺ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ぺ",
+    "recognized": "ペ"
+  },
+  {
+    "character": "ゐ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ゐ",
+    "recognized": ""
+  },
+  {
+    "character": "ゃ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ゃ",
+    "recognized": "や"
+  },
+  {
+    "character": "ぉ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ぉ",
+    "recognized": "お"
+  },
+  {
+    "character": "ふ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ふ",
+    "recognized": "a"
+  },
+  {
+    "character": "う",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "う",
+    "recognized": "a"
+  },
+  {
+    "character": "ゅ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ゅ",
+    "recognized": "ゆ"
+  },
+  {
+    "character": "ぶ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ぶ",
+    "recognized": "a"
+  },
+  {
+    "character": "ょ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ょ",
+    "recognized": "よ"
+  },
+  {
+    "character": "ぷ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ぷ",
+    "recognized": "a"
+  },
+  {
+    "character": "ご",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ご",
+    "recognized": "e"
+  },
+  {
+    "character": "ぅ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ぅ",
+    "recognized": "a"
+  },
+  {
+    "character": "え",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "え",
+    "recognized": "e"
+  },
+  {
+    "character": "ぇ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "ぇ",
+    "recognized": "e"
+  },
+  {
+    "character": "こ",
+    "category": "hiragana",
+    "font_name": "UDEVGothic",
+    "expected": "こ",
+    "recognized": "e"
+  },
+  {
+    "character": "メ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "メ",
+    "recognized": "×"
+  },
+  {
+    "character": "カ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "カ",
+    "recognized": "力"
+  },
+  {
+    "character": "ィ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ィ",
+    "recognized": "イ"
+  },
+  {
+    "character": "エ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "エ",
+    "recognized": "工"
+  },
+  {
+    "character": "ァ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ァ",
+    "recognized": "ア"
+  },
+  {
+    "character": "ェ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ェ",
+    "recognized": "工"
+  },
+  {
+    "character": "イ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "イ",
+    "recognized": "ィ"
+  },
+  {
+    "character": "ハ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ハ",
+    "recognized": "八"
+  },
+  {
+    "character": "ォ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ォ",
+    "recognized": "オ"
+  },
+  {
+    "character": "ヱ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ヱ",
+    "recognized": "ア"
+  },
+  {
+    "character": "ヘ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ヘ",
+    "recognized": "入"
+  },
+  {
+    "character": "ロ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ロ",
+    "recognized": "□"
+  },
+  {
+    "character": "ゥ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ゥ",
+    "recognized": "ウ"
+  },
+  {
+    "character": "ッ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ッ",
+    "recognized": "ツ"
+  },
+  {
+    "character": "ャ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ャ",
+    "recognized": "ヤ"
+  },
+  {
+    "character": "ョ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ョ",
+    "recognized": "ヨ"
+  },
+  {
+    "character": "ヮ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ヮ",
+    "recognized": "ワ"
+  },
+  {
+    "character": "ヰ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ヰ",
+    "recognized": "年"
+  },
+  {
+    "character": "ュ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ュ",
+    "recognized": "ユ"
+  },
+  {
+    "character": "ヵ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ヵ",
+    "recognized": "力"
+  },
+  {
+    "character": "ヶ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ヶ",
+    "recognized": "ケ"
+  },
+  {
+    "character": "ジ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ジ",
+    "recognized": "e"
+  },
+  {
+    "character": "デ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "デ",
+    "recognized": "e"
+  },
+  {
+    "character": "テ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "テ",
+    "recognized": "T"
+  },
+  {
+    "character": "ミ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ミ",
+    "recognized": "e"
+  },
+  {
+    "character": "ラ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ラ",
+    "recognized": "a"
+  },
+  {
+    "character": "ニ",
+    "category": "katakana",
+    "font_name": "UDEVGothic",
+    "expected": "ニ",
+    "recognized": "a"
+  }
+]

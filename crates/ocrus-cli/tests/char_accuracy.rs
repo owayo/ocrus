@@ -4,8 +4,10 @@ use std::sync::{Arc, Mutex};
 
 use std::sync::atomic::AtomicUsize;
 
-use image::DynamicImage;
+use image::{DynamicImage, GrayImage, Luma};
+use imageproc::geometric_transformations::{Interpolation, rotate_about_center};
 use log::info;
+use ndarray::Array2;
 use rayon::prelude::*;
 use serde::Serialize;
 use unicode_normalization::UnicodeNormalization;
@@ -21,8 +23,8 @@ struct CharFailure {
 
 use ocrus_layout::detect_lines_projection;
 use ocrus_nn::{NnEngine, Tensor};
-use ocrus_preproc::{binarize_adaptive, normalize_line, to_grayscale};
-use ocrus_recognizer::{charset::Charset, ctc_greedy_decode};
+use ocrus_preproc::{binarize_adaptive, normalize_line_scaled, to_grayscale};
+use ocrus_recognizer::{charset::Charset, ctc_greedy_decode, ctc_tla_decode};
 
 // Step definitions: name -> categories
 const STEPS: &[(&str, &[&str])] = &[
@@ -100,6 +102,160 @@ fn load_category_chars(workspace_root: &Path, category: &str) -> Option<Vec<char
     if chars.is_empty() { None } else { Some(chars) }
 }
 
+fn straug_tta_enabled() -> bool {
+    matches!(
+        std::env::var("OCRUS_CHAR_STR_AUG_TTA").as_deref(),
+        Ok("1") | Ok("true") | Ok("TRUE") | Ok("yes") | Ok("YES")
+    )
+}
+
+fn autocontrast_gray(gray: &Array2<u8>) -> Array2<u8> {
+    let mut min_px = u8::MAX;
+    let mut max_px = u8::MIN;
+    for &px in gray {
+        min_px = min_px.min(px);
+        max_px = max_px.max(px);
+    }
+    if min_px >= max_px {
+        return gray.clone();
+    }
+
+    let scale = 255.0f32 / (max_px as f32 - min_px as f32);
+    gray.mapv(|px| {
+        (((px.saturating_sub(min_px)) as f32) * scale)
+            .round()
+            .clamp(0.0, 255.0) as u8
+    })
+}
+
+fn sharpen_gray(gray: &Array2<u8>) -> Array2<u8> {
+    let (h, w) = (gray.nrows(), gray.ncols());
+    if h < 3 || w < 3 {
+        return gray.clone();
+    }
+
+    let mut out = gray.clone();
+    for y in 1..h - 1 {
+        for x in 1..w - 1 {
+            let val = 5i32 * gray[[y, x]] as i32
+                - gray[[y - 1, x]] as i32
+                - gray[[y + 1, x]] as i32
+                - gray[[y, x - 1]] as i32
+                - gray[[y, x + 1]] as i32;
+            out[[y, x]] = val.clamp(0, 255) as u8;
+        }
+    }
+    out
+}
+
+fn ndarray_to_gray_image(gray: &Array2<u8>) -> GrayImage {
+    let (h, w) = (gray.nrows() as u32, gray.ncols() as u32);
+    GrayImage::from_fn(w, h, |x, y| Luma([gray[[y as usize, x as usize]]]))
+}
+
+fn gray_image_to_ndarray(img: &GrayImage) -> Array2<u8> {
+    let (w, h) = img.dimensions();
+    Array2::from_shape_fn((h as usize, w as usize), |(y, x)| {
+        img.get_pixel(x as u32, y as u32)[0]
+    })
+}
+
+fn rotate_gray(gray: &Array2<u8>, degrees: f32) -> Array2<u8> {
+    let img = ndarray_to_gray_image(gray);
+    let rotated = rotate_about_center(
+        &img,
+        degrees.to_radians(),
+        Interpolation::Bilinear,
+        Luma([255u8]),
+    );
+    gray_image_to_ndarray(&rotated)
+}
+
+fn straug_tta_variants(gray: &Array2<u8>) -> Vec<Array2<u8>> {
+    vec![
+        gray.clone(),
+        autocontrast_gray(gray),
+        sharpen_gray(gray),
+        rotate_gray(gray, -2.0),
+        rotate_gray(gray, 2.0),
+    ]
+}
+
+fn vote_texts(texts: &[String]) -> String {
+    use std::collections::HashMap;
+
+    let mut counts = HashMap::<String, usize>::new();
+    for text in texts {
+        *counts.entry(text.clone()).or_default() += 1;
+    }
+
+    counts
+        .into_iter()
+        .max_by(|a, b| a.1.cmp(&b.1).then_with(|| b.0.len().cmp(&a.0.len())))
+        .map(|(text, _)| text)
+        .unwrap_or_default()
+}
+
+fn recognize_bbox_base(
+    engine: &NnEngine,
+    model: &ocrus_nn::model::OcnnModel,
+    charset: &Charset,
+    gray: &Array2<u8>,
+    bbox: &ocrus_core::BBox,
+) -> String {
+    let tensor = normalize_line_scaled(gray, bbox, 1.0);
+    let shape = tensor.shape().to_vec();
+    let input = Tensor::new(tensor.into_raw_vec_and_offset().0, shape);
+    if let Ok(outputs) = engine.run(model, &[input])
+        && let Some(output) = outputs.first()
+    {
+        let timesteps = output.shape[1];
+        let num_classes = output.shape[2];
+
+        let (ctc_text, _ctc_conf) =
+            ctc_greedy_decode(&output.data, timesteps, num_classes, charset);
+        let (tla_text, _tla_conf) = ctc_tla_decode(&output.data, timesteps, num_classes, charset);
+
+        if ctc_text == tla_text {
+            return ctc_text;
+        }
+        if ctc_text.is_empty() && !tla_text.is_empty() {
+            return tla_text;
+        }
+        if ctc_text.chars().count() > 1 && tla_text.chars().count() == 1 {
+            return tla_text;
+        }
+        return ctc_text;
+    }
+    String::new()
+}
+
+/// Recognize a single bbox using both CTC greedy and TLA, picking the better result.
+fn recognize_bbox_ensemble(
+    engine: &NnEngine,
+    model: &ocrus_nn::model::OcnnModel,
+    charset: &Charset,
+    gray: &Array2<u8>,
+    bbox: &ocrus_core::BBox,
+) -> String {
+    if !straug_tta_enabled() {
+        return recognize_bbox_base(engine, model, charset, gray, bbox);
+    }
+
+    let variants = straug_tta_variants(gray);
+    let mut texts = Vec::with_capacity(variants.len());
+    for variant in &variants {
+        texts.push(recognize_bbox_base(engine, model, charset, variant, bbox));
+    }
+
+    let voted = vote_texts(&texts);
+    if !voted.is_empty() {
+        return voted;
+    }
+
+    texts.into_iter().next().unwrap_or_default()
+}
+
 fn recognize_image(
     engine: &NnEngine,
     model: &ocrus_nn::model::OcnnModel,
@@ -113,31 +269,11 @@ fn recognize_image(
     let mut recognized = String::new();
     if lines.is_empty() {
         let bbox = ocrus_core::BBox::new(0, 0, gray.ncols() as u32, gray.nrows() as u32);
-        let tensor = normalize_line(&gray, &bbox);
-        let shape = tensor.shape().to_vec();
-        let input = Tensor::new(tensor.into_raw_vec_and_offset().0, shape);
-        if let Ok(outputs) = engine.run(model, &[input])
-            && let Some(output) = outputs.first()
-        {
-            let timesteps = output.shape[1];
-            let num_classes = output.shape[2];
-            let (text, _conf) = ctc_greedy_decode(&output.data, timesteps, num_classes, charset);
-            recognized.push_str(&text);
-        }
+        recognized = recognize_bbox_ensemble(engine, model, charset, &gray, &bbox);
     } else {
         for line in &lines {
-            let tensor = normalize_line(&gray, line);
-            let shape = tensor.shape().to_vec();
-            let input = Tensor::new(tensor.into_raw_vec_and_offset().0, shape);
-            if let Ok(outputs) = engine.run(model, &[input])
-                && let Some(output) = outputs.first()
-            {
-                let timesteps = output.shape[1];
-                let num_classes = output.shape[2];
-                let (text, _conf) =
-                    ctc_greedy_decode(&output.data, timesteps, num_classes, charset);
-                recognized.push_str(&text);
-            }
+            let text = recognize_bbox_ensemble(engine, model, charset, &gray, line);
+            recognized.push_str(&text);
         }
     }
 

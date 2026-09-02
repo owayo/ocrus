@@ -1,0 +1,35 @@
+[build-system]
+requires = ["maturin>=1.9,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "ocrus"
+description = "Lightning-fast Japanese OCR - pure Rust engine, no external runtime"
+requires-python = ">=3.10"
+license = "MIT"
+readme = "README.md"
+keywords = ["ocr", "japanese", "rust", "paddleocr"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Rust",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Typing :: Typed",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+# numpy is never required: arrays are read through the buffer protocol.
+# Install this extra only if you want the tested numpy path.
+numpy = ["numpy>=1.24"]
+
+[project.urls]
+Repository = "https://github.com/owayo/ocrus"
+
+[tool.maturin]
+manifest-path = "../crates/ocrus-python/Cargo.toml"
+module-name = "ocrus._native"
+# Enables pyo3/extension-module for wheel builds only. Keeping it out of the crate's
+# default features is what lets `cargo test --workspace` link on Linux and macOS.
+features = ["extension-module"]

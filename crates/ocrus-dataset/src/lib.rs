@@ -230,26 +230,18 @@ pub fn generate_from_failure_images(
                     Ok(reader) => match reader.decode() {
                         Ok(dynimg) => dynimg.to_luma8(),
                         Err(e) => {
-                            eprintln!(
-                                "Warning: failed to decode {}: {e}",
-                                image_path.display()
-                            );
-                            skipped_atomic
-                                .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                            eprintln!("Warning: failed to decode {}: {e}", image_path.display());
+                            skipped_atomic.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                             continue;
                         }
                     },
                     Err(_) => {
-                        skipped_atomic
-                            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                        skipped_atomic.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                         continue;
                     }
                 };
 
-                let actual_font = failure
-                    .font_name
-                    .as_deref()
-                    .unwrap_or("unknown");
+                let actual_font = failure.font_name.as_deref().unwrap_or("unknown");
 
                 for aug in &config.augment.types {
                     let augmented = augment::apply_augmentation(&img, aug, &mut rng);

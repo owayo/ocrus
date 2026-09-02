@@ -1,0 +1,187 @@
+---
+name: ocrus-model-improvement
+description: |
+  ocrus（Pure Rust の日本語 OCR）の認識精度を上げる作業。char_accuracy のログと
+  test_results/failures_*.json を解析して失敗の質（空出力か安定誤認識か）を切り分け、
+  todo.md に記録済みの「試して効かなかった手法」を繰り返さずに次の実験を選び、
+  同じ条件の A/B で採否を決めて結果を todo.md に残すまでを扱う。
+  「精度を上げて」「認識精度が悪い」「char_accuracy の結果を見て」「failures を分析して」
+  「この文字が読めない」「モデルを改善して」「TLA を本番に入れて」のような依頼では
+  必ずこのスキルを使うこと。
+  依存更新・ビルド・コミットまでの定期保守は ocrus-maintenance。
+  そちらのスモークが劣化したときも、原因の切り分けはこのスキルで行う。
+---
+
+# ocrus の精度改善
+
+このリポジトリで精度改善が失敗する原因は、たいてい 3 つのどれかに落ちる。
+
+1. **過去に効かなかった手法をもう一度試す** — `todo.md` に理由まで残っているのに読んでいない
+2. **比較にならない 2 つの数字を比べる** — step が違う、フォント集合が違う、途中で中断している
+3. **合計だけ見て採用する** — 狙ったカテゴリは上がっているが別のカテゴリを壊している
+
+順番に潰せるよう、測る前に条件を決めて、測った後は必ず記録する形にしてある。
+
+## 先に読むもの
+
+- `todo.md` — 現在地、試して失敗した手法とその理由、未試行の候補
+- [references/failed-experiments.md](references/failed-experiments.md) — 失敗の要約と、
+  再挑戦してよい条件
+- [references/accuracy-protocol.md](references/accuracy-protocol.md) — 測り方の決まりごと
+
+`todo.md` が一次資料で、references は要約。食い違ったら `todo.md` を信じる。
+
+## いま分かっている最大の一手
+
+**本番パイプラインと評価経路が別物になっている。**
+
+| | 正規化 | デコード | 単文字の正解率 |
+| --- | --- | --- | --- |
+| 本番（`ocrus-engine` / CLI / Python） | `normalize_line` | greedy + beam フォールバック | ほぼ 0% |
+| 評価（`crates/ocrus-cli/tests/char_accuracy.rs`） | `normalize_line_scaled` | TLA (`ctc_tla_decode`) | 70% 前後 |
+
+`char_accuracy` で測ってきた改善は、**利用者には 1 つも届いていない**。
+スモーク（`cargo test -p ocrus-engine --release --test smoke -- --nocapture`）で
+`non-empty 18/24, correct 0/24` になるのはこれが理由で、壊れているわけではない。
+
+新しい手法を探す前に、まず測定済みの改善を `ocrus-engine` へ昇格させる価値がある。
+昇格させたら、それ自体を A/B の対象として測ること（テスト経路の数字がそのまま出るとは限らない。
+テストは 1 文字だけの画像を前提にしているが、本番はレイアウト検出を通る）。
+
+## 1. 失敗の質を見る
+
+数字ではなく中身を見る。同じ 40% でも、空出力が多い層と安定誤認識が多い層では効く手が違う。
+
+```bash
+python .claude/skills/ocrus-model-improvement/scripts/failure_report.py step1
+```
+
+```bash
+python .claude/skills/ocrus-model-improvement/scripts/failure_report.py step2
+```
+
+読み方:
+
+- **空出力が多い（記号系）** — モデルが「何も無い」と判定している。時系列 logit の集約
+  （TLA）や前処理バリアントが効いた実績がある層。
+- **空出力が少なく混同ペアが集中（かな・CJK）** — 似た文字への安定した誤認識。
+  デコード側の小細工では動かない。`ぁ→あ`（字形の大小）や `カ→力`（別字だが同形）は、
+  字形の差を残す前処理か、文脈・頻度のような外部情報が要る。
+
+## 2. 実験を決める
+
+手を動かす前に、この 5 つを言葉にする。書けないなら、まだ実験の形になっていない。
+
+1. **仮説** — なぜ効くと考えるのか（失敗の質のどれに効くのか）
+2. **触る場所** — どの crate のどの関数か
+3. **効くはずのカテゴリ** — step1 の記号だけ、step2 のかなだけ、など
+4. **壊れうるカテゴリ** — 副作用が出るとしたらどこか
+5. **採否の基準** — 何 pt 上がったら採用、何が下がったら見送りか
+
+`todo.md` の「試して失敗した手法」と同じことをやろうとしていないか、ここで確認する。
+再挑戦するなら、**前回の失敗理由のどこが変わったのか**を仮説に含める。
+「今度はうまくいくかもしれない」は仮説ではない。
+
+## 3. 測る
+
+精度測定は AI セッションからは実行しない（`AGENTS.md`。step1 は約 36 分かかり、
+セッションが終わるとコマンドごと死ぬ）。**変更前の値を控えてから**ユーザーに依頼する。
+
+変更前の控え（失敗リストは実行のたびに上書きされる）:
+
+```bash
+cp test_results/failures_step1.json test_results/failures_step1.base.json
+```
+
+ユーザーに渡すコマンド:
+
+```bash
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step1 --release -- --ignored --nocapture
+```
+
+```bash
+cargo test -p ocrus-cli --test char_accuracy char_accuracy_step2 --release -- --ignored --nocapture
+```
+
+step3 系（常用漢字・JIS 1〜4 水準）はさらに長い。1 つずつ、必要なときだけ依頼する。
+
+## 4. 比べる
+
+```bash
+python .claude/skills/ocrus-maintenance/scripts/compare_accuracy.py step1
+```
+
+```bash
+python .claude/skills/ocrus-model-improvement/scripts/failure_report.py step1 \
+    --diff test_results/failures_step1.base.json
+```
+
+前者はカテゴリごとの増減、後者は「どの文字が直り、どの文字が壊れたか」。
+両方見ること。合計が同じでも中身が入れ替わっていることがある。
+
+比較が成立する条件は [references/accuracy-protocol.md](references/accuracy-protocol.md) に
+まとめてある。分母が違う 2 本を比べても意味がないので、スクリプトが警告を出したら
+測り直す。
+
+### 採否の目安
+
+- **採用** — 狙ったカテゴリが上がり、他のカテゴリが 0.5pt を超えて下がっていない
+- **保留** — 上がったが別のカテゴリを壊した。両方の数字を `todo.md` に書いて判断を仰ぐ
+- **見送り** — 変化なし、または悪化。**コードは戻すが、記録は残す**
+
+「変化なし」は失敗ではなく情報。同じ手法を半年後にもう一度試さないために、
+必ず `todo.md` に残す。
+
+## 5. 記録する
+
+`todo.md` に、思いつきではなく**測った結果**を書く。
+
+```markdown
+#### ✅ / ⚪ / ❌ <手法名>
+- **原理**: 何をしたか
+- **コード**: 触ったファイル
+- **結果**: カテゴリごとの数字（before → after, ±pt）
+- **結論**: 採用 / 保留 / 見送りと、その理由
+- **ログ**: logs/char_accuracy_stepN_*.log
+```
+
+効かなかった手法ほど、理由まで書く価値がある。`todo.md` の
+「試して失敗した手法と理由」は、このリポジトリで一番価値のある資産になっている。
+
+## 6. 報告する
+
+```
+## 何を試したか
+（仮説と、触った場所）
+
+## 測定
+| カテゴリ | before | after | 差 |
+（同じ step・同じフォント集合であることを明記。未測定なら「未測定」と書く）
+
+## 直った文字 / 壊れた文字
+（failure_report --diff の要約。代表例を数文字）
+
+## 判断
+採用 / 保留 / 見送りと理由
+
+## todo.md の更新
+（追記した節）
+```
+
+## 判断に迷ったとき
+
+- **どこから手を付けるか** — 「いま分かっている最大の一手」（本番と評価経路の乖離）。
+  測定済みの改善が利用者に届いていない状態を先に解消する方が、新しい手法を探すより確実。
+- **単文字の精度をこれ以上追うべきか** — 単文字は本来の用途ではない。モデルはテキスト行に
+  最適化されている。`todo.md` の「D. テキスト行テスト」が未着手のまま残っているので、
+  実用精度を知りたいならそちらが先。
+- **数字が動かない** — 手法が効いていないのか、経路に入っていないのかを先に切り分ける。
+  評価コードに入れたつもりで本番に入っていない（またはその逆）は実際に起きている。
+- **モデル自体を再学習したくなった** — ファインチューニングは `scripts/` の領分で、
+  PaddlePaddle と Python 3.12 が要る。長時間かかるのでユーザーに依頼する。
+  現状 `finetune` の export が壊れている（`todo.md` 参照）ので、まず export を直す。
+- **前処理を変えたら char_accuracy が全部下がった** — 評価経路は
+  `normalize_line_scaled` を通る。本番の `normalize_line` だけを直したつもりでも
+  共通の定数（`TARGET_HEIGHT` / `WIDTH_ALIGN` / `PAD_VALUE`）を触れば両方動く。
+- **時間がかかりすぎる** — step1 全体を毎回回さない。まず対象カテゴリだけを見て、
+  採用の判断が近づいてから全体を測る。

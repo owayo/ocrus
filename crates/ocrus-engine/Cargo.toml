@@ -1,0 +1,16 @@
+[package]
+name = "ocrus-engine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ocrus-core = { workspace = true }
+ocrus-preproc = { workspace = true }
+ocrus-layout = { workspace = true }
+ocrus-recognizer = { workspace = true }
+ocrus-nn = { workspace = true }
+image = { workspace = true }
+ndarray = { workspace = true }
+rayon = { workspace = true }
+memmap2 = "0.9.10"
