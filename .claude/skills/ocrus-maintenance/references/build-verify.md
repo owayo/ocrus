@@ -43,7 +43,7 @@ cargo run --release -p ocrus-cli -- recognize testdata/sample_ja.png --format js
 | `ModelNotFoundError` / スモークが skip される | `~/.ocrus/models` に `rec.ocnn` と `dict.txt` が無い | `python models/download.py` で ONNX と辞書を取り、`scripts/src/ocrus_scripts/convert_to_ocnn.py` で `.ocnn` に変換する（長いのでユーザーに依頼） |
 | スモークが `no fonts in test_images` で skip | 精度テスト用の画像が未生成 | `cargo test -p ocrus-cli --test generate_test_images -- --ignored --nocapture`（長いのでユーザーに依頼） |
 | スモークの `non-empty` が 0 になった | レイアウトかデコードが死んでいる。依存更新なら `image` / `wide` / `ndarray` が怪しい | `git diff` で該当パッケージを確認し、1 つずつ戻して切り分ける |
-| 単文字の正解率が 0% | 現状どおり。本番パイプラインは `normalize_line_scaled` と TLA をまだ使っていない | 異常ではない。SKILL.md 手順 3 の注記を参照 |
+| スモークの単文字が 0/24 | モデルと実行系の食い違い | `cargo test -p ocrus-nn --release --test ocnn_golden` を先に回す |
 | 認識が debug ビルドで極端に遅い | 推論が純 Rust なので最適化なしでは 100 倍以上遅い | 必ず `--release` を付ける |
 | `cargo clippy --workspace` が触っていない crate で警告 | `ocrus-nn` / `ocrus-preproc` / `ocrus-layout` に元からある 4 件 | 直さずに報告する。CI は `--workspace` を付けていないので落ちない |
 | `cargo fmt -- --check` が差分を出す | 自分の編集が未整形、または元から未整形 | 自分が触ったファイルだけ `cargo fmt -p <crate>` |
@@ -61,7 +61,8 @@ cargo run --release -p ocrus-cli -- recognize testdata/sample_ja.png --format js
 | 単体テスト | 各 crate の `src/` 内 | 不要 | 数秒 |
 | カーネルの数値一致 | `crates/ocrus-nn/tests/precision.rs` | 不要 | 数秒 |
 | モデルのゴールデン検証 | `crates/ocrus-nn/tests/ocnn_golden.rs` | 要（無ければ self-skip） | 1 秒未満 |
-| OCR スモーク | `crates/ocrus-engine/tests/smoke.rs` | 要（無ければ self-skip） | 約 20 秒 |
+| OCR スモーク | `crates/ocrus-engine/tests/smoke.rs` | 要（無ければ self-skip） | 約 2 秒 |
+| 本番の文字精度 | `crates/ocrus-engine/tests/accuracy.rs` | 要（無ければ self-skip） | 約 40 秒 |
 | Python バインディング | `python/tests/test_ocrus.py` | 要（無ければ self-skip） | 約 30 秒 |
 | 文字精度 | `crates/ocrus-cli/tests/char_accuracy.rs` | 要 | step1 約 36 分 / step2 約 3 分 |
 | テスト画像生成 | `crates/ocrus-cli/tests/generate_test_images.rs` | 不要 | 長い |

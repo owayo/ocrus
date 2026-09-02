@@ -1732,6 +1732,7 @@ dependencies = [
  "ocrus-preproc",
  "ocrus-recognizer",
  "rayon",
+ "unicode-normalization",
 ]
 
 [[package]]

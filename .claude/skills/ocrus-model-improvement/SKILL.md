@@ -44,23 +44,41 @@ description: |
 2. `rec.onnx` から `.ocnn` を作り直し、`OCRUS_MODEL_DIR` を向けて比べる
 
 ```bash
-uv run --with onnx --with numpy python scripts/src/ocrus_scripts/convert_to_ocnn.py     ~/.ocrus/models/rec.onnx -o /tmp/rec_fresh.ocnn
+uv run --with onnx --with onnxruntime --with numpy \n  python scripts/src/ocrus_scripts/convert_to_ocnn.py \n  ~/.ocrus/models/rec.onnx -o /tmp/model_fresh/rec.ocnn
 ```
 
 ```bash
 OCRUS_MODEL_DIR=/tmp/model_fresh cargo test -p ocrus-engine --release --test smoke -- --nocapture
 ```
 
-**教訓**: いまのフォーマットには「このモデルが正しく動くか」を確かめる術が無い。
-壊れた成果物が信頼度 0.9 で誤答しても、誰も気づけない。
-モデルを差し替えたら必ずスモークを回すこと。
+**いまは 1 コマンドで分かる。** `.ocnn` には変換時に測ったゴールデン出力が埋まっている。
 
-## 現在地（2026-09-02 実測）
+```bash
+cargo test -p ocrus-nn --release --test ocnn_golden -- --nocapture
+```
+
+モデルと実行系が食い違っていればここで落ちる。おかしいと思ったら最初にこれを回す。
+
+## 本番を測る（これが最優先）
+
+**本番パイプラインの精度を直接測れる。** 評価経路（`char_accuracy`）ではなく、
+利用者が通る `OcrEngine` を 845 枚に通す。約 40 秒なので AI セッションから回してよい。
+
+```bash
+cargo test -p ocrus-engine --release --test accuracy -- --ignored --nocapture
+```
+
+`OCRUS_ACC_CATEGORIES` と `OCRUS_ACC_FONTS` で絞れる。
+2026-09-03 に評価経路との 24.3pt の差を潰し、いまは同値（`todo.md` 参照）。
+**今後の改善はこれで測る。** char_accuracy は「モデルの素の力」を見る別物。
+
+## 現在地（2026-09-03 実測）
 
 | 指標 | 値 |
 | --- | --- |
-| step2 ひらがな / カタカナ | 76.9% / 68.6% |
-| 本番パイプラインのスモーク | 単文字 12/24、`sample_ja.png` は「こんにちは世界 / 日本語OCRテスト」を完全に読める |
+| 本番パイプライン（845 枚） | ひらがな 76.9% / カタカナ 68.4% / 合計 **72.5%** |
+| step2（評価経路） | 76.9% / 68.6% |
+| 本番のスモーク（24 枚） | 12/24、非空 24/24。**枚数が少なすぎるので精度判断には使わない** |
 | 推論速度 | W=104 で **62ms**（2026-09-02 のカーネル改善前は 592ms） |
 | モデルロード | 1.2ms（`.ocnn` の JSON メタデータ解析込み） |
 | モデルサイズ | **40.2MB**（`.ocnn` f16。f32 なら 80.2MB） |

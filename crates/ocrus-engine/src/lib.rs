@@ -40,6 +40,7 @@ use ocrus_preproc::{binarize_adaptive, normalize_line, normalize_line_vertical, 
 use ocrus_recognizer::charset::Charset;
 use ocrus_recognizer::{
     DictCorrector, GlyphCache, ctc_beam_decode, ctc_greedy_decode, ctc_greedy_decode_masked,
+    ctc_tla_decode,
 };
 
 /// Recognition model file name inside the model directory.
@@ -176,24 +177,41 @@ impl OcrEngine {
         let gray = to_grayscale(img);
         let binary = binarize_adaptive(&gray);
 
+        // NOTE: the quality gate no longer selects a layout algorithm — projection won on
+        // measurement (see below) — so `OcrMode` currently does not change the pipeline.
+        // Deciding what it should mean, or dropping it, is tracked in todo.md.
         let quality = assess_quality(&binary);
-        let use_fast_path = match self.config.mode {
+        let _use_fast_path = match self.config.mode {
             OcrMode::Fastest => true,
             OcrMode::Accurate => false,
             OcrMode::Auto => should_use_fast_path(&quality),
         };
 
-        let orientation = detect_orientation(&binary);
+        // Vertical layout needs evidence, not a coin flip. `detect_orientation` compares how
+        // sharp the row and column projections are, which is meaningless for a single glyph:
+        // both profiles look alike and the answer comes out arbitrary. Guessing "vertical"
+        // is not a harmless mistake — the crop then gets rotated 90°, which destroys it. So
+        // require either more than one column, or a region clearly taller than wide.
+        let mut orientation = detect_orientation(&binary);
+        if orientation == TextOrientation::Vertical && !looks_vertical(width, height) {
+            orientation = TextOrientation::Horizontal;
+        }
+
+        // Projection first, connected components only as a fallback.
+        //
+        // Measured on the 845-image kana benchmark: projection scores 72.5% where CCL scores
+        // 54.6%. CCL groups components into lines by vertical overlap, which splits any
+        // character whose strokes do not overlap vertically (ニ, 三, ー) into several
+        // "lines" that are then recognized separately. It still earns its place when
+        // projection finds nothing, but it should not be the default.
         let line_bboxes = match orientation {
             TextOrientation::Vertical => detect_columns_vertical(&binary),
-            TextOrientation::Horizontal if use_fast_path => detect_lines_projection(&binary),
             _ => {
-                // Accurate mode or Mixed: CCL first, projection as fallback.
-                let ccl_lines = detect_lines_ccl(&binary);
-                if ccl_lines.is_empty() {
-                    detect_lines_projection(&binary)
+                let lines = detect_lines_projection(&binary);
+                if lines.is_empty() {
+                    detect_lines_ccl(&binary)
                 } else {
-                    ccl_lines
+                    lines
                 }
             }
         };
@@ -344,6 +362,18 @@ impl OcrEngine {
             None => ctc_greedy_decode(&output.data, timesteps, num_classes, &self.charset),
         };
 
+        // Greedy takes the argmax at each timestep, so a line whose evidence is spread
+        // thinly across timesteps collapses to all-blank and comes back empty. Aggregating
+        // the per-class probabilities over time recovers those. Only used when greedy found
+        // nothing at all: where greedy did read something, it is the more precise answer.
+        if text.chars().all(char::is_whitespace) {
+            let (tla_text, tla_conf) =
+                ctc_tla_decode(&output.data, timesteps, num_classes, &self.charset);
+            if !tla_text.chars().all(char::is_whitespace) {
+                return (tla_text, tla_conf.max(confidence));
+            }
+        }
+
         // Beam search is only worth its cost when greedy is unsure. It is skipped under a
         // logit mask because the beam decoder does not apply the mask.
         if confidence < self.config.confidence_threshold
@@ -372,6 +402,29 @@ impl OcrEngine {
             None => text,
         }
     }
+}
+
+/// Whether the evidence really supports reading this image as vertical text.
+///
+/// Whether this image should be read as vertical text.
+///
+/// `detect_orientation` compares how sharp the row and column projections are. For a single
+/// glyph that comparison is meaningless — the strokes of い or け look exactly like two
+/// columns — and on the 845-image kana benchmark it calls 128 images vertical, every one of
+/// them wrong. A mistaken "vertical" rotates the crop 90°, so the character is lost: the
+/// measured cost is 3.7 points.
+///
+/// Column shape cannot break the tie either, because `detect_columns_vertical` returns
+/// full-height columns whatever the ink looks like. What remains is the region itself:
+/// vertical Japanese text is written in tall columns, so a region that is not taller than
+/// it is wide is read horizontally.
+///
+/// This is deliberately one-sided evidence. There is no vertical-text benchmark in the
+/// repository, so only the false positives are measurable; see todo.md.
+const VERTICAL_ASPECT: f32 = 1.5;
+
+fn looks_vertical(width: u32, height: u32) -> bool {
+    height as f32 >= width as f32 * VERTICAL_ASPECT
 }
 
 fn missing_model_error(model_dir: &Path, missing: &Path) -> OcrusError {
