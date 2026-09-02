@@ -39,6 +39,29 @@ fn category_chars(root: &Path, category: &str) -> Vec<char> {
         .unwrap_or_default()
 }
 
+/// Quote a string as JSON.
+///
+/// The recognized character can be anything the model emits, including `"` and `\`, so
+/// this cannot be done by hand: an unescaped backslash silently produces a file that will
+/// not parse, and the failures are exactly the ones you wanted to look at.
+fn json_string(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push('"');
+    for c in s.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+    out
+}
+
 /// Compare like `char_accuracy` does, so the two numbers mean the same thing.
 fn matches(got: char, expected: char) -> bool {
     use unicode_normalization::UnicodeNormalization;
@@ -127,8 +150,12 @@ fn production_pipeline_character_accuracy() {
                 } else {
                     // Same shape as test_results/failures_*.json so failure_report.py works.
                     format!(
-                        r#"{{"character":"{ch}","category":"{category}","font_name":"{font}","expected":"{ch}","recognized":"{}","confidence":{conf:.3}}}"#,
-                        got.map(|c| c.to_string()).unwrap_or_default().replace('"', "\\\""),
+                        r#"{{"character":{},"category":{},"font_name":{},"expected":{},"recognized":{},"confidence":{conf:.3}}}"#,
+                        json_string(&ch.to_string()),
+                        json_string(category),
+                        json_string(font),
+                        json_string(&ch.to_string()),
+                        json_string(&got.map(|c| c.to_string()).unwrap_or_default()),
                     )
                 };
                 Some((ok, got.is_none(), record))

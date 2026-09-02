@@ -238,6 +238,7 @@ impl OcrEngine {
         // nonsense. In a square-ish frame that the ink fills, everything found is one
         // character; a page of text has a frame much wider than it is tall.
         let line_bboxes = merge_strokes_of_one_glyph(line_bboxes, width, height);
+        let line_bboxes = keep_frame_for_tiny_mark(line_bboxes, width, height);
 
         if line_bboxes.is_empty() {
             return Ok(OcrResult {
@@ -550,6 +551,35 @@ fn correct_small_kana(text: &str, bbox: &ocrus_core::BBox, frame_height: u32) ->
     let small = small_kana_variant(only)?;
     let center = (bbox.y as f32 + bbox.height as f32 / 2.0) / frame_height as f32;
     (center >= SMALL_KANA_CENTER).then(|| small.to_string())
+}
+
+/// Ink this much smaller than its frame is a punctuation mark rather than a character.
+const TINY_MARK_COVERAGE: f32 = 0.20;
+
+/// Keep the frame when the ink is a tiny mark.
+///
+/// A comma or a period is a few pixels of ink. Cropping to that ink and resizing it to the
+/// model's fixed height blows it up into a blob that reads as a letter — `.` comes back as
+/// `a`, `,` as `l`. Keeping the frame preserves what actually identifies these marks: how
+/// small they are and where they sit.
+fn keep_frame_for_tiny_mark(
+    boxes: Vec<ocrus_core::BBox>,
+    width: u32,
+    height: u32,
+) -> Vec<ocrus_core::BBox> {
+    if boxes.len() != 1 || height == 0 {
+        return boxes;
+    }
+    let frame_aspect = width as f32 / height as f32;
+    if !(1.0 / GLYPH_FRAME_ASPECT..=GLYPH_FRAME_ASPECT).contains(&frame_aspect) {
+        return boxes;
+    }
+    let b = boxes[0];
+    if (b.height as f32) / height as f32 <= TINY_MARK_COVERAGE {
+        vec![ocrus_core::BBox::new(b.x, 0, b.width, height)]
+    } else {
+        boxes
+    }
 }
 
 /// Frame shapes that can only hold a single character rather than lines of text.
