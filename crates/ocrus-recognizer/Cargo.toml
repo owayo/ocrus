@@ -1,0 +1,14 @@
+[package]
+name = "ocrus-recognizer"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+ocrus-core = { workspace = true }
+ndarray = { workspace = true }
+daachorse = "5.0.0"
+img_hash = "3.2"
+image = { version = "0.25.10", default-features = false }

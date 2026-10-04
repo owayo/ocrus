@@ -1,0 +1,22 @@
+[package]
+name = "ocrus-engine"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+ocrus-core = { workspace = true }
+ocrus-preproc = { workspace = true }
+ocrus-layout = { workspace = true }
+ocrus-recognizer = { workspace = true }
+ocrus-nn = { workspace = true }
+image = { workspace = true }
+ndarray = { workspace = true }
+rayon = { workspace = true }
+memmap2 = "0.9.11"
+
+[dev-dependencies]
+unicode-normalization = "0.1.25"
+serde_json = { workspace = true }

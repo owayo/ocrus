@@ -1,0 +1,23 @@
+# E2E精度テストで使用するフォント一覧
+# file: fonts/ ディレクトリ内のファイル名
+# index: TTC内のフォントインデックス（TTF/OTFは0）
+fonts:
+  - name: HiraginoKakuGothic W3
+    file: ヒラギノ角ゴシック W3.ttc
+    index: 0
+
+  - name: HiraginoMincho ProN
+    file: ヒラギノ明朝 ProN.ttc
+    index: 0
+
+  - name: BIZ-UDGothic
+    file: BIZ-UDGothicR.ttc
+    index: 0
+
+  - name: BIZ-UDMincho
+    file: BIZ-UDMinchoM.ttc
+    index: 0
+
+  - name: UDEVGothic
+    file: UDEVGothic-Regular.ttf
+    index: 0

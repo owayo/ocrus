@@ -19,3 +19,46 @@ target
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# ONNX models
+models/*.onnx
+*.onnx
+
+models/pretrained/
+
+# ファインチューニングの出力（チェックポイントは 1 つ 350MB 級で
+# GitHub の 100MB 制限を超える。履歴に入れない）
+finetune_output/
+
+# Model directory
+.ocrus/
+
+
+.ruff_cache
+__pycache__
+
+# Log output
+logs/
+
+# Test fonts (local copies)
+fonts/
+
+
+# Python virtualenvs
+.venv/
+venv/
+
+# Python build artifacts
+dist/
+*.egg-info/
+.pytest_cache/
+
+# Local toolchain overrides
+mise.local.toml
+.mise.local.toml
+
+# Generated training and evaluation data
+/test_images/
+/training_data*/
+/test_results/
+/output/dataset/

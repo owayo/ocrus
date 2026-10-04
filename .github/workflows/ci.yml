@@ -1,0 +1,102 @@
+# CI: Linux と macOS で make setup と make ci を回し、release.yml と同じ組でビルドする。
+#
+# - quality: Linux と macOS で make setup と make ci だけを呼ぶ (検査の中身は Makefile の ci が決める)
+# - build: release.yml と同じ OS / target で配布用のバイナリをビルドする
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  quality:
+    name: Quality (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # ツールの版は mise.toml が正。mise 本体は公開から 14 日以上たった最新の版を、署名付きの checksum で
+      # 確かめて入れる。cache は切る (効いた回だけ clippy / rustfmt が欠ける。jdx/mise-action#215)
+      - uses: jdx/mise-action@v4
+        with:
+          minimum_release_age: 14d
+          cache: false
+
+      # target/ と ~/.cargo のキャッシュ (鍵に rustc の版が入るので、mise.toml の rust を上げると作り直す)
+      - uses: Swatinem/rust-cache@v2
+
+      - run: make setup
+      - run: make ci
+
+  build:
+    name: Build (${{ matrix.target }})
+    needs: quality
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # release.yml の build と同じ組 (行を足したら両方に足す)
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: macos-latest
+            target: x86_64-apple-darwin
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # ビルドに効く環境変数 (MACOSX_DEPLOYMENT_TARGET など) は mise.toml の [env] に置く。mise-action が
+      # 後続のステップへ渡すので、ci.yml と release.yml と手元の make で同じ値になる
+      - uses: jdx/mise-action@v4
+        with:
+          minimum_release_age: 14d
+          cache: false
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      # mise.toml の rust はホストのツールチェーンと components だけを入れるので、配布のターゲットを足す
+      - name: Add the Rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --locked --target ${{ matrix.target }} -p ocrus-cli
+
+  python:
+    name: Python bindings
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@v4
+        with:
+          minimum_release_age: 14d
+          cache: false
+      - uses: Swatinem/rust-cache@v2
+      - run: make wheel
+      - name: Test the wheel
+        run: uv run --no-project --with ./target/wheels/*.whl --with pytest python -m pytest python/tests -q

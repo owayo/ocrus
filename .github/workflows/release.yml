@@ -1,0 +1,400 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (compute the next version only; no commit, tag or release)"
+        type: boolean
+        default: false
+
+# 書き込みはジョブ単位で与える (版のコミットとタグの push、Release の作成)
+permissions:
+  contents: read
+
+# 同時に 2 つのリリースを走らせない (同じ番号を 2 回採る)。走っているものは止めない
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  BINARY_NAME: ocrus
+
+jobs:
+  prepare-release:
+    name: Prepare release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      MISE_DISABLE_TOOLS: "python,uv,ruff,github:PyO3/maturin"
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+      tag: ${{ steps.bump.outputs.tag }}
+    steps:
+      # 本番は既定のブランチからだけ出す (ほかのブランチから出すと、既定のブランチに無いコミットにタグが付く)。
+      # dry_run はどのブランチでも動くので、workflow の変更をブランチで試せる
+      - name: Check the branch
+        if: ${{ !inputs.dry_run }}
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/${DEFAULT_BRANCH}" ]; then
+            echo "::error::Run the release from ${DEFAULT_BRANCH} (this run is on ${GITHUB_REF})"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+
+      # cargo update を mise.toml の版の Rust で実行する (無いとランナーに最初から入っている Rust で動く)
+      - uses: jdx/mise-action@v4
+        with:
+          minimum_release_age: 14d
+          cache: false
+
+      - name: Bump the version
+        id: bump
+        run: |
+          set -euo pipefail
+          # 版は yy.m.counter。年は 2 桁 (Windows の MSI は major が 255 以下)。月はゼロ埋めしない
+          # (SemVer は数値の先頭の 0 を禁じ、Cargo は 26.08.100 を拒む)。連番は 100 から (桁がそろう)。
+          # 採番は JST で切る。ランナーは UTC なので、素の date では JST の月初 0〜9 時のリリースが
+          # 前の月の連番になる (実例: 9 月最初のリリースが v26.8.113 になった)
+          YEAR=$(TZ=Asia/Tokyo date +%y)
+          MONTH=$(TZ=Asia/Tokyo date +%-m)
+          CURRENT=$(awk -F '"' '/^version = /{ print $2; exit }' Cargo.toml)
+          echo "Current version: ${CURRENT}"
+          COUNTER=100
+          if [[ "${CURRENT}" =~ ^([0-9]{2,4})\.([0-9]{1,2})\.([0-9]+)$ ]]; then
+            # 4 桁の年 (2026.9.105) の版からも続けて採番する
+            if [ "${BASH_REMATCH[1]#20}" = "${YEAR}" ] && [ "${BASH_REMATCH[2]}" = "${MONTH}" ]; then
+              COUNTER=$((BASH_REMATCH[3] + 1))
+            fi
+          fi
+          VERSION="${YEAR}.${MONTH}.${COUNTER}"
+          TAG="v${VERSION}"
+          echo "Next version: ${VERSION}"
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" > /dev/null; then
+            echo "::error::Tag ${TAG} already exists. Check the version in Cargo.toml against the existing tags"
+            exit 1
+          fi
+
+          # [workspace.package] の version (最初の `version = `) だけを書き換える
+          sed -i "0,/^version = \"[^\"]*\"/s//version = \"${VERSION}\"/" Cargo.toml
+          test "$(awk -F '"' '/^version = /{ print $2; exit }' Cargo.toml)" = "${VERSION}"
+          # Cargo.lock は自分のパッケージの版だけを合わせる (lockfile を作り直すと全依存が最新へ
+          # 解決し直され、CI で確かめていない版が配布物に入る)
+          cargo update --workspace
+          git diff --stat
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and tag
+        if: ${{ !inputs.dry_run }}
+        env:
+          TAG: ${{ steps.bump.outputs.tag }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Cargo.toml Cargo.lock
+          git commit -m "Release ${TAG}"
+          git tag -a "${TAG}" -m "Release ${TAG}"
+          # ブランチとタグを 1 回で送る。--atomic で、ブランチが先に進んでいて片方だけが通ることを防ぐ
+          git push --atomic origin "HEAD:refs/heads/${DEFAULT_BRANCH}" "refs/tags/${TAG}"
+
+      - name: Dry run
+        if: ${{ inputs.dry_run }}
+        env:
+          TAG: ${{ steps.bump.outputs.tag }}
+        run: |
+          echo "Dry run: would release ${TAG} (no commit, tag or release)"
+          git diff -- Cargo.toml Cargo.lock
+
+  build:
+    name: Build (${{ matrix.target }})
+    needs: prepare-release
+    if: ${{ !inputs.dry_run }}
+    runs-on: ${{ matrix.os }}
+    outputs:
+      # 添付の数 (matrix の行ごとに 1 つ)。release のジョブが、集めた添付の数と照らす
+      assets: ${{ strategy.job-total }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # ci.yml の build と同じ組
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: macos-latest
+            target: x86_64-apple-darwin
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare-release.outputs.tag }}
+          persist-credentials: false
+
+      # ビルドのキャッシュ (rust-cache) は使わない。配布物を作るジョブがキャッシュを読むと、キャッシュを
+      # 書けるほかのジョブの汚染が配布物に入る。Rust の版と mise.toml の [env] は mise-action が渡す
+      - uses: jdx/mise-action@v4
+        with:
+          minimum_release_age: 14d
+          cache: false
+
+      # mise.toml の rust はホストのツールチェーンと components だけを入れるので、配布のターゲットを足す
+      - name: Add the Rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --locked --target ${{ matrix.target }} -p ocrus-cli
+
+      # 添付は <bin>-<target>.tar.gz。バイナリを最上位に置く
+      - name: Package
+        id: package
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+          TAR_GZ: ${{ env.BINARY_NAME }}-${{ matrix.target }}.tar.gz
+        run: |
+          set -euo pipefail
+          tar -czf "${TAR_GZ}" -C "target/${TARGET}/release" "${BINARY_NAME}"
+          echo "asset=${TAR_GZ}" >> "$GITHUB_OUTPUT"
+
+      # archive: false で添付のファイルをそのまま上げる (artifact の名前はファイル名になる)。zip を展開させない
+      # ため、release のジョブは skip-decompress: true で落とす
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ${{ steps.package.outputs.asset }}
+          archive: false
+          if-no-files-found: error
+
+  build-wheels:
+    name: Python wheel (${{ matrix.target }})
+    needs: prepare-release
+    if: ${{ !inputs.dry_run }}
+    runs-on: ${{ matrix.os }}
+    outputs:
+      assets: ${{ strategy.job-total }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64
+          # Build and test the Intel wheel with an Intel Python interpreter.
+          - os: macos-15-intel
+            target: x86_64
+          - os: macos-latest
+            target: aarch64
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare-release.outputs.tag }}
+          persist-credentials: false
+      - uses: jdx/mise-action@v4
+        with:
+          minimum_release_age: 14d
+          cache: false
+      - name: Read the pinned versions
+        id: versions
+        run: |
+          python - <<'PYTHON'
+          import os
+          import tomllib
+          from pathlib import Path
+          tools = tomllib.loads(Path("mise.toml").read_text())["tools"]
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"rust={tools['rust']['version']}\n")
+              output.write(f"maturin={tools['github:PyO3/maturin']}\n")
+          PYTHON
+      # The Linux container uses these same pinned versions.
+      - name: Build the abi3 wheel
+        uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          target: ${{ matrix.target }}
+          rust-toolchain: ${{ steps.versions.outputs.rust }}
+          maturin-version: ${{ steps.versions.outputs.maturin }}
+          args: --release --locked --out ../dist
+          working-directory: python
+          manylinux: auto
+      - name: Check and test the wheel
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          wheels=(dist/*.whl)
+          test "${#wheels[@]}" -eq 1
+          uv run --no-project --with "${wheels[0]}" --with pytest python -m pytest python/tests -q
+      - uses: actions/upload-artifact@v7
+        with:
+          path: dist/*.whl
+          archive: false
+          if-no-files-found: error
+
+  release:
+    name: Release
+    needs: [prepare-release, build, build-wheels]
+    if: ${{ !inputs.dry_run }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      assets: ${{ steps.files.outputs.assets }}
+    steps:
+      # 添付を build が上げた形 (tar.gz / zip) のまま集める。download-artifact@v8 は content-type が zip の
+      # artifact を展開するので、skip-decompress が無いと Windows の .zip が展開されて <bin>.exe だけが残る。
+      # skip-decompress はほかの artifact も zip の塊のまま落とすので、pattern で添付だけに絞る
+      - uses: actions/download-artifact@v8
+        with:
+          path: release
+          pattern: ${{ env.BINARY_NAME }}-*.tar.gz
+          merge-multiple: true
+          skip-decompress: true
+
+      - uses: actions/download-artifact@v8
+        with:
+          path: wheels
+          pattern: ${{ env.BINARY_NAME }}-*.whl
+          merge-multiple: true
+          skip-decompress: true
+
+      - name: Validate the wheels
+        env:
+          EXPECTED: ${{ needs.build-wheels.outputs.assets }}
+          VERSION: ${{ needs.prepare-release.outputs.version }}
+        run: |
+          set -euo pipefail
+          cd wheels
+          shopt -s nullglob dotglob
+          files=(*)
+          test "${#files[@]}" -eq "${EXPECTED}"
+          for file in "${files[@]}"; do
+            case "${file}" in
+              "${BINARY_NAME}-${VERSION}-cp310-abi3-"*.whl) ;;
+              *) echo "::error::Unexpected wheel: ${file}"; exit 1 ;;
+            esac
+            test -f "${file}" && test ! -L "${file}" && test -s "${file}"
+          done
+
+      - name: Write SHA256SUMS
+        id: files
+        env:
+          EXPECTED: ${{ needs.build.outputs.assets }}
+        run: |
+          set -euo pipefail
+          cd release
+          # 添付は build の target ごとに 1 つ: <bin>-<target>.tar.gz か Windows の <bin>-<target>.zip の、空でない
+          # 通常のファイル。展開された .exe・ディレクトリ・隠しファイルが混ざったり数が合わなかったりしたら、
+          # Release を作る前に止める
+          shopt -s nullglob dotglob
+          files=(*)
+          for f in "${files[@]}"; do
+            case "${f}" in
+              "${BINARY_NAME}"-*-windows-*.zip | "${BINARY_NAME}"-*.tar.gz) ;;
+              *)
+                echo "::error::Unexpected entry in release/: ${f} (expected ${BINARY_NAME}-<target>.tar.gz or .zip)"
+                exit 1
+                ;;
+            esac
+            if [ ! -f "${f}" ] || [ -L "${f}" ] || [ ! -s "${f}" ]; then
+              echo "::error::${f} in release/ is not a non-empty regular file"
+              exit 1
+            fi
+          done
+          if [ "${#files[@]}" -ne "${EXPECTED}" ]; then
+            echo "::error::release/ has ${#files[@]} assets, expected ${EXPECTED} (one per build target)"
+            exit 1
+          fi
+          cp ../wheels/*.whl .
+          sha256sum -- * > SHA256SUMS
+          cat SHA256SUMS
+          echo "assets=$(printf '%s ' *)" >> "$GITHUB_OUTPUT"
+
+      # タイトルはタグ名だけ。本文は導入の手順で、変更点は generate_release_notes が後ろに足す
+      - name: Create the release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ needs.prepare-release.outputs.tag }}
+          name: ${{ needs.prepare-release.outputs.tag }}
+          body: |
+            ## Install
+
+            ### Download
+
+            Download `${{ env.BINARY_NAME }}-<target>.tar.gz` for your platform from the assets below, extract it and put `${{ env.BINARY_NAME }}` on your `PATH`. `SHA256SUMS` lists the checksums of all assets.
+
+            ```bash
+            curl -fLO https://github.com/${{ github.repository }}/releases/download/${{ needs.prepare-release.outputs.tag }}/${{ env.BINARY_NAME }}-aarch64-apple-darwin.tar.gz
+            tar -xzf ${{ env.BINARY_NAME }}-aarch64-apple-darwin.tar.gz
+            ```
+            ### Python
+
+            Download the wheel for your platform and install it with `pip install <wheel>`. Each abi3 wheel supports CPython 3.10 and later.
+          generate_release_notes: true
+          files: release/*
+          fail_on_unmatched_files: true
+
+      # 公開した添付が release/ と名前・大きさ・状態まで一致するか (アップロードの取りこぼしを見つける)。
+      # GitHub が添付の SHA-256 (digest) を返していれば、それも照らす
+      - name: Verify the published assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare-release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release view "${TAG}" --repo "${GITHUB_REPOSITORY}" --json assets > "${RUNNER_TEMP}/assets.json"
+          find release -type f -printf '%f %s uploaded\n' | LC_ALL=C sort > "${RUNNER_TEMP}/expected.txt"
+          jq -r '.assets[] | "\(.name) \(.size) \(.state)"' "${RUNNER_TEMP}/assets.json" | LC_ALL=C sort > "${RUNNER_TEMP}/published.txt"
+          if ! diff -u "${RUNNER_TEMP}/expected.txt" "${RUNNER_TEMP}/published.txt"; then
+            echo "::error::The published assets differ from the files in release/"
+            exit 1
+          fi
+          jq -r '.assets[] | select(.digest != null) | "\(.digest | ltrimstr("sha256:"))  \(.name)"' "${RUNNER_TEMP}/assets.json" > "${RUNNER_TEMP}/published.sha256"
+          if [ -s "${RUNNER_TEMP}/published.sha256" ]; then
+            (cd release && sha256sum --check --strict --quiet "${RUNNER_TEMP}/published.sha256")
+          else
+            echo "::warning::GitHub returned no asset digests; skipped the SHA-256 comparison"
+          fi
+
+  release-summary:
+    name: Release summary
+    needs: [prepare-release, build, build-wheels, release]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write the summary
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          TAG: ${{ needs.prepare-release.outputs.tag }}
+          PREPARE_RESULT: ${{ needs.prepare-release.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          WHEELS_RESULT: ${{ needs.build-wheels.result }}
+          RELEASE_RESULT: ${{ needs.release.result }}
+          ASSETS: ${{ needs.release.outputs.assets }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## ${TAG:-no version}"
+            echo
+            echo "| Job | Result |"
+            echo "|---|---|"
+            echo "| prepare-release | ${PREPARE_RESULT} |"
+            echo "| build | ${BUILD_RESULT} |"
+            echo "| build-wheels | ${WHEELS_RESULT} |"
+            echo "| release | ${RELEASE_RESULT} |"
+            if [ "${DRY_RUN}" = true ]; then
+              echo
+              echo "Dry run: no commit, tag or release; build jobs were skipped."
+            fi
+            if [ -n "${ASSETS}" ]; then
+              echo
+              echo "Assets: ${ASSETS}"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
