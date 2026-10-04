@@ -5,6 +5,7 @@ description: |
   更新し、cargo build / test / clippy / fmt を通し、Python バインディングのビルドとテストを
   確かめ、短い OCR スモークで認識が壊れていないことを見て、検証が通った変更だけをコミット
   するまでを 1 回の作業として扱う。
+  学習・評価データを使う検証では、データの実パスを利用環境のユーザースキルで解決する。
   「メンテナンスして」「依存を更新して」「depup を回して」「ビルドが通るようにして」
   「久しぶりに触るので整えて」「アップデートして問題ないか確認して」「定期メンテ」
   のような依頼では必ずこのスキルを使うこと。
@@ -75,10 +76,32 @@ greedy / TLA デコードを使う。本番の `ocrus-engine` は画像の切り
 依頼するときはコマンドをそのまま渡し、**生成されたログのパスを返してもらう**。
 渡しっぱなしにせず、返ってきたログを手順 4 の比較にかけるところまでが 1 回の作業。
 
+## 学習・評価データの準備
+
+単文字の OCR スモークと精度の回帰比較には、事前描画した評価画像と文字カテゴリの定義を使う。
+失敗文字の解析では評価結果の一覧も読む。学習画像・評価画像・評価結果は、この公開リポジトリには同梱していない。
+データの配置先と取得方法は、利用環境のユーザースキルで解決する。
+
+1. 学習・評価データを扱うユーザースキルを読み、配置先を確認する。
+2. ユーザースキルの手順で `OCRUS_DATA_DIR` にデータ置き場の絶対パスを設定する。
+   設定は実行時の環境変数か、ignore 済みのローカル設定に置く。
+3. `test_images/` が読めることを確認してから、手順 0 の状態確認とデータを使う検証へ進む。
+
+```bash
+mise exec -- sh -c 'test -n "${OCRUS_DATA_DIR:-}" && test -d "$OCRUS_DATA_DIR/test_images"'
+```
+
+データの実パス・配置元の名前・URL・取得手順は、このスキルやほかの公開ファイルに書かない。
+ここではデータを使う目的と `OCRUS_DATA_DIR` の受け渡しだけを定める。
+モデルの置き場は既存の `OCRUS_MODEL_DIR` で指定し、データ置き場とは別に扱う。
+
+通常のビルドと単体テストには学習・評価画像は不要。データを解決できない場合も、それらの検査は進める。
+データがなくて省略されたスモークや精度測定は、未実施として報告する。
+
 ## 0. 現状を掴む
 
 ```bash
-python .claude/skills/ocrus-maintenance/scripts/repo_status.py
+mise exec -- python .claude/skills/ocrus-maintenance/scripts/repo_status.py
 ```
 
 未コミットの変更、モデルの有無、release ビルドの鮮度、直近の精度、道具の有無が 1 画面で出る。
@@ -93,8 +116,8 @@ depup に戻る**（それ自体が「元から壊れていなかった」こと
 検証が通らなければコミットせず、そこで報告して止まる。stash は使わない — 戻し忘れると、
 直したはずの変更が消えたように見える。
 
-`logs/*.log`、`test_results/failures_*.json`、`test_images/`、モデルファイルはコミットしない。
-これらは測定のたびに変わる生成物で、履歴に入れる価値がない。
+`logs/*.log`、`test_results/failures_*.json`、`test_images/`、学習画像、モデルファイルは、
+この公開リポジトリにはコミットしない。画像や比較結果の保管方法はユーザースキルに従う。
 
 ## 1. 依存を更新する
 
@@ -172,8 +195,12 @@ uv run --with ./target/wheels/<できた wheel> --with pytest python -m pytest p
 ビルドが通っても認識が空になることがある。前処理・レイアウト・デコードのどこかが
 静かに死んでも `cargo test` は緑のままなので、実際に画像を通して確かめる。
 
+サンプルページはリポジトリ内の `testdata/sample_ja.png`、単文字の評価は
+ユーザースキルで解決した `$OCRUS_DATA_DIR/test_images/` を使う。
+両方の実行結果を確認し、データ不足で省略された単文字の評価を成功として数えない。
+
 ```bash
-cargo test -p ocrus-engine --release --test smoke -- --nocapture
+mise exec -- cargo test -p ocrus-engine --release --test smoke -- --nocapture
 ```
 
 見るのは 3 つ。
@@ -218,12 +245,15 @@ cargo test -p ocrus-nn --release --test ocnn_golden -- --nocapture
 
 依頼するコマンド（そのまま渡す）:
 
+ユーザーに渡す手順には、ユーザースキルで解決した `OCRUS_DATA_DIR` の設定も含める。
+変更前後で同じデータ置き場を使い、画像・書体・カテゴリの条件を揃える。
+
 ```bash
-cargo test -p ocrus-cli --test char_accuracy char_accuracy_step1 --release -- --ignored --nocapture
+mise exec -- cargo test -p ocrus-cli --test char_accuracy char_accuracy_step1 --release -- --ignored --nocapture
 ```
 
 ```bash
-cargo test -p ocrus-cli --test char_accuracy char_accuracy_step2 --release -- --ignored --nocapture
+mise exec -- cargo test -p ocrus-cli --test char_accuracy char_accuracy_step2 --release -- --ignored --nocapture
 ```
 
 step1 が約 36 分、step2 が約 3 分。結果は `logs/char_accuracy_<step>_<epoch>.log` に残るので、
