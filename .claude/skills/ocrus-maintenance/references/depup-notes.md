@@ -55,7 +55,7 @@ TUI (`ocrus tui`) だけで使う。メジャー更新はウィジェット API 
   上限を外さない。
 - `[tool.uv]` の `extra-index-url`（PaddlePaddle の CUDA ビルド）と
   `index-strategy = "unsafe-best-match"` は消さない。消すと paddlepaddle-gpu が解決できない。
-- `uv sync --extra train` は数 GB のダウンロードになる。AI セッションからは実行しない。
+- `uv sync --extra train` は数 GB のダウンロードになる。AI側で実行してよい。長時間の処理はセッションから独立させ、ログと終了結果を保存して確認する。
 - `onnxruntime` は量子化 (`quantize`) 用、`paddlex` は学習用。どちらも通常の OCR 実行には
   要らないので、更新しても手順 2〜3 の結果は変わらない。
 

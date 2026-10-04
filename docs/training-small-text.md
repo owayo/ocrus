@@ -56,4 +56,4 @@ Single-character tests cannot establish practical accuracy for small UI text. Ev
 
 The Rust `val_ratio` currently calculates counts without splitting images into separate validation files. Python `finetune` independently makes a random 90/10 split of `labels.tsv`, so augmented copies of the same font and string can enter both sets. This score does not measure generalization to unknown fonts. Split by font family and original image, then have Python consume that split unchanged.
 
-`todo.md` still records an unresolved post-training export issue. Before replacing the default model, fix it and verify exported outputs and `.ocnn` golden results. Training, large dataset generation and model conversion are long-running tasks to execute locally.
+`todo.md` still records an unresolved post-training export issue. Before replacing the default model, fix it and verify exported outputs and `.ocnn` golden results. AI agents may also run training, large dataset generation and model conversion. Run long tasks independently of the agent session, preserve logs and progress, and verify completion or failure.

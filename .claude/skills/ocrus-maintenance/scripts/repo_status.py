@@ -299,7 +299,7 @@ def report_accuracy() -> None:
     if not found:
         print(
             "  まだ測定していない"
-            "（精度テストはユーザーに実行を依頼する。SKILL.md 手順 5）"
+            "（精度テストはAI側でも実行できる。SKILL.md 手順 4）"
         )
 
 

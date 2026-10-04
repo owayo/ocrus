@@ -130,8 +130,8 @@ python .claude/skills/ocrus-model-improvement/scripts/failure_report.py step2
 
 ## 3. 測る
 
-精度測定は AI セッションからは実行しない（`AGENTS.md`。step1 は約 36 分かかり、
-セッションが終わるとコマンドごと死ぬ）。**変更前の値を控えてから**ユーザーに依頼する。
+精度測定も AI 側で実行してよい（`AGENTS.md`）。**変更前の値を控えてから**実行する。
+step1 は約 36 分かかるため、セッションから独立したプロセスで動かし、ログ・進捗・終了結果を保存して確認する。
 
 変更前の控え（失敗リストは実行のたびに上書きされる）:
 
@@ -139,7 +139,7 @@ python .claude/skills/ocrus-model-improvement/scripts/failure_report.py step2
 cp test_results/failures_step1.json test_results/failures_step1.base.json
 ```
 
-ユーザーに渡すコマンド:
+実行するコマンド:
 
 ```bash
 cargo test -p ocrus-cli --test char_accuracy char_accuracy_step1 --release -- --ignored --nocapture
@@ -149,7 +149,7 @@ cargo test -p ocrus-cli --test char_accuracy char_accuracy_step1 --release -- --
 cargo test -p ocrus-cli --test char_accuracy char_accuracy_step2 --release -- --ignored --nocapture
 ```
 
-step3 系（常用漢字・JIS 1〜4 水準）はさらに長い。1 つずつ、必要なときだけ依頼する。
+step3 系（常用漢字・JIS 1〜4 水準）はさらに長い。1 つずつ、必要なときだけ実行する。
 
 ## 4. 比べる
 
@@ -225,7 +225,7 @@ python .claude/skills/ocrus-model-improvement/scripts/failure_report.py step1 \
 - **数字が動かない** — 手法が効いていないのか、経路に入っていないのかを先に切り分ける。
   評価コードに入れたつもりで本番に入っていない（またはその逆）は実際に起きている。
 - **モデル自体を再学習したくなった** — ファインチューニングは `scripts/` の領分で、
-  PaddlePaddle と Python 3.12 が要る。長時間かかるのでユーザーに依頼する。
+  PaddlePaddle と Python 3.12 が要る。AI側で実行してよい。長時間の処理はログと進捗を保存する。
   現状 `finetune` の export が壊れている（`todo.md` 参照）ので、まず export を直す。
 - **前処理を変えたら char_accuracy が全部下がった** — `normalize_line(g, b)` は
   `normalize_line_scaled(g, b, 1.0)` そのものなので、本番と評価は同じ正規化を通る。
