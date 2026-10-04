@@ -1148,7 +1148,7 @@ def main() -> int:
         "--dtype",
         choices=("f32", "f16"),
         default="f16",
-        help="重みの保存形式（既定 f16: サイズ半分、精度は同じ、キャッシュ効率で速い）",
+        help="重みの保存形式（既定 f16: サイズ半分。ゴールデン検証で順位が変わる場合は f32）",
     )
     parser.add_argument(
         "--widths",
