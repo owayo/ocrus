@@ -82,6 +82,24 @@ Output format:
 
 The generator writes `labels.tsv` and `samples/`. The `finetune` command creates PaddleOCR `train.txt` / `val.txt` lists during conversion. Prepare the training and validation lists separately when invoking `tools/train.py` directly.
 
+### Use production preprocessing for training inputs
+
+`ocrus_engine::prepare_image` runs the same layout analysis and normalization as recognition without loading a model. It returns each line's bounding box and NCHW tensors: one input in normal mode, or the original, thickened and thinned variants in accurate mode.
+
+The example accepts a JSON array of image paths and writes inputs to a new directory:
+
+```bash
+cargo run -p ocrus-engine --release --example prepare_inputs -- images.json inputs
+```
+
+`inputs/manifest.json` records source images, line boxes and tensor shapes. Each `.f32` contains little-endian float32 values. Give multi-line images separate line labels or exclude them from single-line training. Keep evaluation texts and fonts out of training and compare candidates through the production recognition pipeline before adoption.
+
+The `recognize_batch` example reuses one `OcrEngine` for evaluation. Pass a model directory and thread count, then provide a JSON array of image paths on stdin. It returns recognition results in input order, using normal mode and the full character set.
+
+```bash
+cargo run -p ocrus-engine --release --example recognize_batch -- model-dir 2 < images.json
+```
+
 ### Step 2: Download Pretrained Weights
 
 ```bash

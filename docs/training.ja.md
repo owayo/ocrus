@@ -82,6 +82,24 @@ ocrus dataset from-failures \
 
 `labels.tsv` と `samples/` が生成されます。PaddleOCR 用の `train.txt` / `val.txt` は `finetune` コマンドが変換時に作成します。`tools/train.py` を直接使う場合は、 訓練・検証リストを別途用意してください。
 
+### 本番と同じ前処理で学習入力を作る
+
+`ocrus_engine::prepare_image` は、モデルを読み込まずに本番と同じレイアウト解析と正規化を行います。各行の領域と NCHW の入力テンソルを取得できます。通常モードは1入力、accurate モードは元画像・太字化・細字化の3入力です。
+
+画像パスの JSON 配列を用意すると、サンプルプログラムで入力を保存できます。出力先は新規ディレクトリを指定します。
+
+```bash
+cargo run -p ocrus-engine --release --example prepare_inputs -- images.json inputs
+```
+
+`inputs/manifest.json` に元画像、行領域、テンソルの形状が入り、各 `.f32` にリトルエンディアンの float32 値が入ります。複数行になった画像に単一の正解文字列を割り当てず、行ごとのラベルを用意するか学習から除外してください。学習と評価で文字列・フォントを分離し、採用前に本番の認識経路で比較します。
+
+大量の評価画像には、`recognize_batch` サンプルで同じ `OcrEngine` を再利用できます。モデルディレクトリとスレッド数を指定し、標準入力に画像パスの JSON 配列を渡します。通常モード・全文字集合の認識結果が入力順の JSON 配列として出力されます。
+
+```bash
+cargo run -p ocrus-engine --release --example recognize_batch -- model-dir 2 < images.json
+```
+
 ### ステップ 2: 事前学習済み重みのダウンロード
 
 ```bash

@@ -48,6 +48,150 @@ pub const REC_MODEL_FILE: &str = "rec.ocnn";
 /// Character dictionary file name inside the model directory.
 pub const DICT_FILE: &str = "dict.txt";
 
+/// A detected line and the exact model inputs used by recognition.
+pub struct PreparedLine {
+    pub bbox: ocrus_core::BBox,
+    /// NCHW float32 inputs, including stroke variants in accurate mode.
+    pub inputs: Vec<NdTensor<f32>>,
+    pub ruby_bboxes: Vec<ocrus_core::BBox>,
+}
+
+/// Layout and normalized inputs for a decoded image, without running a model.
+pub struct PreparedImage {
+    pub width: u32,
+    pub height: u32,
+    pub lines: Vec<PreparedLine>,
+}
+
+/// Prepare an image through the same layout and normalization as [`OcrEngine`].
+///
+/// Training and diagnostics can consume these inputs without duplicating the OCR
+/// pipeline or loading a recognition model. Blank images produce no lines.
+pub fn prepare_image(img: &DynamicImage, config: &EngineConfig) -> PreparedImage {
+    let (width, height) = (img.width(), img.height());
+
+    let gray = to_grayscale(img);
+    let binary = binarize_adaptive(&gray);
+
+    // NOTE: the quality gate no longer selects a layout algorithm — projection won on
+    // measurement (see below) — so `OcrMode` currently does not change the pipeline.
+    // Deciding what it should mean, or dropping it, is tracked in todo.md.
+    let quality = assess_quality(&binary);
+    let _use_fast_path = match config.mode {
+        OcrMode::Fastest => true,
+        OcrMode::Accurate => false,
+        OcrMode::Auto => should_use_fast_path(&quality),
+    };
+
+    // Vertical layout needs evidence, not a coin flip. `detect_orientation` compares how
+    // sharp the row and column projections are, which is meaningless for a single glyph:
+    // both profiles look alike and the answer comes out arbitrary. Guessing "vertical"
+    // is not a harmless mistake — the crop then gets rotated 90°, which destroys it. So
+    // require either more than one column, or a region clearly taller than wide.
+    let mut orientation = detect_orientation(&binary);
+    if orientation == TextOrientation::Vertical && !looks_vertical(width, height) {
+        orientation = TextOrientation::Horizontal;
+    }
+
+    // Projection first, connected components only as a fallback.
+    //
+    // Measured on the 845-image kana benchmark: projection scores 72.5% where CCL scores
+    // 54.6%. CCL groups components into lines by vertical overlap, which splits any
+    // character whose strokes do not overlap vertically (ニ, 三, ー) into several
+    // "lines" that are then recognized separately. It still earns its place when
+    // projection finds nothing, but it should not be the default.
+    let line_bboxes = match orientation {
+        TextOrientation::Vertical => detect_columns_vertical(&binary),
+        _ => {
+            let lines = detect_lines_projection(&binary);
+            if lines.is_empty() {
+                detect_lines_ccl(&binary)
+            } else {
+                lines
+            }
+        }
+    };
+
+    // Ruby separation shrinks each line bbox to its body and records the ruby boxes.
+    let (line_bboxes, ruby_info) = if config.ruby_separation {
+        let mut bodies = Vec::with_capacity(line_bboxes.len());
+        let mut ruby_map: Vec<Vec<ocrus_core::BBox>> = Vec::with_capacity(line_bboxes.len());
+        for bbox in &line_bboxes {
+            let sep = separate_ruby(&binary, bbox, orientation);
+            bodies.push(sep.body_bbox);
+            ruby_map.push(sep.ruby_bboxes);
+        }
+        (bodies, Some(ruby_map))
+    } else {
+        (line_bboxes, None)
+    };
+
+    // Strokes are not lines. Characters whose upper stroke stands clear of the body
+    // (う, こ, き, ふ, え) split at that gap: 74 of the 845 benchmark images came back as
+    // two or three "lines", were recognized as separate fragments and concatenated into
+    // nonsense. In a square-ish frame that the ink fills, everything found is one
+    // character; a page of text has a frame much wider than it is tall.
+    let line_bboxes = merge_strokes_of_one_glyph(line_bboxes, width, height);
+    let line_bboxes = keep_frame_for_tiny_mark(line_bboxes, width, height);
+
+    if line_bboxes.is_empty() {
+        return PreparedImage {
+            width,
+            height,
+            lines: vec![],
+        };
+    }
+
+    // In accurate mode the same crop is read three ways — as rendered, with strokes
+    // thickened, and with them thinned — and the answers are voted on. A glyph whose
+    // strokes are too fine or too heavy for its size reads differently under each.
+    let variants: Vec<ndarray::Array2<u8>> = if matches!(config.mode, OcrMode::Accurate) {
+        vec![gray.clone(), thicken(&gray), thin(&gray)]
+    } else {
+        vec![gray.clone()]
+    };
+
+    // Vertical columns are rotated 90° because the model only takes horizontal lines.
+    let is_vertical = orientation == TextOrientation::Vertical;
+    let line_tensors: Vec<Vec<NdTensor<f32>>> = line_bboxes
+        .par_iter()
+        .map(|bbox| {
+            variants
+                .iter()
+                .map(|src| {
+                    let line_img = if is_vertical {
+                        normalize_line_vertical(src, bbox)
+                    } else {
+                        normalize_line(src, bbox)
+                    };
+                    let shape = line_img.shape().to_vec();
+                    let data = line_img.into_raw_vec_and_offset().0;
+                    NdTensor::from_vec(data, &shape)
+                })
+                .collect()
+        })
+        .collect();
+
+    let lines = line_bboxes
+        .into_iter()
+        .zip(line_tensors)
+        .enumerate()
+        .map(|(i, (bbox, inputs))| PreparedLine {
+            bbox,
+            inputs,
+            ruby_bboxes: ruby_info
+                .as_ref()
+                .map(|info| info[i].clone())
+                .unwrap_or_default(),
+        })
+        .collect();
+    PreparedImage {
+        width,
+        height,
+        lines,
+    }
+}
+
 /// A loaded OCR engine: model, charset and post-processing, ready to recognize images.
 pub struct OcrEngine {
     config: EngineConfig,
@@ -175,138 +319,33 @@ impl OcrEngine {
 
     /// Recognize an already-decoded image.
     pub fn recognize_image(&self, img: &DynamicImage) -> Result<OcrResult> {
-        let (width, height) = (img.width(), img.height());
-
-        let gray = to_grayscale(img);
-        let binary = binarize_adaptive(&gray);
-
-        // NOTE: the quality gate no longer selects a layout algorithm — projection won on
-        // measurement (see below) — so `OcrMode` currently does not change the pipeline.
-        // Deciding what it should mean, or dropping it, is tracked in todo.md.
-        let quality = assess_quality(&binary);
-        let _use_fast_path = match self.config.mode {
-            OcrMode::Fastest => true,
-            OcrMode::Accurate => false,
-            OcrMode::Auto => should_use_fast_path(&quality),
-        };
-
-        // Vertical layout needs evidence, not a coin flip. `detect_orientation` compares how
-        // sharp the row and column projections are, which is meaningless for a single glyph:
-        // both profiles look alike and the answer comes out arbitrary. Guessing "vertical"
-        // is not a harmless mistake — the crop then gets rotated 90°, which destroys it. So
-        // require either more than one column, or a region clearly taller than wide.
-        let mut orientation = detect_orientation(&binary);
-        if orientation == TextOrientation::Vertical && !looks_vertical(width, height) {
-            orientation = TextOrientation::Horizontal;
-        }
-
-        // Projection first, connected components only as a fallback.
-        //
-        // Measured on the 845-image kana benchmark: projection scores 72.5% where CCL scores
-        // 54.6%. CCL groups components into lines by vertical overlap, which splits any
-        // character whose strokes do not overlap vertically (ニ, 三, ー) into several
-        // "lines" that are then recognized separately. It still earns its place when
-        // projection finds nothing, but it should not be the default.
-        let line_bboxes = match orientation {
-            TextOrientation::Vertical => detect_columns_vertical(&binary),
-            _ => {
-                let lines = detect_lines_projection(&binary);
-                if lines.is_empty() {
-                    detect_lines_ccl(&binary)
-                } else {
-                    lines
-                }
-            }
-        };
-
-        // Ruby separation shrinks each line bbox to its body and records the ruby boxes.
-        let (line_bboxes, ruby_info) = if self.config.ruby_separation {
-            let mut bodies = Vec::with_capacity(line_bboxes.len());
-            let mut ruby_map: Vec<Vec<ocrus_core::BBox>> = Vec::with_capacity(line_bboxes.len());
-            for bbox in &line_bboxes {
-                let sep = separate_ruby(&binary, bbox, orientation);
-                bodies.push(sep.body_bbox);
-                ruby_map.push(sep.ruby_bboxes);
-            }
-            (bodies, Some(ruby_map))
-        } else {
-            (line_bboxes, None)
-        };
-
-        // Strokes are not lines. Characters whose upper stroke stands clear of the body
-        // (う, こ, き, ふ, え) split at that gap: 74 of the 845 benchmark images came back as
-        // two or three "lines", were recognized as separate fragments and concatenated into
-        // nonsense. In a square-ish frame that the ink fills, everything found is one
-        // character; a page of text has a frame much wider than it is tall.
-        let line_bboxes = merge_strokes_of_one_glyph(line_bboxes, width, height);
-        let line_bboxes = keep_frame_for_tiny_mark(line_bboxes, width, height);
-
-        if line_bboxes.is_empty() {
-            return Ok(OcrResult {
-                pages: vec![Page {
-                    width,
-                    height,
-                    lines: vec![],
-                }],
-            });
-        }
-
-        // In accurate mode the same crop is read three ways — as rendered, with strokes
-        // thickened, and with them thinned — and the answers are voted on. A glyph whose
-        // strokes are too fine or too heavy for its size reads differently under each.
-        let variants: Vec<ndarray::Array2<u8>> = if matches!(self.config.mode, OcrMode::Accurate) {
-            vec![gray.clone(), thicken(&gray), thin(&gray)]
-        } else {
-            vec![gray.clone()]
-        };
-
-        // Vertical columns are rotated 90° because the model only takes horizontal lines.
-        let is_vertical = orientation == TextOrientation::Vertical;
-        let line_tensors: Vec<Vec<NdTensor<f32>>> = line_bboxes
-            .par_iter()
-            .map(|bbox| {
-                variants
-                    .iter()
-                    .map(|src| {
-                        let line_img = if is_vertical {
-                            normalize_line_vertical(src, bbox)
-                        } else {
-                            normalize_line(src, bbox)
-                        };
-                        let shape = line_img.shape().to_vec();
-                        let data = line_img.into_raw_vec_and_offset().0;
-                        NdTensor::from_vec(data, &shape)
-                    })
-                    .collect()
-            })
-            .collect();
+        let prepared = prepare_image(img, &self.config);
+        let (width, height) = (prepared.width, prepared.height);
 
         // 行ごとに推論する。各行の前処理バリアントは同じ順序で保持する。
-        let outputs = line_tensors
+        let outputs = prepared
+            .lines
             .iter()
-            .map(|variants| {
-                variants
+            .map(|line| {
+                line.inputs
                     .iter()
                     .map(|t| self.executor.run(t.clone()))
                     .collect::<Result<Vec<_>>>()
             })
             .collect::<Result<Vec<_>>>()?;
 
-        let mut lines = Vec::with_capacity(line_bboxes.len());
-        for (i, (bbox, output)) in line_bboxes.iter().zip(&outputs).enumerate() {
-            let ruby = ruby_info
-                .as_ref()
-                .map(|info| {
-                    info[i]
-                        .iter()
-                        .map(|rb| RubyAnnotation {
-                            ruby_text: String::new(),
-                            bbox: *rb,
-                            confidence: 0.0,
-                        })
-                        .collect::<Vec<_>>()
+        let mut lines = Vec::with_capacity(prepared.lines.len());
+        for (line, output) in prepared.lines.iter().zip(&outputs) {
+            let bbox = &line.bbox;
+            let ruby = line
+                .ruby_bboxes
+                .iter()
+                .map(|rb| RubyAnnotation {
+                    ruby_text: String::new(),
+                    bbox: *rb,
+                    confidence: 0.0,
                 })
-                .unwrap_or_default();
+                .collect();
 
             let (text, confidence) = self.decode_voted(output);
             let text = correct_small_kana(&text, bbox, height).unwrap_or(text);
@@ -614,6 +653,55 @@ pub fn default_model_dir() -> PathBuf {
 mod tests {
     use super::*;
     use ocrus_nn::ocnn::format::{ALIGN, HEADER_LEN, MAGIC, VERSION_MAJOR};
+
+    #[test]
+    fn preparation_needs_no_model_and_preserves_blank_pages() {
+        let img =
+            DynamicImage::ImageLuma8(image::GrayImage::from_pixel(96, 32, image::Luma([255])));
+        for mode in [OcrMode::Auto, OcrMode::Accurate] {
+            let config = EngineConfig {
+                mode,
+                ..EngineConfig::default()
+            };
+            let prepared = prepare_image(&img, &config);
+            assert_eq!((prepared.width, prepared.height), (96, 32));
+            assert!(prepared.lines.is_empty());
+        }
+    }
+
+    #[test]
+    fn preparation_keeps_line_order_and_variant_order() {
+        let mut pixels = image::GrayImage::from_pixel(160, 64, image::Luma([255]));
+        for (top, bottom) in [(8, 20), (40, 52)] {
+            for y in top..bottom {
+                for x in 10..140 {
+                    if x % 20 < 9 {
+                        pixels.put_pixel(x, y, image::Luma([0]));
+                    }
+                }
+            }
+        }
+        let img = DynamicImage::ImageLuma8(pixels);
+        let config = EngineConfig {
+            mode: OcrMode::Accurate,
+            ..EngineConfig::default()
+        };
+        let prepared = prepare_image(&img, &config);
+        assert_eq!(prepared.lines.len(), 2);
+        assert!(prepared.lines[0].bbox.y < prepared.lines[1].bbox.y);
+        let gray = to_grayscale(&img);
+        for line in prepared.lines {
+            assert_eq!(line.inputs.len(), 3);
+            for (src, input) in [gray.clone(), thicken(&gray), thin(&gray)]
+                .iter()
+                .zip(line.inputs)
+            {
+                let expected = normalize_line(src, &line.bbox);
+                assert_eq!(input.shape, expected.shape());
+                assert_eq!(input.data, expected.into_raw_vec_and_offset().0);
+            }
+        }
+    }
 
     fn test_engine(mask: Option<Vec<bool>>) -> OcrEngine {
         // 恒等グラフだけのモデルで、実際の重みなしに入力検証とデコードを検証する。
