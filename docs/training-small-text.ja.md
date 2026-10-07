@@ -44,6 +44,27 @@ TTC / OTC の先頭書体は従来のファイル名、2番目以降は `ファ�
 
 ## 精度を測る次の段階
 
+### 同じ条件でのUI行評価
+
+`scripts/src/ocrus_scripts/evaluate_ui.py` で、12・16・24・32pxのUI文字列を
+白背景・暗背景、通常の余白・幅1,200pxのキャンバスに描画できる。
+日本語フォントのファイルを指定し、`dev` と `test` は別のフォントファミリーを使う。
+文字列も分離される。これは合成画像による回帰評価で、実スクリーンショットの測定とは区別する。
+
+```bash
+uv run --project scripts --with pillow python scripts/src/ocrus_scripts/evaluate_ui.py render \
+  --fonts /path/to/font1.ttf /path/to/font2.ttf --split dev --output logs/ui-dev
+cargo build --locked --release -p ocrus-engine --example recognize_batch
+uv run --project scripts python scripts/src/ocrus_scripts/evaluate_ui.py evaluate \
+  --manifest logs/ui-dev/manifest.json --binary target/release/examples/recognize_batch \
+  --models /path/to/models --output logs/ui-before.json
+```
+
+変更後はサンプルを再ビルドし、**同じmanifest**を別の結果ファイルへ評価する。
+Windowsでは実行ファイル名に `.exe` を付ける。画像・モデル・文字辞書・実行ファイルの
+ハッシュ、CER、置換・削除・挿入、行完全一致数を保存し、フォント・サイズ・明暗・余白別に集計する。
+文字の正規化は行わない。前処理を比較するときは重みと辞書を固定し、各条件の退行も確認する。
+
 単文字評価だけでは、小さいUI文字の実用精度は判断できない。次の条件でテキスト行を評価する。
 
 1. **本番の `OcrEngine` で測る。** CLI・Pythonと同じ認識経路を使い、文字誤り率 `CER = (置換 + 削除 + 挿入) / 正解文字数` と行全体の完全一致率を記録する。

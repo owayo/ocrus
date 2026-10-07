@@ -99,6 +99,54 @@ fn otsu_threshold(gray: &Array2<u8>) -> u8 {
     best_threshold
 }
 
+/// Normalize padded light-on-dark lines so layout can crop their horizontal margins.
+/// Both the image majority and its border must belong to Otsu's darker cluster.
+/// This keeps dark lettering on gray paper and black frames around white pages intact.
+/// Compact light-on-dark inputs are already recognized well; preserve their context.
+pub fn invert_padded_dark_background(gray: &mut Array2<u8>) {
+    let (h, w) = gray.dim();
+    if h == 0 || w == 0 {
+        return;
+    }
+    let threshold = otsu_threshold(gray);
+    let dark = gray.iter().filter(|&&v| v <= threshold).count();
+    if (dark as f64) < gray.len() as f64 * 0.6 {
+        return;
+    }
+    let mut left = w;
+    let mut right = 0;
+    for ((_, x), &value) in gray.indexed_iter() {
+        if value > threshold {
+            left = left.min(x);
+            right = right.max(x + 1);
+        }
+    }
+    if left >= right || w - (right - left) <= h.saturating_mul(2) {
+        return;
+    }
+    let mut border = 0usize;
+    let mut dark_border = 0usize;
+    for x in 0..w {
+        border += 1;
+        dark_border += usize::from(gray[[0, x]] <= threshold);
+        if h > 1 {
+            border += 1;
+            dark_border += usize::from(gray[[h - 1, x]] <= threshold);
+        }
+    }
+    for y in 1..h.saturating_sub(1) {
+        border += 1;
+        dark_border += usize::from(gray[[y, 0]] <= threshold);
+        if w > 1 {
+            border += 1;
+            dark_border += usize::from(gray[[y, w - 1]] <= threshold);
+        }
+    }
+    if (dark_border as f64) >= border as f64 * 0.75 {
+        gray.mapv_inplace(|v| 255 - v);
+    }
+}
+
 /// Sauvola local adaptive binarization using integral images for speed.
 /// `window_size` is the side length of the local window, `k` controls sensitivity.
 /// Foreground (text) = 0, background = 255.
@@ -181,6 +229,85 @@ pub fn binarize_adaptive(gray: &Array2<u8>) -> Array2<u8> {
 mod tests {
     use super::*;
     use ndarray::Array2;
+
+    #[test]
+    fn dark_background_is_inverted_before_binarization() {
+        let mut gray = Array2::from_elem((24, 80), 24u8);
+        for y in 6..18 {
+            for x in 8..28 {
+                gray[[y, x]] = 230;
+            }
+        }
+        invert_padded_dark_background(&mut gray);
+        assert_eq!(gray[[0, 0]], 231);
+        assert_eq!(gray[[10, 12]], 25);
+        let binary = binarize_adaptive(&gray);
+        assert_eq!(binary[[0, 0]], 255);
+        assert_eq!(binary[[10, 12]], 0);
+    }
+
+    #[test]
+    fn dark_paper_with_darker_text_keeps_its_polarity() {
+        let mut gray = Array2::from_elem((24, 80), 90u8);
+        for y in 6..18 {
+            for x in 8..28 {
+                gray[[y, x]] = 0;
+            }
+        }
+        let original = gray.clone();
+        invert_padded_dark_background(&mut gray);
+        assert_eq!(gray, original);
+    }
+
+    #[test]
+    fn white_page_with_black_border_and_dense_ink_is_not_inverted() {
+        let mut framed = Array2::from_elem((30, 60), 255u8);
+        for y in 0..30 {
+            framed[[y, 0]] = 0;
+            framed[[y, 59]] = 0;
+        }
+        framed.row_mut(0).fill(0);
+        framed.row_mut(29).fill(0);
+        let original = framed.clone();
+        invert_padded_dark_background(&mut framed);
+        assert_eq!(framed, original);
+
+        let mut dense = Array2::from_elem((30, 60), 0u8);
+        dense.row_mut(0).fill(255);
+        dense.row_mut(29).fill(255);
+        dense.column_mut(0).fill(255);
+        dense.column_mut(59).fill(255);
+        let original = dense.clone();
+        invert_padded_dark_background(&mut dense);
+        assert_eq!(dense, original);
+    }
+
+    #[test]
+    fn polarity_handles_empty_and_uniform_images() {
+        for shape in [(0, 0), (0, 3), (3, 0), (1, 1), (3, 8)] {
+            for value in [0, 24, 128, 255] {
+                let mut gray = Array2::from_elem(shape, value);
+                invert_padded_dark_background(&mut gray);
+                assert_eq!(gray.dim(), shape);
+                if !gray.is_empty() {
+                    assert!(binarize_adaptive(&gray).iter().all(|&v| v == 255));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn compact_light_on_dark_text_preserves_the_original_input() {
+        let mut gray = Array2::from_elem((24, 80), 24u8);
+        for y in 6..18 {
+            for x in 8..72 {
+                gray[[y, x]] = 230;
+            }
+        }
+        let original = gray.clone();
+        invert_padded_dark_background(&mut gray);
+        assert_eq!(gray, original);
+    }
 
     #[test]
     fn test_otsu_bimodal() {

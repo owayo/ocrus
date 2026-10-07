@@ -36,7 +36,8 @@ use ocrus_layout::{
 };
 use ocrus_nn::{Executor, Model, NdTensor};
 use ocrus_preproc::{
-    binarize_adaptive, normalize_line, normalize_line_vertical, thicken, thin, to_grayscale,
+    binarize_adaptive, invert_padded_dark_background, normalize_line, normalize_line_vertical,
+    thicken, thin, to_grayscale,
 };
 use ocrus_recognizer::charset::Charset;
 use ocrus_recognizer::{
@@ -70,7 +71,8 @@ pub struct PreparedImage {
 pub fn prepare_image(img: &DynamicImage, config: &EngineConfig) -> PreparedImage {
     let (width, height) = (img.width(), img.height());
 
-    let gray = to_grayscale(img);
+    let mut gray = to_grayscale(img);
+    invert_padded_dark_background(&mut gray);
     let binary = binarize_adaptive(&gray);
 
     // NOTE: the quality gate no longer selects a layout algorithm — projection won on
@@ -133,6 +135,11 @@ pub fn prepare_image(img: &DynamicImage, config: &EngineConfig) -> PreparedImage
     // character; a page of text has a frame much wider than it is tall.
     let line_bboxes = merge_strokes_of_one_glyph(line_bboxes, width, height);
     let line_bboxes = keep_frame_for_tiny_mark(line_bboxes, width, height);
+    let line_bboxes = if orientation == TextOrientation::Horizontal {
+        trim_horizontal_margins(&binary, line_bboxes)
+    } else {
+        line_bboxes
+    };
 
     if line_bboxes.is_empty() {
         return PreparedImage {
@@ -562,6 +569,47 @@ fn correct_small_kana(text: &str, bbox: &ocrus_core::BBox, frame_height: u32) ->
 /// Ink this much smaller than its frame is a punctuation mark rather than a character.
 const TINY_MARK_COVERAGE: f32 = 0.20;
 
+/// Projection spans the page width. Remove unused horizontal space before resizing:
+/// otherwise MAX_WIDTH can squeeze a short UI label down to a handful of pixels.
+/// Preserve isolated-glyph frames, and leave a quarter of the line height as context.
+fn trim_horizontal_margins(
+    binary: &ndarray::Array2<u8>,
+    mut boxes: Vec<ocrus_core::BBox>,
+) -> Vec<ocrus_core::BBox> {
+    let (height, width) = binary.dim();
+    if boxes.len() == 1 && width as f64 <= height as f64 * GLYPH_FRAME_ASPECT as f64 {
+        return boxes;
+    }
+    for bbox in &mut boxes {
+        let x0 = (bbox.x as usize).min(width);
+        let x1 = (bbox.x.saturating_add(bbox.width) as usize).min(width);
+        let y0 = (bbox.y as usize).min(height);
+        let y1 = (bbox.y.saturating_add(bbox.height) as usize).min(height);
+        let mut left = x1;
+        let mut right = x0;
+        for y in y0..y1 {
+            for x in x0..x1 {
+                if binary[[y, x]] == 0 {
+                    left = left.min(x);
+                    right = right.max(x + 1);
+                }
+            }
+        }
+        if left < right {
+            let pad = (bbox.height as usize / 4).max(1);
+            let left = left.saturating_sub(pad).max(x0);
+            let right = right.saturating_add(pad).min(x1);
+            // Small margins already supply useful model context. Only recrop when
+            // the discarded space exceeds two line heights.
+            if x1 - x0 - (right - left) > bbox.height as usize * 2 {
+                bbox.x = left as u32;
+                bbox.width = (right - left) as u32;
+            }
+        }
+    }
+    boxes
+}
+
 /// Keep the frame when the ink is a tiny mark.
 ///
 /// A comma or a period is a few pixels of ink. Cropping to that ink and resizing it to the
@@ -700,6 +748,91 @@ mod tests {
                 assert_eq!(input.shape, expected.shape());
                 assert_eq!(input.data, expected.into_raw_vec_and_offset().0);
             }
+        }
+    }
+
+    #[test]
+    fn preparation_gives_inverted_text_the_same_inputs_and_variants() {
+        let mut light = image::GrayImage::from_pixel(1200, 32, image::Luma([255]));
+        for y in 8..20 {
+            for x in 12..130 {
+                if x % 20 < 9 {
+                    light.put_pixel(x, y, image::Luma([0]));
+                }
+            }
+        }
+        let mut dark = light.clone();
+        for pixel in dark.pixels_mut() {
+            pixel.0[0] = 255 - pixel.0[0];
+        }
+        for mode in [OcrMode::Auto, OcrMode::Accurate] {
+            let config = EngineConfig {
+                mode,
+                ..EngineConfig::default()
+            };
+            let light = prepare_image(&DynamicImage::ImageLuma8(light.clone()), &config);
+            let dark = prepare_image(&DynamicImage::ImageLuma8(dark.clone()), &config);
+            assert!(!light.lines.is_empty());
+            assert_eq!(light.lines.len(), dark.lines.len());
+            for (light, dark) in light.lines.iter().zip(&dark.lines) {
+                assert_eq!(
+                    (
+                        light.bbox.x,
+                        light.bbox.y,
+                        light.bbox.width,
+                        light.bbox.height
+                    ),
+                    (dark.bbox.x, dark.bbox.y, dark.bbox.width, dark.bbox.height)
+                );
+                for (light, dark) in light.inputs.iter().zip(&dark.inputs) {
+                    assert_eq!(light.shape, dark.shape);
+                    assert_eq!(light.data, dark.data);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn wide_blank_margins_do_not_squeeze_text_or_remove_internal_spaces() {
+        let render = |width| {
+            let mut pixels = image::GrayImage::from_pixel(width, 32, image::Luma([255]));
+            for y in 8..20 {
+                for x in 12..100 {
+                    if x % 20 < 9 {
+                        pixels.put_pixel(x, y, image::Luma([0]));
+                    }
+                }
+            }
+            prepare_image(&DynamicImage::ImageLuma8(pixels), &EngineConfig::default())
+        };
+        let compact = render(140);
+        let wide = render(1200);
+        assert_eq!(wide.lines.len(), 1);
+        // The compact input already has substantial margins, so both use the same crop.
+        assert_eq!(
+            compact.lines[0].inputs[0].shape,
+            wide.lines[0].inputs[0].shape
+        );
+        assert_eq!(
+            compact.lines[0].inputs[0].data,
+            wide.lines[0].inputs[0].data
+        );
+        assert!(wide.lines[0].bbox.width >= 69);
+        assert!(wide.lines[0].bbox.width < 140);
+    }
+
+    #[test]
+    fn margin_trimming_preserves_isolated_glyph_and_tiny_mark_frames() {
+        let mut binary = ndarray::Array2::from_elem((80, 80), 255u8);
+        binary[[65, 40]] = 0;
+        for bbox in [
+            ocrus_core::BBox::new(0, 60, 80, 8),
+            ocrus_core::BBox::new(0, 0, 80, 80),
+        ] {
+            let result = trim_horizontal_margins(&binary, vec![bbox]);
+            assert_eq!(result[0].x, bbox.x);
+            assert_eq!(result[0].width, bbox.width);
+            assert_eq!(result[0].height, bbox.height);
         }
     }
 

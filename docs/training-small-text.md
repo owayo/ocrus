@@ -46,6 +46,30 @@ Follow each font's license for use and redistribution. Check font-level counts i
 
 ## Evaluation plan
 
+### Reproducible UI line evaluation
+
+`scripts/src/ocrus_scripts/evaluate_ui.py` renders light and dark UI labels at
+12, 16, 24 and 32px, both with compact margins and on a 1,200px-wide canvas.
+Supply local Japanese font files. Use different font families for the `dev` and
+`test` splits; those splits also use different strings. This is a synthetic
+regression corpus, rather than a measurement of actual OS screenshots.
+
+```bash
+uv run --project scripts --with pillow python scripts/src/ocrus_scripts/evaluate_ui.py render \
+  --fonts /path/to/font1.ttf /path/to/font2.ttf --split dev --output logs/ui-dev
+cargo build --locked --release -p ocrus-engine --example recognize_batch
+uv run --project scripts python scripts/src/ocrus_scripts/evaluate_ui.py evaluate \
+  --manifest logs/ui-dev/manifest.json --binary target/release/examples/recognize_batch \
+  --models /path/to/models --output logs/ui-before.json
+```
+
+After changing the engine, rebuild the example and evaluate the **same manifest**
+into another report. On Windows the example binary has an `.exe` suffix. Reports
+include input, model, dictionary and executable hashes, strict CER, substitutions,
+deletions, insertions and exact line matches, grouped by font, size, theme and
+margin. No character normalization is applied. Keep the weights and dictionary
+fixed when evaluating a pipeline change, and inspect every group for regressions.
+
 Single-character tests cannot establish practical accuracy for small UI text. Evaluate text lines under these conditions:
 
 1. **Use the production `OcrEngine`.** Follow the same recognition path as CLI and Python, recording `CER = (substitutions + deletions + insertions) / ground-truth characters` and exact line match rate.
