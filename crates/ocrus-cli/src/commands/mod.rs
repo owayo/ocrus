@@ -94,8 +94,8 @@ pub struct DatasetFailuresArgs {
     /// Use only --font-dirs, without searching system fonts
     #[arg(long, requires = "font_dirs")]
     pub no_system_fonts: bool,
-    /// Ignore font_name in failures (generate with all available fonts)
-    #[arg(long)]
+    /// 失敗例の font_name を無視して全フォントから描画する（--test-images とは併用不可）。
+    #[arg(long, conflicts_with = "test_images")]
     pub all_fonts: bool,
     /// Use pre-rendered test images instead of font rendering
     #[arg(long)]
@@ -176,6 +176,31 @@ pub struct BenchArgs {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn failure_images_conflict_with_all_fonts() {
+        let base_args = [
+            "ocrus",
+            "dataset",
+            "from-failures",
+            "--output",
+            "data",
+            "--failures",
+            "failures.json",
+        ];
+        assert!(Cli::try_parse_from(base_args.into_iter().chain(["--all-fonts"])).is_ok());
+        assert!(
+            Cli::try_parse_from(base_args.into_iter().chain(["--test-images", "images"])).is_ok()
+        );
+        let error = Cli::try_parse_from(base_args.into_iter().chain([
+            "--all-fonts",
+            "--test-images",
+            "images",
+        ]))
+        .err()
+        .expect("incompatible image sources must be rejected");
+        assert_eq!(error.kind(), clap::error::ErrorKind::ArgumentConflict);
+    }
 
     #[test]
     fn dataset_render_heights_parse_validate_and_conflict_with_test_images() {

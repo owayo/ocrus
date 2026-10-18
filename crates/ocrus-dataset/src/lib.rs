@@ -46,7 +46,7 @@ pub struct DatasetConfig {
     pub samples_per_char: usize,
     pub val_ratio: f32,
     pub font_styles: Option<Vec<font::FontStyle>>,
-    /// Native canvas heights. Training preprocessing resizes the saved images.
+    /// 元画像の描画高さ。保存した画像は学習時の前処理でリサイズする。
     #[serde(default = "default_render_heights")]
     pub render_heights: Vec<u32>,
 }
@@ -126,8 +126,7 @@ pub fn generate(config: &DatasetConfig) -> Result<DatasetStats> {
         let mut rng = rand::rng();
 
         for (category, chars) in &all_chars {
-            // Filter before grouping, so missing glyphs cannot become tofu
-            // images carrying a label for a character the font did not draw.
+            // 未収録の文字が豆腐画像と誤ったラベルにならないよう、文字をまとめる前に除外する。
             let supported: Vec<char> = chars
                 .iter()
                 .copied()
@@ -291,15 +290,17 @@ pub fn generate_from_failure_images(
 
                 let actual_font = failure.font_name.as_deref().unwrap_or("unknown");
 
-                for aug in &config.augment.types {
-                    let augmented = augment::apply_augmentation(&img, aug, &mut rng);
-                    dataset_writer.add_sample(
-                        &augmented,
-                        &failure.character.to_string(),
-                        &failure.category,
-                        actual_font,
-                        &aug.label(),
-                    )?;
+                for _ in 0..config.samples_per_char {
+                    for aug in &config.augment.types {
+                        let augmented = augment::apply_augmentation(&img, aug, &mut rng);
+                        dataset_writer.add_sample(
+                            &augmented,
+                            &failure.character.to_string(),
+                            &failure.category,
+                            actual_font,
+                            &aug.label(),
+                        )?;
+                    }
                 }
             }
             Ok(())
@@ -312,7 +313,8 @@ pub fn generate_from_failure_images(
 
     let found = unique_failures.len() as u64 - skipped;
     println!(
-        "Processed {found} failure images ({} augmentations each)",
+        "Processed {found} failure images ({} samples per augmentation, {} augmentations each)",
+        config.samples_per_char,
         config.augment.types.len()
     );
 
@@ -339,6 +341,71 @@ pub fn available_categories(data_dir: &Path) -> Result<Vec<String>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn failure_images_respect_sample_count_and_deduplicate_failures() {
+        let dir = tempfile::tempdir().unwrap();
+        let images_dir = dir.path().join("images");
+        let category_dir = images_dir.join("fixture").join("test");
+        std::fs::create_dir_all(&category_dir).unwrap();
+        let source = image::GrayImage::from_pixel(16, 12, image::Luma([128]));
+        source.save(category_dir.join("U+3042.png")).unwrap();
+        let failure = CharFailure {
+            character: 'あ',
+            category: "test".into(),
+            font_name: Some("fixture".into()),
+        };
+        let failures = [
+            failure.clone(),
+            failure.clone(),
+            CharFailure {
+                character: 'い',
+                ..failure
+            },
+        ];
+
+        for samples_per_char in [0, 1, 3] {
+            let config = DatasetConfig {
+                output_dir: dir.path().join(format!("output-{samples_per_char}")),
+                samples_per_char,
+                augment: AugmentConfig {
+                    types: vec![AugmentType::Original, AugmentType::Contrast(1.1)],
+                },
+                ..DatasetConfig::default()
+            };
+            let stats = generate_from_failure_images(&failures, &images_dir, &config).unwrap();
+            let expected = samples_per_char * config.augment.types.len();
+            assert_eq!(stats.total_images, expected as u64);
+            assert_eq!(stats.train_images + stats.val_images, expected as u64);
+
+            let labels = std::fs::read_to_string(config.output_dir.join("labels.tsv")).unwrap();
+            assert_eq!(labels.lines().skip(1).count(), expected);
+            let mut original_count = 0;
+            let mut augmented_count = 0;
+            for row in labels.lines().skip(1) {
+                let columns: Vec<_> = row.split('\t').collect();
+                assert_eq!(&columns[1..4], &["あ", "test", "fixture"]);
+                let image = image::open(config.output_dir.join("samples").join(columns[0]))
+                    .unwrap()
+                    .to_luma8();
+                assert_eq!(image.dimensions(), source.dimensions());
+                if columns[4] == "original" {
+                    original_count += 1;
+                    assert_eq!(image, source);
+                } else {
+                    augmented_count += 1;
+                }
+            }
+            assert_eq!(original_count, samples_per_char);
+            assert_eq!(augmented_count, samples_per_char);
+            assert_eq!(
+                std::fs::read_dir(config.output_dir.join("samples"))
+                    .unwrap()
+                    .count(),
+                expected
+            );
+        }
+    }
 
     #[test]
     fn small_text_images_keep_native_heights_and_deduplicate_sizes() {
