@@ -284,14 +284,7 @@ pub fn run() -> Result<()> {
         .unwrap()
         .to_path_buf();
 
-    let model_dir = std::env::var("OCRUS_MODEL_DIR")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            std::env::var("HOME")
-                .map(PathBuf::from)
-                .unwrap_or_else(|_| PathBuf::from("."))
-                .join(".ocrus/models")
-        });
+    let model_dir = ocrus_engine::default_model_dir();
 
     let data_dir = workspace_root.join(std::env::var_os("OCRUS_DATA_DIR").unwrap_or_default());
     let paths = Paths {
