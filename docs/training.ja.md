@@ -43,6 +43,11 @@ ocrus dataset from-failures \
   --samples-per-char 10 --all-fonts
 ```
 
+`--samples-per-char` は、各文字・各拡張種別に対する生成回数です。
+`--test-images` でも同じ指定が有効で、同じ文字・フォント・カテゴリの失敗例は重複を除きます。
+例えば、読み込める失敗画像1枚、既定の拡張5種、`--samples-per-char 10` なら50枚を生成します。
+`--all-fonts` はフォントから再描画する場合の指定なので、`--test-images` と併用すると引数エラーになります。
+
 文字カテゴリ一覧：
 
 | カテゴリ | 内容 | 文字数 |
@@ -210,9 +215,17 @@ uv run --project scripts --extra convert python scripts/src/ocrus_scripts/conver
 ```bash
 uv sync --project scripts --extra quantize
 
-uv run --project scripts quantize \
+uv run --project scripts --extra quantize quantize \
   --input rec_finetuned.onnx \
   --output rec_int8.onnx
+```
+
+`quantize` extra は ONNX と ONNX Runtime の量子化用依存を含みます。
+小さなモデルで INT8 変換と推論結果を確認するテストは、次のコマンドで実行できます。
+
+```bash
+uv run --project scripts --locked --extra quantize --isolated \
+  python -m unittest discover -s scripts/tests -v
 ```
 
 ### 精度テスト

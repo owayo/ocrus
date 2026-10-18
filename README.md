@@ -136,6 +136,7 @@ for line in result.pages[0].lines:
 データ生成、文字カテゴリ、フォントスタイル、PaddleOCR のファインチューニング、ONNX エクスポート、INT8 量子化、精度テストは [訓練](docs/training.ja.md) にまとめています。描画サイズ、一般的なデータ選定基準、評価の制約は [小さい文字の学習](docs/training-small-text.ja.md) に記載しています。訓練とモデル変換は Rust の推論エンジンとは別に実行します。
 
 学習データと大規模な評価画像は同梱していません。手元で生成したデータを使って学習・評価します。
+事前描画画像からの生成でも `--samples-per-char` を各拡張種別に適用します。`--test-images` と `--all-fonts` は併用できません。
 
 ## 開発
 

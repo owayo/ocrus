@@ -209,6 +209,16 @@ make bench           # Benchmarks
 make smoke
 ```
 
+Windows PowerShell で GNU Make がない場合は、`mise install` と
+`mise exec -- cargo fetch --locked` で準備し、Makefile と同じ検査を直接実行する。
+
+```powershell
+mise exec -- cargo build --locked --workspace
+mise exec -- cargo test --locked --workspace
+mise exec -- cargo clippy --locked --workspace --all-targets -- -D warnings
+mise exec -- cargo fmt --all -- --check
+```
+
 ## Model Format (.ocnn)
 
 The current format is `.ocnn`; see [docs/ocnn-format.md](docs/ocnn-format.md). Highlights:
@@ -234,6 +244,9 @@ v1/v2 loader and executor have been deleted.
 
 Models are not included in the repo. Run `models/download.sh` to download.
 Default model directory: `~/.ocrus/models/` (override with `OCRUS_MODEL_DIR`)
+
+既定のホームは `HOME`、未設定なら Windows の `USERPROFILE` を使う。
+CLI・TUI・Python はこのモデルパス解決を共有する。
 
 - `rec.ocnn` - PP-OCRv5 recognition model (.ocnn format, f16, 40 MB)
 - `dict.txt` - Character dictionary (18,383 chars)
