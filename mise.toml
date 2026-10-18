@@ -1,8 +1,8 @@
 [tools]
 rust = { version = "1.99.0", profile = "minimal", components = ["rustfmt", "clippy"] }
 python = "3.12.14"
-uv = "0.12.23"
-ruff = "0.16.7"
+uv = "0.13.0"
+ruff = "0.17.0"
 "github:PyO3/maturin" = "1.15.0"
 
 [env]

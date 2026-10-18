@@ -6,7 +6,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = []
 
 [project.optional-dependencies]
-convert = ["numpy", "onnx", "onnxruntime>=1.30.0"]
+convert = ["numpy", "onnx", "onnxruntime>=1.31.0"]
 train = [
     "paddlepaddle-gpu>=3.3.0",
     "paddlex>=3.7.2",
@@ -22,7 +22,7 @@ train = [
     "imgaug",
     "onnx_graphsurgeon",
 ]
-quantize = ["onnxruntime>=1.30.0"]
+quantize = ["onnxruntime[quantization]>=1.31.0", "onnx"]
 
 [project.scripts]
 generate-test-chars = "ocrus_scripts.generate_test_chars:main"
