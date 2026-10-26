@@ -18,5 +18,5 @@ rayon = { workspace = true }
 memmap2 = "0.9.11"
 
 [dev-dependencies]
-unicode-normalization = "0.1.25"
+unicode-normalization = "0.1.26"
 serde_json = { workspace = true }

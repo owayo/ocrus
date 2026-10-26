@@ -35,5 +35,5 @@ serde = { workspace = true }
 log = "0.4.34"
 simplelog = "0.12.2"
 ctrlc = "3.5.2"
-unicode-normalization = "0.1.25"
+unicode-normalization = "0.1.26"
 serde_yaml = "0.9.34"

@@ -69,7 +69,7 @@ fn to_py_err(err: OcrusError) -> PyErr {
     }
 }
 
-#[pyclass(name = "BBox", module = "ocrus", frozen, skip_from_py_object)]
+#[pyclass(name = "BBox", module = "ocrus", frozen)]
 #[derive(Clone)]
 pub struct PyBBox {
     #[pyo3(get)]
@@ -108,7 +108,7 @@ impl From<&BBox> for PyBBox {
     }
 }
 
-#[pyclass(name = "RubyAnnotation", module = "ocrus", frozen, skip_from_py_object)]
+#[pyclass(name = "RubyAnnotation", module = "ocrus", frozen)]
 #[derive(Clone)]
 pub struct PyRubyAnnotation {
     #[pyo3(get)]
@@ -141,7 +141,7 @@ impl From<&RubyAnnotation> for PyRubyAnnotation {
     }
 }
 
-#[pyclass(name = "TextLine", module = "ocrus", frozen, skip_from_py_object)]
+#[pyclass(name = "TextLine", module = "ocrus", frozen)]
 #[derive(Clone)]
 pub struct PyTextLine {
     #[pyo3(get)]
@@ -181,7 +181,7 @@ impl From<&TextLine> for PyTextLine {
     }
 }
 
-#[pyclass(name = "Page", module = "ocrus", frozen, skip_from_py_object)]
+#[pyclass(name = "Page", module = "ocrus", frozen)]
 #[derive(Clone)]
 pub struct PyPage {
     #[pyo3(get)]
