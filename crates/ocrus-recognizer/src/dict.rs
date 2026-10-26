@@ -2,17 +2,15 @@ use daachorse::{CharwiseDoubleArrayAhoCorasick, CharwiseDoubleArrayAhoCorasickBu
 use std::io;
 use std::path::Path;
 
-/// Dictionary-based post-correction for OCR output.
-/// Uses Aho-Corasick automaton for efficient multi-pattern matching.
+/// Aho-Corasick 法で複数の誤認識パターンを検索し、OCR 出力を補正する。
 pub struct DictCorrector {
     automaton: Option<CharwiseDoubleArrayAhoCorasick<usize>>,
     replacements: Vec<String>,
 }
 
 impl DictCorrector {
-    /// Load correction rules from a file.
-    /// File format: each line is `wrong_text\tcorrect_text`.
-    /// Empty lines and lines without a tab are skipped.
+    /// 各行が `誤認識文字列\t正しい文字列` の補正ルールを読み込む。
+    /// 空行とタブのない行は読み飛ばす。
     pub fn from_file(path: &Path) -> io::Result<Self> {
         let content = std::fs::read_to_string(path)?;
         let mut patterns = Vec::new();
@@ -57,45 +55,28 @@ impl DictCorrector {
         })
     }
 
-    /// Apply corrections to text.
-    /// Finds all occurrences of wrong patterns and replaces them with correct text.
-    /// Processes left-to-right, non-overlapping (leftmost-longest).
+    /// 左端の最長一致から順に、重複しない範囲を補正する。
+    /// 置換後の文字列に補正ルールを再適用しない。
     pub fn correct(&self, text: &str) -> String {
         let automaton = match &self.automaton {
             Some(a) => a,
             None => return text.to_string(),
         };
 
-        let chars: Vec<char> = text.chars().collect();
         let mut result = String::with_capacity(text.len());
         let mut pos = 0;
 
-        // daachorse returns byte positions; convert to char positions
+        // 一致位置は UTF-8 の文字境界を指すバイト位置なので、そのまま切り出せる。
         for m in automaton.leftmost_find_iter(text) {
-            let cs = byte_to_char_pos(text, m.start());
-            let ce = byte_to_char_pos(text, m.end());
-            let val = m.value();
-
-            if cs < pos {
-                continue;
-            }
-            for &ch in &chars[pos..cs] {
-                result.push(ch);
-            }
-            result.push_str(&self.replacements[val]);
-            pos = ce;
+            result.push_str(&text[pos..m.start()]);
+            result.push_str(&self.replacements[m.value()]);
+            pos = m.end();
         }
 
-        for &ch in &chars[pos..] {
-            result.push(ch);
-        }
+        result.push_str(&text[pos..]);
 
         result
     }
-}
-
-fn byte_to_char_pos(text: &str, byte_pos: usize) -> usize {
-    text[..byte_pos].chars().count()
 }
 
 #[cfg(test)]
@@ -103,33 +84,52 @@ mod tests {
     use super::*;
     use std::io::Write;
 
+    fn corrector(rules: &str) -> DictCorrector {
+        let mut file = tempfile::NamedTempFile::new().unwrap();
+        file.write_all(rules.as_bytes()).unwrap();
+        DictCorrector::from_file(file.path()).unwrap()
+    }
+
     #[test]
     fn test_dict_corrector() {
-        let dir = std::env::temp_dir().join("ocrus_dict_test");
-        std::fs::create_dir_all(&dir).unwrap();
-        let path = dir.join("corrections.txt");
-        {
-            let mut f = std::fs::File::create(&path).unwrap();
-            writeln!(f, "こんにちわ\tこんにちは").unwrap();
-            writeln!(f, "仕柿\t仕事").unwrap();
-        }
-
-        let corrector = DictCorrector::from_file(&path).unwrap();
+        let corrector = corrector("こんにちわ\tこんにちは\n仕柿\t仕事\n");
         assert_eq!(corrector.correct("こんにちわ"), "こんにちは");
         assert_eq!(corrector.correct("仕柿中"), "仕事中");
         assert_eq!(corrector.correct("テスト"), "テスト");
-        std::fs::remove_dir_all(&dir).ok();
     }
 
     #[test]
     fn test_dict_corrector_empty() {
-        let dir = std::env::temp_dir().join("ocrus_dict_empty_test");
-        std::fs::create_dir_all(&dir).unwrap();
-        let path = dir.join("empty.txt");
-        std::fs::File::create(&path).unwrap();
-
-        let corrector = DictCorrector::from_file(&path).unwrap();
+        let corrector = corrector("");
         assert_eq!(corrector.correct("テスト"), "テスト");
-        std::fs::remove_dir_all(&dir).ok();
+        assert_eq!(corrector.correct(""), "");
+    }
+
+    #[test]
+    fn corrections_preserve_utf8_and_do_not_reprocess_replacements() {
+        let corrector = corrector("誤字\t正\nx\t誤字\n誤\t短\n");
+        assert_eq!(
+            corrector.correct("先頭🙂誤字x誤字🦀後尾"),
+            "先頭🙂正誤字正🦀後尾"
+        );
+        assert_eq!(corrector.correct("誤字誤字"), "正正");
+        assert_eq!(corrector.correct("e\u{301}🙂"), "e\u{301}🙂");
+        assert_eq!(corrector.correct(""), "");
+    }
+
+    #[test]
+    fn corrections_choose_the_longest_match_at_the_leftmost_position() {
+        let corrector = corrector("あ\t短\nあい\t長\nいう\t別\n");
+        assert_eq!(corrector.correct("あいう"), "長う");
+        assert_eq!(corrector.correct("いうあ"), "別短");
+    }
+
+    #[test]
+    fn corrections_handle_many_matches_and_keep_unmatched_text() {
+        let corrector = corrector("誤字\t正しい語\n");
+        assert_eq!(
+            corrector.correct(&"🙂誤字/".repeat(1024)),
+            "🙂正しい語/".repeat(1024)
+        );
     }
 }

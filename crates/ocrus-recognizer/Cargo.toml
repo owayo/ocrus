@@ -12,3 +12,6 @@ ndarray = { workspace = true }
 daachorse = "5.1.0"
 img_hash = "3.2"
 image = { version = "0.25.10", default-features = false }
+
+[dev-dependencies]
+tempfile = "3.27.0"

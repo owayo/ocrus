@@ -30,11 +30,17 @@ criterion = { workspace = true }
 ocrus-preproc = { workspace = true }
 ocrus-layout = { workspace = true }
 ocrus-recognizer = { workspace = true }
+ocrus-nn = { workspace = true }
 image = { workspace = true }
 ndarray = { workspace = true }
+tempfile = "3.27.0"
 
 [[bench]]
 name = "preproc"
+harness = false
+
+[[bench]]
+name = "dict"
 harness = false
 
 [workspace.package]

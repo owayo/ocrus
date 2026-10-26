@@ -1669,8 +1669,10 @@ dependencies = [
  "image 0.25.10",
  "ndarray",
  "ocrus-layout",
+ "ocrus-nn",
  "ocrus-preproc",
  "ocrus-recognizer",
+ "tempfile",
 ]
 
 [[package]]
@@ -1797,6 +1799,7 @@ dependencies = [
  "img_hash",
  "ndarray",
  "ocrus-core",
+ "tempfile",
 ]
 
 [[package]]
