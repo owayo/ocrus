@@ -209,6 +209,14 @@ make bench           # Benchmarks
 make smoke
 ```
 
+辞書補正はモデルや評価画像を使わず、合成文字列で速度を比較できる。
+同じツールチェーンで変更前の基準値を保存し、変更後に比較する。
+
+```bash
+mise exec -- cargo bench --locked --bench dict -- --save-baseline before
+mise exec -- cargo bench --locked --bench dict -- --baseline before
+```
+
 Windows PowerShell で GNU Make がない場合は、`mise install` と
 `mise exec -- cargo fetch --locked` で準備し、Makefile と同じ検査を直接実行する。
 
