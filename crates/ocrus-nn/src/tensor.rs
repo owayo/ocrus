@@ -219,13 +219,13 @@ impl NdTensor<f32> {
         result
     }
 
-    /// Apply a binary operation with numpy-style broadcasting.
+    /// numpy と同じブロードキャスト規則で二項演算を適用する。
     pub fn broadcast_binary_op(
         a: &NdTensor<f32>,
         b: &NdTensor<f32>,
         op: fn(f32, f32) -> f32,
     ) -> NdTensor<f32> {
-        // Same-shape fast path
+        // 形状が同じ場合は、そのまま要素ごとに演算する。
         if a.shape == b.shape {
             let data: Vec<f32> = a
                 .data
@@ -236,25 +236,27 @@ impl NdTensor<f32> {
             return NdTensor::from_vec(data, &a.shape);
         }
 
-        // Scalar fast paths
+        // 要素数1でも入力の軸は失わないよう、出力形状を先に確定する。
+        let out_shape = Self::broadcast_shape(&a.shape, &b.shape);
+
+        // スカラーとの演算では、要素の添字計算を省略できる。
         if b.data.len() == 1 {
             let bv = b.data[0];
             let data: Vec<f32> = a.data.iter().map(|&x| op(x, bv)).collect();
-            return NdTensor::from_vec(data, &a.shape);
+            return NdTensor::from_vec(data, &out_shape);
         }
         if a.data.len() == 1 {
             let av = a.data[0];
             let data: Vec<f32> = b.data.iter().map(|&y| op(av, y)).collect();
-            return NdTensor::from_vec(data, &b.shape);
+            return NdTensor::from_vec(data, &out_shape);
         }
 
-        // General broadcasting
-        let out_shape = Self::broadcast_shape(&a.shape, &b.shape);
+        // 一般のブロードキャストでは、各出力要素を入力の添字へ対応付ける。
         let total: usize = out_shape.iter().product();
         let ndim = out_shape.len();
         let mut data = vec![0.0f32; total];
 
-        // Precompute strides for output and padded input shapes
+        // 出力と、先頭にサイズ1の軸を補った入力のストライドを求める。
         let out_strides = compute_strides(&out_shape);
 
         let pad_a = pad_shape(&a.shape, ndim);
@@ -264,13 +266,13 @@ impl NdTensor<f32> {
 
         let mut idx = vec![0usize; ndim];
         for (flat, out_val) in data.iter_mut().enumerate() {
-            // Decompose flat index
+            // 一次元の添字を各軸の添字へ分解する。
             let mut rem = flat;
             for (d, slot) in idx.iter_mut().enumerate() {
                 *slot = rem / out_strides[d];
                 rem %= out_strides[d];
             }
-            // Map to input indices (clamp for broadcast dims)
+            // 拡張される軸の添字を0にして、入力の位置へ対応付ける。
             let mut a_off = 0;
             let mut b_off = 0;
             for d in 0..ndim {
@@ -366,6 +368,31 @@ mod tests {
             assert_eq!(result.shape, vec![0, 3]);
             assert!(result.data.is_empty());
         }
+    }
+
+    #[test]
+    fn scalar_broadcast_preserves_leading_axes_in_both_operand_orders() {
+        let scalar = NdTensor::from_vec(vec![2.0], &[1, 1, 1]);
+        let vector = NdTensor::from_vec(vec![3.0, 4.0], &[2]);
+        let left = NdTensor::broadcast_binary_op(&scalar, &vector, |a, b| a - b);
+        assert_eq!(left.shape, vec![1, 1, 2]);
+        assert_eq!(left.data, vec![-1.0, -2.0]);
+        let right = NdTensor::broadcast_binary_op(&vector, &scalar, |a, b| a - b);
+        assert_eq!(right.shape, vec![1, 1, 2]);
+        assert_eq!(right.data, vec![1.0, 2.0]);
+
+        let empty = NdTensor::zeros(&[0, 2]);
+        for result in [
+            NdTensor::broadcast_binary_op(&scalar, &empty, |a, b| a + b),
+            NdTensor::broadcast_binary_op(&empty, &scalar, |a, b| a + b),
+        ] {
+            assert_eq!(result.shape, vec![1, 0, 2]);
+            assert!(result.data.is_empty());
+        }
+        let other_scalar = NdTensor::from_vec(vec![3.0], &[]);
+        let result = NdTensor::broadcast_binary_op(&other_scalar, &scalar, |a, b| a / b);
+        assert_eq!(result.shape, vec![1, 1, 1]);
+        assert_eq!(result.data, vec![1.5]);
     }
 
     #[test]
