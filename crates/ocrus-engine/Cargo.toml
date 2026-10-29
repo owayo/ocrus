@@ -15,7 +15,7 @@ ocrus-nn = { workspace = true }
 image = { workspace = true }
 ndarray = { workspace = true }
 rayon = { workspace = true }
-memmap2 = "0.9.11"
+memmap2 = "0.9.12"
 
 [dev-dependencies]
 unicode-normalization = "0.1.26"

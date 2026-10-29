@@ -24,7 +24,7 @@ serde_json = { workspace = true }
 anyhow = { workspace = true }
 image = { workspace = true }
 rayon = { workspace = true }
-memmap2 = "0.9.11"
+memmap2 = "0.9.12"
 ndarray = { workspace = true }
 ratatui = "0.30.2"
 
