@@ -1,4 +1,4 @@
-//! 辞書補正のメモリ確保と、モデルのロード・推論を CSV で計測する。
+//! 行検出・辞書補正のメモリ確保と、モデルのロード・推論を CSV で計測する。
 //! 引数は .ocnn モデルのパス。補正辞書は合成データから一時的に作る。
 
 use ocrus_nn::ocnn::{exec::Executor, format::Model};
@@ -38,6 +38,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<_> = std::env::args().collect();
     let usage = "usage: maintenance_profile <model.ocnn>";
     let path = std::path::Path::new(args.get(1).ok_or(usage)?);
+    for (height, width) in [(24, 33), (600, 800), (600, 803), (2000, 3000)] {
+        let image = ndarray::Array2::from_shape_fn((height, width), |(y, x)| {
+            if y % 100 < 20 && x > 0 { 0u8 } else { 255 }
+        });
+        COUNT.store(0, Ordering::Relaxed);
+        BYTES.store(0, Ordering::Relaxed);
+        let lines = ocrus_layout::detect_lines_projection(black_box(&image));
+        let count = COUNT.load(Ordering::Relaxed);
+        let bytes = BYTES.load(Ordering::Relaxed);
+        black_box(lines);
+        println!("projection_allocation,{height},{width},{count},{bytes}");
+    }
     let mut rules = tempfile::NamedTempFile::new()?;
     writeln!(rules, "こんにちわ\tこんにちは\n仕柿\t仕事")?;
     let corrector = DictCorrector::from_file(rules.path())?;

@@ -1,4 +1,4 @@
-// Criterion benchmark for preprocessing + layout + recognizer pipeline.
+// 前処理・レイアウト解析・認識器を測る Criterion ベンチマーク。
 //
 // [[bench]]
 // name = "preproc"
@@ -9,7 +9,7 @@ use std::hint::black_box;
 use criterion::{Criterion, criterion_group, criterion_main};
 use ndarray::Array2;
 
-/// Generate a synthetic binary image with text-like horizontal lines.
+/// 文字行を模した横線を持つ合成二値画像を作る。
 fn generate_test_image(height: usize, width: usize, num_lines: usize) -> Array2<u8> {
     let mut img = Array2::from_elem((height, width), 255u8);
     let line_spacing = height / (num_lines + 1);
@@ -27,7 +27,7 @@ fn generate_test_image(height: usize, width: usize, num_lines: usize) -> Array2<
     img
 }
 
-/// Generate a grayscale image with text-like dark stripes on light background.
+/// 明るい背景に暗い文字行を模したグレースケール画像を作る。
 fn generate_gray_image(width: usize, height: usize) -> Array2<u8> {
     let mut img = Array2::from_elem((height, width), 200u8);
     let line_spacing = height / 6;
@@ -83,6 +83,13 @@ fn bench_layout_detection(c: &mut Criterion) {
             black_box(lines);
         });
     });
+
+    for (height, width, lines) in [(24, 33, 1), (600, 803, 5)] {
+        let binary = generate_test_image(height, width, lines);
+        c.bench_function(&format!("layout_detect_lines_{height}x{width}"), |b| {
+            b.iter(|| black_box(ocrus_layout::detect_lines_projection(black_box(&binary))));
+        });
+    }
 }
 
 fn bench_ccl_detection(c: &mut Criterion) {
@@ -137,7 +144,7 @@ fn bench_ctc_decode(c: &mut Criterion) {
             .map(|i| char::from_u32(0x3040 + i).unwrap_or('?'))
             .collect::<Vec<_>>(),
     );
-    // 100 timesteps, 101 classes (blank + 100 chars)
+    // 100時刻、101クラス（blank と100文字）。
     let logits: Vec<f32> = (0..100 * 101)
         .map(|i| ((i % 101) as f32 * 0.1) - 5.0)
         .collect();
