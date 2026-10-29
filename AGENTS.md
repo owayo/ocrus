@@ -217,6 +217,14 @@ mise exec -- cargo bench --locked --bench dict -- --save-baseline before
 mise exec -- cargo bench --locked --bench dict -- --baseline before
 ```
 
+水平射影の行検出も、モデルなしで合成二値画像を使って比較できる。通常のページに加え、
+小画像、SIMD 幅で割り切れない横幅、大画像を含む。
+
+```bash
+mise exec -- cargo bench --locked --bench preproc -- layout_detect_lines --save-baseline before
+mise exec -- cargo bench --locked --bench preproc -- layout_detect_lines --baseline before
+```
+
 Windows PowerShell で GNU Make がない場合は、`mise install` と
 `mise exec -- cargo fetch --locked` で準備し、Makefile と同じ検査を直接実行する。
 
