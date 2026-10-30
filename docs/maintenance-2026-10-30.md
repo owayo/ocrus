@@ -154,6 +154,27 @@ conv2d が 95% を占める状況は変わらないため、カーネル向け�
 精度測定は保守スキルで解決したデータ置き場を `OCRUS_DATA_DIR` に設定して実行した。
 フォント名、データの管理先、モデルや個別の評価結果は公開しない。
 
+## CI の状態
+
+push 後の CI（Quality / ubuntu-latest・macos-latest）は 3 回実行してすべて
+ツール導入の段階で失敗した。`jdx/mise-action` が `github:PyO3/maturin@1.15.0` の
+バージョンを `mise-versions.jdx.dev` へ問い合わせ、502 Bad Gateway が返る。
+
+```
+Failed to install github:PyO3/maturin@1.15.0: failed to read GitHub release
+PyO3/maturin@v1.15.0 from mise-versions.jdx.dev ... (502 Bad Gateway)
+```
+
+ホストのルートは 200 を返すため、GitHub release を中継する部分だけの障害と見られる。
+mise のエラーは `use_versions_host = false` で GitHub へ直接問い合わせる方法を案内している。
+この点検の変更とは無関係で、ビルドより前で落ちているため `cargo` は一度も走っていない。
+
+**このため Linux と macOS でのビルド・テスト・clippy・整形、配布バイナリのビルド、
+Python バインディングの検証は未実施。** 上の検証結果はすべて Windows 上のものである。
+障害の回復後に再実行すれば通る見込みだが、CI が外部ホストに依存する構成は変わらないため、
+`MISE_USE_VERSIONS_HOST=false` を CI へ渡すか、maturin を mise 管理から外すかは
+別途の判断が必要。
+
 ## 残課題
 
 - `--mode fastest` に別の意味を与えるか落とすかは未決（Issue #4）。現状は `auto` と同じ経路。
@@ -164,6 +185,7 @@ conv2d が 95% を占める状況は変わらないため、カーネル向け�
   `BLE001` の 1 件は取得と解析のあらゆる失敗で退避する意図的な捕捉。
   ruff は CI の検査に入っていない。
 - GPU を使う学習、漢字全件の評価、他 OS でのローカル実行は未実施。
+- Linux / macOS の検証は CI が外部ホストの障害で動かず未実施（上の「CI の状態」）。
 - 既定の並列設定での推論速度の退行は未判定（単一スレッド条件のみ測定）。
 - `CLAUDE.md` は `AGENTS.md` へのシンボリックリンクではなく、`AGENTS.md` と書かれた
   通常ファイルのまま。保守スキルが参照する mac 用のリンク作成スクリプトは
