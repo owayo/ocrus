@@ -1,4 +1,5 @@
 use crate::charset::Charset;
+use crate::ctc::validated_frames;
 
 /// CTC Greedy デコード: 各時刻で argmax を取り、繰り返しと blank を畳み込む。
 /// `logits` 形状: (timesteps, num_classes)
@@ -8,63 +9,11 @@ pub fn ctc_greedy_decode(
     num_classes: usize,
     charset: &Charset,
 ) -> (String, f32) {
-    if timesteps == 0 || num_classes == 0 {
-        return (String::new(), 0.0);
-    }
-    let Some(expected_len) = timesteps.checked_mul(num_classes) else {
+    let Some(frames) = validated_frames(logits, timesteps, num_classes) else {
         return (String::new(), 0.0);
     };
-    if logits.len() < expected_len {
-        return (String::new(), 0.0);
-    }
 
-    let mut indices = Vec::with_capacity(timesteps);
-    let mut total_confidence = 0.0f32;
-    let mut count = 0u32;
-
-    for t in 0..timesteps {
-        let offset = t * num_classes;
-        let slice = &logits[offset..offset + num_classes];
-        let mut best_idx = 0usize;
-        let mut best_val = f32::NEG_INFINITY;
-        for (idx, &v) in slice.iter().enumerate() {
-            let candidate = sanitize_logit(v);
-            if candidate.total_cmp(&best_val).is_gt() {
-                best_idx = idx;
-                best_val = candidate;
-            }
-        }
-        if best_val.is_finite() {
-            total_confidence += best_val;
-            count += 1;
-        }
-
-        indices.push(best_idx);
-    }
-
-    // 連続重複を畳み込み、blank を除去
-    let mut result = String::new();
-    let mut prev = None;
-
-    for &idx in &indices {
-        if Some(idx) == prev {
-            continue;
-        }
-        prev = Some(idx);
-        if idx != charset.blank_index()
-            && let Some(ch) = charset.index_to_char(idx)
-        {
-            result.push(ch);
-        }
-    }
-
-    let avg_confidence = if count > 0 {
-        total_confidence / count as f32
-    } else {
-        0.0
-    };
-
-    (result, avg_confidence)
+    decode_argmax(frames, num_classes, charset, |_idx, v| sanitize_logit(v))
 }
 
 /// 非許可クラスをマスクする CTC Greedy デコード。
@@ -77,15 +26,9 @@ pub fn ctc_greedy_decode_masked(
     charset: &Charset,
     mask: &[bool],
 ) -> (String, f32) {
-    if timesteps == 0 || num_classes == 0 {
-        return (String::new(), 0.0);
-    }
-    let Some(expected_len) = timesteps.checked_mul(num_classes) else {
+    let Some(frames) = validated_frames(logits, timesteps, num_classes) else {
         return (String::new(), 0.0);
     };
-    if logits.len() < expected_len {
-        return (String::new(), 0.0);
-    }
 
     assert_eq!(
         mask.len(),
@@ -93,21 +36,41 @@ pub fn ctc_greedy_decode_masked(
         "mask length must equal num_classes"
     );
 
-    let mut indices = Vec::with_capacity(timesteps);
+    decode_argmax(frames, num_classes, charset, |idx, v| {
+        if mask[idx] {
+            sanitize_logit(v)
+        } else {
+            f32::NEG_INFINITY
+        }
+    })
+}
+
+/// 時刻ごとの argmax を取り、文字列と平均信頼度を組み立てる。
+///
+/// `score` は比較に使う値へロジットを変換する。候補から外すクラスには
+/// `f32::NEG_INFINITY` を返す。マスクの有無はこの関数の呼び出し側が決めるため、
+/// 検証・畳み込み・信頼度の計算は 1 か所で済む。
+///
+/// 連続重複の畳み込みと blank の除去は argmax と同じ走査で行うので、
+/// 時刻ごとの添字を別に保持しない。
+#[inline]
+fn decode_argmax(
+    frames: &[f32],
+    num_classes: usize,
+    charset: &Charset,
+    score: impl Fn(usize, f32) -> f32,
+) -> (String, f32) {
+    let blank = charset.blank_index();
+    let mut result = String::new();
     let mut total_confidence = 0.0f32;
     let mut count = 0u32;
+    let mut prev = None;
 
-    for t in 0..timesteps {
-        let offset = t * num_classes;
-        let slice = &logits[offset..offset + num_classes];
+    for frame in frames.chunks_exact(num_classes) {
         let mut best_idx = 0usize;
         let mut best_val = f32::NEG_INFINITY;
-        for (idx, &v) in slice.iter().enumerate() {
-            let candidate = if mask[idx] {
-                sanitize_logit(v)
-            } else {
-                f32::NEG_INFINITY
-            };
+        for (idx, &v) in frame.iter().enumerate() {
+            let candidate = score(idx, v);
             if candidate.total_cmp(&best_val).is_gt() {
                 best_idx = idx;
                 best_val = candidate;
@@ -118,20 +81,12 @@ pub fn ctc_greedy_decode_masked(
             count += 1;
         }
 
-        indices.push(best_idx);
-    }
-
-    // 連続重複を畳み込み、blank を除去
-    let mut result = String::new();
-    let mut prev = None;
-
-    for &idx in &indices {
-        if Some(idx) == prev {
+        if Some(best_idx) == prev {
             continue;
         }
-        prev = Some(idx);
-        if idx != charset.blank_index()
-            && let Some(ch) = charset.index_to_char(idx)
+        prev = Some(best_idx);
+        if best_idx != blank
+            && let Some(ch) = charset.index_to_char(best_idx)
         {
             result.push(ch);
         }
@@ -225,6 +180,25 @@ mod tests {
         let (text, conf) = ctc_greedy_decode(&logits, 1, 2, &charset);
         assert_eq!(text, "a");
         assert_eq!(conf, 1.0);
+    }
+
+    #[test]
+    #[should_panic(expected = "mask length must equal num_classes")]
+    fn masked_decode_rejects_a_mask_of_the_wrong_length() {
+        let charset = Charset::from_chars(&['a']);
+        let mask = vec![true];
+        let _ = ctc_greedy_decode_masked(&[1.0, 2.0], 1, 2, &charset, &mask);
+    }
+
+    #[test]
+    fn a_short_input_is_rejected_before_the_mask_is_checked() {
+        // 入力の検証で打ち切る経路では mask の長さを見ない。マスクなし版と
+        // 同じ順序で検証することの回帰テスト。
+        let charset = Charset::from_chars(&['a']);
+        let mask = vec![true];
+        let (text, conf) = ctc_greedy_decode_masked(&[1.0], 2, 2, &charset, &mask);
+        assert_eq!(text, "");
+        assert_eq!(conf, 0.0);
     }
 
     #[test]

@@ -1,5 +1,6 @@
 pub mod cascade;
 pub mod charset;
+mod ctc;
 pub mod ctc_beam;
 pub mod ctc_greedy;
 pub mod ctc_tla;

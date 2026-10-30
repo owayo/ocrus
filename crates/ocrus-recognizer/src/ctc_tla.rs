@@ -1,4 +1,5 @@
 use crate::charset::Charset;
+use crate::ctc::validated_frames;
 
 /// 単文字を中心とする入力を、時刻ごとの確率を集計してデコードする。
 ///
@@ -10,23 +11,14 @@ pub fn ctc_tla_decode(
     num_classes: usize,
     charset: &Charset,
 ) -> (String, f32) {
-    if timesteps == 0 || num_classes == 0 {
-        return (String::new(), 0.0);
-    }
-    let Some(expected_len) = timesteps.checked_mul(num_classes) else {
+    let Some(frames) = validated_frames(logits, timesteps, num_classes) else {
         return (String::new(), 0.0);
     };
-    if logits.len() < expected_len {
-        return (String::new(), 0.0);
-    }
 
     let mut class_votes = vec![0.0f64; num_classes];
     let mut informative_frames = 0usize;
 
-    for t in 0..timesteps {
-        let offset = t * num_classes;
-        let slice = &logits[offset..offset + num_classes];
-
+    for slice in frames.chunks_exact(num_classes) {
         let max_val = slice
             .iter()
             .copied()

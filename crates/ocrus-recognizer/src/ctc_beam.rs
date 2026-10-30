@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::charset::Charset;
+use crate::ctc::validated_frames;
 
 /// CTC Prefix Beam Search デコード。
 /// あいまいな入力で greedy より精度が出る経路を探索し、(text, confidence) を返す。
@@ -33,25 +34,19 @@ pub fn ctc_beam_decode_topk(
     beam_width: usize,
     top_k: usize,
 ) -> (String, f32) {
-    if timesteps == 0 || num_classes == 0 || beam_width == 0 {
+    if beam_width == 0 || top_k == 0 {
         return (String::new(), 0.0);
     }
-    let Some(expected_len) = timesteps.checked_mul(num_classes) else {
+    let Some(frames) = validated_frames(logits, timesteps, num_classes) else {
         return (String::new(), 0.0);
     };
-    if logits.len() < expected_len || top_k == 0 {
-        return (String::new(), 0.0);
-    }
 
     // ビーム状態: prefix -> (log_p_blank, log_p_non_blank)
     let neg_inf = f64::NEG_INFINITY;
     let mut beams: HashMap<String, (f64, f64)> = HashMap::new();
     beams.insert(String::new(), (0.0, neg_inf)); // 初期状態: 空prefixのblank確率のみ1.0
 
-    for t in 0..timesteps {
-        let offset = t * num_classes;
-        let raw = &logits[offset..offset + num_classes];
-
+    for raw in frames.chunks_exact(num_classes) {
         let log_softmax = LogSoftmax::new(raw);
         let top_candidates = top_k_indices(raw, top_k);
 
