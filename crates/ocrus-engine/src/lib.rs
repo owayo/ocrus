@@ -75,11 +75,8 @@ pub fn prepare_image(img: &DynamicImage, config: &EngineConfig) -> PreparedImage
     invert_padded_dark_background(&mut gray);
     let binary = binarize_adaptive(&gray);
 
-    // 品質ゲートはレイアウト手法の選択をやめた（射影が測定で勝った。下の注記を参照）。
-    // いま `OcrMode` で分かれるのは `Accurate` の前処理バリアントの多数決だけで、
-    // `Fastest` と `Auto` は同じ経路を通る。結果を使わない品質評価は走らせない
-    // （二値化画像の全走査をひとつ省ける）。`Fastest` に意味を与えるか落とすかは
-    // todo.md で追跡している。品質評価そのものは `ocrus-layout` の API として残る。
+    // Both modes share layout detection. Accurate adds preprocessing variants below;
+    // quality assessment remains a standalone ocrus-layout API.
 
     // Vertical layout needs evidence, not a coin flip. `detect_orientation` compares how
     // sharp the row and column projections are, which is meaningless for a single glyph:
@@ -726,23 +723,25 @@ mod tests {
             }
         }
         let img = DynamicImage::ImageLuma8(pixels);
-        let config = EngineConfig {
-            mode: OcrMode::Accurate,
-            ..EngineConfig::default()
-        };
-        let prepared = prepare_image(&img, &config);
-        assert_eq!(prepared.lines.len(), 2);
-        assert!(prepared.lines[0].bbox.y < prepared.lines[1].bbox.y);
         let gray = to_grayscale(&img);
-        for line in prepared.lines {
-            assert_eq!(line.inputs.len(), 3);
-            for (src, input) in [gray.clone(), thicken(&gray), thin(&gray)]
-                .iter()
-                .zip(line.inputs)
-            {
-                let expected = normalize_line(src, &line.bbox);
-                assert_eq!(input.shape, expected.shape());
-                assert_eq!(input.data, expected.into_raw_vec_and_offset().0);
+        for (mode, variant_count) in [(OcrMode::Auto, 1), (OcrMode::Accurate, 3)] {
+            let config = EngineConfig {
+                mode,
+                ..EngineConfig::default()
+            };
+            let prepared = prepare_image(&img, &config);
+            assert_eq!(prepared.lines.len(), 2);
+            assert!(prepared.lines[0].bbox.y < prepared.lines[1].bbox.y);
+            for line in prepared.lines {
+                assert_eq!(line.inputs.len(), variant_count);
+                for (src, input) in [gray.clone(), thicken(&gray), thin(&gray)]
+                    .iter()
+                    .zip(line.inputs)
+                {
+                    let expected = normalize_line(src, &line.bbox);
+                    assert_eq!(input.shape, expected.shape());
+                    assert_eq!(input.data, expected.into_raw_vec_and_offset().0);
+                }
             }
         }
     }

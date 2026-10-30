@@ -55,10 +55,18 @@ def test_missing_model_dir_raises_model_not_found(tmp_path: Path) -> None:
     assert str(tmp_path) in message
 
 
-def test_invalid_mode_raises_config_error() -> None:
-    """Mode の綴り間違いは ConfigError で弾く。"""
-    with pytest.raises(ocrus.ConfigError):
-        ocrus.OcrEngine(mode="fast")
+@pytest.mark.parametrize("mode", ["auto", "accurate"])
+def test_supported_modes_reach_model_loading(mode: str, tmp_path: Path) -> None:
+    """有効なモードは引数検証を通り、モデルの有無を調べる。"""
+    with pytest.raises(ocrus.ModelNotFoundError):
+        ocrus.OcrEngine(model_dir=tmp_path, mode=mode)
+
+
+@pytest.mark.parametrize("mode", ["fast", "fastest"])
+def test_invalid_mode_raises_config_error(mode: str, tmp_path: Path) -> None:
+    """削除したモードと綴り間違いはモデルを読む前に弾く。"""
+    with pytest.raises(ocrus.ConfigError, match="expected 'auto' or 'accurate'"):
+        ocrus.OcrEngine(model_dir=tmp_path, mode=mode)
 
 
 def test_invalid_charset_raises_config_error() -> None:

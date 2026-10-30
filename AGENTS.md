@@ -61,7 +61,7 @@ image(mmap) → grayscale(SIMD) → binarize(Otsu/Sauvola adaptive)
 ocrus recognize image.png                      # Basic recognition
 ocrus recognize image.png --charset jis        # JIS X 0208 charset (fewer false positives)
 ocrus recognize image.png --dict corrections.txt  # Dictionary-based post-correction
-ocrus recognize image.png --mode fastest       # Same path as auto (no preprocessing variants)
+ocrus recognize image.png --mode auto          # Recognize each line once (default)
 ocrus recognize image.png --mode accurate      # Vote over three preprocessing variants
 ocrus recognize image.png --ruby               # Ruby (furigana) separation
 ocrus bench image.png                          # Run benchmarks

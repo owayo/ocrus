@@ -52,6 +52,10 @@ Rust の直接依存、PyO3、画像処理・SIMD の依存、Python パッケ�
 「engine は使わない」と明記した。`--mode fastest` に別の意味を与えるか落とすかは
 Issue #4 に残した。
 
+その後の Issue #4 対応で `fastest` の削除を選び、CLI・Rust API・Python API を
+`auto` と `accurate` に統一した。従来の `fastest` 指定は `auto` に置き換える。
+両者は同じ認識処理だったため、この置き換えで認識動作は変わらない。
+
 ## 構造の整理
 
 `ctc_greedy_decode` と `ctc_greedy_decode_masked` は、マスク適用の 3 行を除いて
@@ -177,7 +181,7 @@ Python バインディングの検証は未実施。** 上の検証結果はす�
 
 ## 残課題
 
-- `--mode fastest` に別の意味を与えるか落とすかは未決（Issue #4）。現状は `auto` と同じ経路。
+- Issue #4 のモード整理は対応済み。`fastest` を削除し、`auto` / `accurate` に統一した。
 - conv2d のカーネル向けレイアウトは効果が最も大きい候補のまま未着手（`docs/ocnn-format.md`）。
 - `ruff check` の残り 5 件は実害がないと判断して直していない。`PLW1510` の 2 件は
   `subprocess.run` の戻り値を明示的に見て `sys.exit` しており、`RUF100` の 2 件は

@@ -29,7 +29,6 @@ fn build_engine_config(args: &RecognizeArgs) -> EngineConfig {
 
     builder = builder.mode(match args.mode {
         CliMode::Auto => OcrMode::Auto,
-        CliMode::Fastest => OcrMode::Fastest,
         CliMode::Accurate => OcrMode::Accurate,
     });
 
