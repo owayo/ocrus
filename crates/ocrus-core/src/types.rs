@@ -24,11 +24,6 @@ impl BBox {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Quad {
-    pub points: [(f32, f32); 4],
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RubyAnnotation {
     pub ruby_text: String,
     pub bbox: BBox,

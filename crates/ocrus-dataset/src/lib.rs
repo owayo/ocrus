@@ -323,21 +323,6 @@ pub fn generate_from_failure_images(
     Ok(stats)
 }
 
-pub fn available_categories(data_dir: &Path) -> Result<Vec<String>> {
-    let mut categories = Vec::new();
-    for entry in std::fs::read_dir(data_dir)? {
-        let entry = entry?;
-        let path = entry.path();
-        if path.extension().is_some_and(|e| e == "txt")
-            && let Some(stem) = path.file_stem().and_then(|s| s.to_str())
-        {
-            categories.push(stem.to_string());
-        }
-    }
-    categories.sort();
-    Ok(categories)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

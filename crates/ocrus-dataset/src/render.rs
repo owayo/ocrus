@@ -20,10 +20,6 @@ pub fn render_text_line(font: &FontRef<'_>, text: &str, height: u32) -> GrayImag
     img
 }
 
-pub fn render_single_char(font: &FontRef<'_>, ch: char) -> GrayImage {
-    render_text_line(font, &ch.to_string(), DEFAULT_HEIGHT)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
