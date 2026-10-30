@@ -31,8 +31,8 @@ use ocrus_core::{
     CharsetMode, EngineConfig, OcrMode, OcrResult, OcrusError, Page, RubyAnnotation, TextLine,
 };
 use ocrus_layout::{
-    TextOrientation, assess_quality, detect_columns_vertical, detect_lines_ccl,
-    detect_lines_projection, detect_orientation, separate_ruby, should_use_fast_path,
+    TextOrientation, detect_columns_vertical, detect_lines_ccl, detect_lines_projection,
+    detect_orientation, separate_ruby,
 };
 use ocrus_nn::{Executor, Model, NdTensor};
 use ocrus_preproc::{
@@ -75,15 +75,11 @@ pub fn prepare_image(img: &DynamicImage, config: &EngineConfig) -> PreparedImage
     invert_padded_dark_background(&mut gray);
     let binary = binarize_adaptive(&gray);
 
-    // NOTE: the quality gate no longer selects a layout algorithm — projection won on
-    // measurement (see below) — so `OcrMode` currently does not change the pipeline.
-    // Deciding what it should mean, or dropping it, is tracked in todo.md.
-    let quality = assess_quality(&binary);
-    let _use_fast_path = match config.mode {
-        OcrMode::Fastest => true,
-        OcrMode::Accurate => false,
-        OcrMode::Auto => should_use_fast_path(&quality),
-    };
+    // 品質ゲートはレイアウト手法の選択をやめた（射影が測定で勝った。下の注記を参照）。
+    // いま `OcrMode` で分かれるのは `Accurate` の前処理バリアントの多数決だけで、
+    // `Fastest` と `Auto` は同じ経路を通る。結果を使わない品質評価は走らせない
+    // （二値化画像の全走査をひとつ省ける）。`Fastest` に意味を与えるか落とすかは
+    // todo.md で追跡している。品質評価そのものは `ocrus-layout` の API として残る。
 
     // Vertical layout needs evidence, not a coin flip. `detect_orientation` compares how
     // sharp the row and column projections are, which is meaningless for a single glyph:

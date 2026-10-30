@@ -19,7 +19,7 @@ Cargo workspace with 9 crates:
 | `ocrus-core` | Data models, config, errors, EngineConfig API |
 | `ocrus-preproc` | Image preprocessing (SIMD grayscale, Otsu/Sauvola binarize, normalize) |
 | `ocrus-layout` | Layout analysis (projection, CCL, vertical, quality gate, ruby separation) |
-| `ocrus-recognizer` | CTC recognition (greedy + beam search, JIS charset, dict correction, cascade) |
+| `ocrus-recognizer` | CTC recognition (greedy + beam search, JIS charset, dict correction) |
 | `ocrus-nn` | Pure Rust inference engine (.ocnn format, SIMD ops, mmap model loading) |
 | `ocrus-engine` | **OCR pipeline** (preproc → layout → inference → decode). CLI and Python both call this |
 | `ocrus-dataset` | Training data generation (font rendering, pre-rendered images, augmentation, font style filtering) |
@@ -34,7 +34,7 @@ ocrus-python → ocrus-engine, ocrus-core, pyo3
 ocrus-engine → ocrus-core, ocrus-preproc, ocrus-layout, ocrus-recognizer, ocrus-nn, memmap2, rayon, image
 ocrus-preproc → ocrus-core, wide, image
 ocrus-layout → ocrus-core, wide, serde, imageproc, image
-ocrus-recognizer → ocrus-core, ocrus-nn, daachorse, img_hash
+ocrus-recognizer → ocrus-core, daachorse, img_hash, image
 ocrus-nn → ocrus-core, memmap2, wide
 ```
 
@@ -49,9 +49,9 @@ engine's output.
 ## Pipeline
 
 ```
-image(mmap) → grayscale(SIMD) → binarize(Otsu/Sauvola adaptive) → quality gate
+image(mmap) → grayscale(SIMD) → binarize(Otsu/Sauvola adaptive)
   → orientation detect → layout(projection/CCL/vertical) → ruby separation(optional)
-  → normalize(SIMD+rayon) → batch inference(ocrus-nn) → cascade(optional)
+  → normalize(SIMD+rayon) → batch inference(ocrus-nn)
   → CTC decode(greedy + beam fallback + logit mask) → dict correction → output
 ```
 
@@ -61,10 +61,9 @@ image(mmap) → grayscale(SIMD) → binarize(Otsu/Sauvola adaptive) → quality 
 ocrus recognize image.png                      # Basic recognition
 ocrus recognize image.png --charset jis        # JIS X 0208 charset (fewer false positives)
 ocrus recognize image.png --dict corrections.txt  # Dictionary-based post-correction
-ocrus recognize image.png --mode fastest       # Skip quality gate, use batch inference
-ocrus recognize image.png --mode accurate      # Full quality pipeline
+ocrus recognize image.png --mode fastest       # Same path as auto (no preprocessing variants)
+ocrus recognize image.png --mode accurate      # Vote over three preprocessing variants
 ocrus recognize image.png --ruby               # Ruby (furigana) separation
-ocrus recognize image.png --cascade model.ocnn # Cascade recognition
 ocrus bench image.png                          # Run benchmarks
 ```
 
@@ -96,9 +95,8 @@ uv run --with ./target/wheels/<wheel> --with pytest python -m pytest python/test
 ## Key Features
 
 - **SIMD preprocessing**: `wide` crate for grayscale, binarize, normalize, projection (8-16x parallel)
-- **Quality Gate**: Automatic image quality assessment (contrast, binarization, skew) for adaptive pipeline
+- **Quality Gate**: Image quality assessment (contrast, binarization, skew) in `ocrus-layout`; the engine does not use it
 - **Ruby separation**: CCL-based furigana detection and separation from body text
-- **Cascade recognition**: Character segmentation → classifier → CTC fallback for speed
 - **Custom inference**: Pure Rust `ocrus-nn` engine with .ocnn mmap model format
 - **Batch inference**: Multiple lines in single run (padded to max width)
 - **JIS X 0208 charset**: Logit masking for Japanese-specific character set

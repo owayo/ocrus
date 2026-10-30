@@ -29,10 +29,9 @@
 
 - **SIMD 前処理**: グレースケール変換、二値化、正規化、射影を高速化します。
 - **適応二値化**: Otsu と Sauvola のフォールバックを使います。
-- **画像品質の評価**: コントラスト、二値化、傾きをもとに処理を選びます。
+- **画像品質の評価**: コントラスト、二値化、傾きを `ocrus-layout` の API で測れます。認識パイプラインは使いません。
 - **レイアウト解析**: 射影、連結成分、縦書き検出に対応します。水平射影のライブラリ API は列優先の配列も受け付けます。
 - **ルビ分離**: 連結成分のサイズからふりがなを分離します。
-- **カスケード認識**: 文字分割、分類、CTC フォールバックを組み合わせます。
 - **純 Rust 推論**: `ocrus-nn` で PP-OCRv5 を実行します。ONNX Runtime は不要です。
 - **`.ocnn` モデル**: mmap 読み込み、型付きグラフ、Conv+BN+ReLU 融合に対応します。
 - **CTC デコード**: Greedy デコードを使い、信頼度が低い行には Beam Search を適用します。
@@ -109,11 +108,11 @@ ocrus tui
 ocrus recognize image.png --charset jis
 ocrus recognize image.png --dict corrections.txt
 ocrus recognize image.png --mode fastest
-ocrus recognize image.png --mode accurate
+ocrus recognize image.png --mode accurate  # 前処理バリアント 3 通りの多数決
 ocrus recognize image.png --ruby
 ```
 
-カスケード認識、TUI の操作、ベンチマーク、データセットのコマンドは [使い方の詳細](docs/usage.ja.md) に記載しています。ベンチマークの反復回数は1以上を指定します。
+TUI の操作、ベンチマーク、データセットのコマンドは [使い方の詳細](docs/usage.ja.md) に記載しています。ベンチマークの反復回数は1以上を指定します。
 
 補正辞書は `誤認識文字列<TAB>正しい文字列` を1行ずつ指定します。左端で一致する最長のルールを適用し、置換した文字列は再処理しません。詳しくは [辞書補正](docs/usage.ja.md#辞書補正) を参照してください。
 

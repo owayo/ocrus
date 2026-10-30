@@ -44,10 +44,6 @@ fn build_engine_config(args: &RecognizeArgs) -> EngineConfig {
 
     builder = builder.ruby_separation(args.ruby);
 
-    if let Some(ref path) = args.cascade {
-        builder = builder.cascade_model_path(path.clone());
-    }
-
     builder.build()
 }
 

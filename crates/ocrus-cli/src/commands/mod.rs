@@ -134,10 +134,6 @@ pub struct RecognizeArgs {
     /// Enable ruby (furigana) separation
     #[arg(long)]
     pub ruby: bool,
-
-    /// Cascade classifier model path
-    #[arg(long)]
-    pub cascade: Option<PathBuf>,
 }
 
 #[derive(Clone, Debug, clap::ValueEnum)]

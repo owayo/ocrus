@@ -1797,7 +1797,6 @@ dependencies = [
  "daachorse",
  "image 0.25.10",
  "img_hash",
- "ndarray",
  "ocrus-core",
  "tempfile",
 ]

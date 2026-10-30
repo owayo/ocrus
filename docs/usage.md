@@ -12,17 +12,14 @@ ocrus recognize image.png --charset jis
 # Dictionary-based post-correction
 ocrus recognize image.png --dict corrections.txt
 
-# Fastest mode (skip quality gate, batch inference)
+# Fastest mode (same path as auto: no preprocessing variants)
 ocrus recognize image.png --mode fastest
 
-# Accurate mode (full quality pipeline)
+# Accurate mode (vote over three preprocessing variants, three inference passes)
 ocrus recognize image.png --mode accurate
 
 # Ruby (furigana) separation
 ocrus recognize image.png --ruby
-
-# Cascade recognition (requires cascade classifier model)
-ocrus recognize image.png --cascade path/to/cascade_model.ocnn
 ```
 
 ## From Python

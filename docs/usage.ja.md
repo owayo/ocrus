@@ -12,17 +12,14 @@ ocrus recognize image.png --charset jis
 # 辞書による後処理補正
 ocrus recognize image.png --dict corrections.txt
 
-# 最速モード（品質ゲートをスキップ、バッチ推論）
+# 最速モード（auto と同じ経路。前処理バリアントを使わない）
 ocrus recognize image.png --mode fastest
 
-# 高精度モード（フル品質パイプライン）
+# 高精度モード（前処理バリアント 3 通りの多数決。推論は 3 回）
 ocrus recognize image.png --mode accurate
 
 # ルビ（ふりがな）分離
 ocrus recognize image.png --ruby
-
-# カスケード認識（カスケード分類器モデルが必要）
-ocrus recognize image.png --cascade path/to/cascade_model.ocnn
 ```
 
 ## 辞書補正
