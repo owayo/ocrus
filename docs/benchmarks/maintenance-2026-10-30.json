@@ -1,0 +1,352 @@
+{
+  "date": "2026-10-30",
+  "environment": {
+    "os": "Windows 11 x86_64",
+    "cpu": "Ryzen 7 5700X (8 cores / 16 threads)",
+    "rust": "1.99.1 release (LTO, codegen-units=1)",
+    "pinned": {
+      "processor_affinity": "logical CPU 14",
+      "priority": "AboveNormal",
+      "RAYON_NUM_THREADS": "1"
+    },
+    "note": "criterion と maintenance_profile は上記固定。本番パイプラインの計測は既定の並列設定で優先度のみ固定。"
+  },
+  "criterion": {
+    "config": "--sample-size 40 --warm-up-time 1 --measurement-time 3 --noplot、前→後→後→前→前→後 の順で各3回",
+    "control": "quality_assess_600x800 は実装を変更していない対照",
+    "results": {
+      "quality_assess_600x800": {
+        "after": {
+          "samples": [
+            {
+              "round": 1,
+              "ci_low_ms": 11.429,
+              "point_ms": 11.549,
+              "ci_high_ms": 11.688
+            },
+            {
+              "round": 2,
+              "ci_low_ms": 11.42,
+              "point_ms": 11.683,
+              "ci_high_ms": 12.07
+            },
+            {
+              "round": 3,
+              "ci_low_ms": 11.515,
+              "point_ms": 11.672,
+              "ci_high_ms": 11.873
+            }
+          ],
+          "median_ms": 11.672,
+          "min_ms": 11.549,
+          "max_ms": 11.683
+        },
+        "before": {
+          "samples": [
+            {
+              "round": 1,
+              "ci_low_ms": 10.728,
+              "point_ms": 10.874,
+              "ci_high_ms": 11.024
+            },
+            {
+              "round": 2,
+              "ci_low_ms": 10.365,
+              "point_ms": 10.449,
+              "ci_high_ms": 10.55
+            },
+            {
+              "round": 3,
+              "ci_low_ms": 10.429,
+              "point_ms": 10.534000000000002,
+              "ci_high_ms": 10.651000000000002
+            }
+          ],
+          "median_ms": 10.534000000000002,
+          "min_ms": 10.449,
+          "max_ms": 10.874
+        },
+        "diff_pct": 10.803113726979285
+      },
+      "ctc_greedy_100ts_101cls": {
+        "after": {
+          "samples": [
+            {
+              "round": 1,
+              "ci_low_ms": 0.0087866,
+              "point_ms": 0.008985099999999998,
+              "ci_high_ms": 0.0092329
+            },
+            {
+              "round": 2,
+              "ci_low_ms": 0.0088533,
+              "point_ms": 0.0090367,
+              "ci_high_ms": 0.009231199999999998
+            },
+            {
+              "round": 3,
+              "ci_low_ms": 0.008572900000000001,
+              "point_ms": 0.0087674,
+              "ci_high_ms": 0.0089929
+            }
+          ],
+          "median_ms": 0.008985099999999998,
+          "min_ms": 0.0087674,
+          "max_ms": 0.0090367
+        },
+        "before": {
+          "samples": [
+            {
+              "round": 1,
+              "ci_low_ms": 0.008109199999999999,
+              "point_ms": 0.008203599999999998,
+              "ci_high_ms": 0.0083284
+            },
+            {
+              "round": 2,
+              "ci_low_ms": 0.0081227,
+              "point_ms": 0.008241899999999998,
+              "ci_high_ms": 0.008375400000000002
+            },
+            {
+              "round": 3,
+              "ci_low_ms": 0.0081446,
+              "point_ms": 0.0082599,
+              "ci_high_ms": 0.008397299999999998
+            }
+          ],
+          "median_ms": 0.008241899999999998,
+          "min_ms": 0.008203599999999998,
+          "max_ms": 0.0082599
+        },
+        "diff_pct": 9.017338235115684
+      },
+      "ctc_beam_100ts_101cls_w5": {
+        "after": {
+          "samples": [
+            {
+              "round": 1,
+              "ci_low_ms": 11.02,
+              "point_ms": 11.177,
+              "ci_high_ms": 11.357
+            },
+            {
+              "round": 2,
+              "ci_low_ms": 11.440000000000001,
+              "point_ms": 11.737,
+              "ci_high_ms": 12.143
+            },
+            {
+              "round": 3,
+              "ci_low_ms": 10.805,
+              "point_ms": 10.903,
+              "ci_high_ms": 11.018000000000002
+            }
+          ],
+          "median_ms": 11.177,
+          "min_ms": 10.903,
+          "max_ms": 11.737
+        },
+        "before": {
+          "samples": [
+            {
+              "round": 1,
+              "ci_low_ms": 11.132,
+              "point_ms": 11.331,
+              "ci_high_ms": 11.565
+            },
+            {
+              "round": 2,
+              "ci_low_ms": 10.879,
+              "point_ms": 11.079,
+              "ci_high_ms": 11.332000000000003
+            },
+            {
+              "round": 3,
+              "ci_low_ms": 11.17,
+              "point_ms": 11.338,
+              "ci_high_ms": 11.542
+            }
+          ],
+          "median_ms": 11.331,
+          "min_ms": 11.079,
+          "max_ms": 11.338
+        },
+        "diff_pct": -1.3591033448062828
+      }
+    }
+  },
+  "production_pipeline_845": {
+    "after": {
+      "samples": [
+        {
+          "round": 1,
+          "seconds": 43.3,
+          "correct": 744,
+          "total": 845
+        },
+        {
+          "round": 2,
+          "seconds": 42.1,
+          "correct": 744,
+          "total": 845
+        },
+        {
+          "round": 3,
+          "seconds": 44.3,
+          "correct": 744,
+          "total": 845
+        }
+      ],
+      "median_seconds": 43.3,
+      "correct": [
+        744
+      ]
+    },
+    "before": {
+      "samples": [
+        {
+          "round": 1,
+          "seconds": 42.6,
+          "correct": 744,
+          "total": 845
+        },
+        {
+          "round": 2,
+          "seconds": 42.8,
+          "correct": 744,
+          "total": 845
+        },
+        {
+          "round": 3,
+          "seconds": 43.2,
+          "correct": 744,
+          "total": 845
+        }
+      ],
+      "median_seconds": 42.8,
+      "correct": [
+        744
+      ]
+    }
+  },
+  "recognize_large_png": {
+    "input": "testdata/large.png (2400x800)",
+    "method": "Measure-Command で ocrus recognize を 1 回ずつ、前→後→後→前→前→後",
+    "before_ms": [
+      3149.3,
+      2694.5,
+      2859.7
+    ],
+    "after_ms": [
+      2713.5,
+      2655.0,
+      2822.7
+    ],
+    "before_median_ms": 2859.7,
+    "after_median_ms": 2713.5,
+    "stdout_identical": true,
+    "note": "前の範囲が455ms あり、削除した品質評価の寄与（2400x800 で約40ms 相当）はこの幅に収まらない。"
+  },
+  "model_format": {
+    "model_bytes": 42101410,
+    "load_ms": {
+      "samples": [
+        1.0539,
+        0.8458,
+        0.8265,
+        0.8598,
+        0.8617,
+        0.8425,
+        0.8807,
+        0.8472,
+        0.8473,
+        0.8505,
+        0.8817
+      ],
+      "median": 0.8505,
+      "min": 0.8265,
+      "max": 1.0539
+    },
+    "inference": {
+      "W=104": {
+        "samples_ms": [
+          239.0268,
+          233.3893,
+          240.0623,
+          237.2746,
+          236.9664
+        ],
+        "median_ms": 237.2746,
+        "min_ms": 233.3893,
+        "max_ms": 240.0623,
+        "output_hash_unique": true,
+        "op_share_pct": {
+          "conv2d": 95.47184810397574,
+          "matmul": 2.045726512311553,
+          "binary": 1.4316813451904655,
+          "concat": 0.4260454109669597,
+          "softmax": 0.331474811795207,
+          "pool": 0.13808913953268345,
+          "transpose": 0.066423480294438,
+          "unary": 0.046486290053312125,
+          "layer_norm": 0.01720618411394874,
+          "unsqueeze": 0.010890203999393598,
+          "squeeze": 0.009503563117483238,
+          "reshape": 0.0030523009656685486,
+          "slice": 0.0015726536831422435
+        }
+      },
+      "W=320": {
+        "samples_ms": [
+          675.8801,
+          674.252,
+          669.5609,
+          699.54,
+          682.3615
+        ],
+        "median_ms": 675.8801,
+        "min_ms": 669.5609,
+        "max_ms": 699.54,
+        "output_hash_unique": true,
+        "op_share_pct": {
+          "conv2d": 95.09178633944003,
+          "matmul": 1.8005747055703132,
+          "binary": 1.6893542225842317,
+          "concat": 0.5890172790935806,
+          "softmax": 0.4437367591237293,
+          "pool": 0.17522915040956613,
+          "transpose": 0.09556880394579334,
+          "unary": 0.07196289616449456,
+          "layer_norm": 0.02293001969903856,
+          "unsqueeze": 0.01368304432034274,
+          "squeeze": 0.0029927970105322562,
+          "reshape": 0.0020630819628817032,
+          "slice": 0.0011009006754719246
+        }
+      }
+    }
+  },
+  "accuracy": {
+    "char_accuracy_step1": {
+      "base": "662/1095 (60.5%)",
+      "new": "662/1095 (60.5%)",
+      "diff_pt": 0.0
+    },
+    "char_accuracy_step2": {
+      "base": "613/845 (72.5%)",
+      "new": "613/845 (72.5%)",
+      "diff_pt": 0.0
+    },
+    "production_pipeline": {
+      "before": "744/845 (88.0%)",
+      "after": "744/845 (88.0%)",
+      "diff_pt": 0.0
+    },
+    "smoke_24": {
+      "before": "17/24 正解, 24/24 非空",
+      "after": "17/24 正解, 24/24 非空"
+    },
+    "ocnn_golden": "2/2 一致"
+  }
+}
