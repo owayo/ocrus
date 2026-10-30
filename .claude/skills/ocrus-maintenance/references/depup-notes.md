@@ -14,6 +14,20 @@
 crate ごとに直書きされている依存（`wide`、`memmap2`、`imageproc` など）は
 workspace 側を直しても上がらない。`depup --dry-run` の出力は crate 単位で読むこと。
 
+## 実行時に除外するもの
+
+```bash
+depup --install --exclude python --exclude numpy
+```
+
+- `python`: mise の `python` を最新版（3.15 など）へ上げようとするが、
+  `scripts/pyproject.toml` の `requires-python = ">=3.12,<3.13"` とそろえる。
+  上げると `uv sync --extra train` が解決できなくなる（PaddlePaddle の制約）。
+- `numpy`: `python/pyproject.toml` の任意 extra の下限なので上げない（理由は下の Python 側）。
+
+除外せずに回した回は、`git diff mise.toml python/pyproject.toml` で
+この 2 つが動いていないかを必ず確かめる。
+
 ## 上げ方に注意が要るもの
 
 ### `wide`（SIMD の土台）

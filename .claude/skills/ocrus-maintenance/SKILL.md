@@ -129,7 +129,7 @@ depup --dry-run
 ```
 
 ```bash
-depup --install
+depup --install --exclude python --exclude numpy
 ```
 
 リポジトリ直下の `.depup` に `scripts` と `python` が書いてあるので、depup は
