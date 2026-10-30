@@ -318,11 +318,10 @@ impl PyOcrEngine {
         }
         builder = builder.mode(match mode {
             "auto" => OcrMode::Auto,
-            "fastest" => OcrMode::Fastest,
             "accurate" => OcrMode::Accurate,
             other => {
                 return Err(ConfigError::new_err(format!(
-                    "unknown mode {other:?}: expected 'auto', 'fastest' or 'accurate'"
+                    "unknown mode {other:?}: expected 'auto' or 'accurate'"
                 )));
             }
         });

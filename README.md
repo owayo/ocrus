@@ -107,12 +107,14 @@ ocrus tui
 ```bash
 ocrus recognize image.png --charset jis
 ocrus recognize image.png --dict corrections.txt
-ocrus recognize image.png --mode fastest
+ocrus recognize image.png --mode auto      # 既定。各行を1通りで認識
 ocrus recognize image.png --mode accurate  # 前処理バリアント 3 通りの多数決
 ocrus recognize image.png --ruby
 ```
 
 TUI の操作、ベンチマーク、データセットのコマンドは [使い方の詳細](docs/usage.ja.md) に記載しています。ベンチマークの反復回数は1以上を指定します。
+
+認識モードは `auto` と `accurate` の2種類です。旧 `fastest` は削除しました。既存の指定は `auto` に置き換えてください。認識処理は同じです。
 
 補正辞書は `誤認識文字列<TAB>正しい文字列` を1行ずつ指定します。左端で一致する最長のルールを適用し、置換した文字列は再処理しません。詳しくは [辞書補正](docs/usage.ja.md#辞書補正) を参照してください。
 

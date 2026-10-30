@@ -42,12 +42,16 @@ numpy と PIL は任意。どちらも入っていなければ、パスとバイ
 ```python
 engine = ocrus.OcrEngine(
     model_dir="/path/to/models",  # 既定: $OCRUS_MODEL_DIR か ~/.ocrus/models
-    mode="accurate",  # auto / fastest / accurate
+    mode="accurate",  # auto / accurate
     charset="jis",  # full / jis（JIS 外の文字を出さない）
     dict_path="corrections.txt",  # 後処理の補正辞書
     ruby=True,  # ルビを本文から分離する
 )
 ```
+
+`mode` の既定は `auto`（各行を1通りで認識）。`accurate` は元画像と画線を太らせた画像・
+細らせた画像の3通りで認識し、多数決を取る。旧 `fastest` は削除したため、`auto` に
+置き換える。認識処理は同じで、`fastest` を指定すると `ConfigError` になる。
 
 ## モデル
 

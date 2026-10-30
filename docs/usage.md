@@ -12,8 +12,8 @@ ocrus recognize image.png --charset jis
 # Dictionary-based post-correction
 ocrus recognize image.png --dict corrections.txt
 
-# Fastest mode (same path as auto: no preprocessing variants)
-ocrus recognize image.png --mode fastest
+# Default mode (recognize each line once)
+ocrus recognize image.png --mode auto
 
 # Accurate mode (vote over three preprocessing variants, three inference passes)
 ocrus recognize image.png --mode accurate
@@ -21,6 +21,9 @@ ocrus recognize image.png --mode accurate
 # Ruby (furigana) separation
 ocrus recognize image.png --ruby
 ```
+
+The supported modes are `auto` (default) and `accurate`. The former `fastest` mode
+has been removed; replace it with `auto` for the same recognition behavior.
 
 ## From Python
 

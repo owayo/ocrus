@@ -12,8 +12,8 @@ ocrus recognize image.png --charset jis
 # 辞書による後処理補正
 ocrus recognize image.png --dict corrections.txt
 
-# 最速モード（auto と同じ経路。前処理バリアントを使わない）
-ocrus recognize image.png --mode fastest
+# 既定のモード（各行を1通りで認識）
+ocrus recognize image.png --mode auto
 
 # 高精度モード（前処理バリアント 3 通りの多数決。推論は 3 回）
 ocrus recognize image.png --mode accurate
@@ -21,6 +21,9 @@ ocrus recognize image.png --mode accurate
 # ルビ（ふりがな）分離
 ocrus recognize image.png --ruby
 ```
+
+認識モードは `auto`（既定）と `accurate` の2種類です。旧 `fastest` は削除しました。
+既存の指定は `auto` に置き換えてください。認識処理は同じです。
 
 ## 辞書補正
 

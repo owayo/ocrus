@@ -4,9 +4,10 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub enum OcrMode {
+    /// Recognize each line using its original normalized image.
     #[default]
     Auto,
-    Fastest,
+    /// Vote over the original, thickened and thinned images of each line.
     Accurate,
 }
 
@@ -47,6 +48,17 @@ fn num_cpus() -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn mode_deserialization_accepts_only_auto_and_accurate() {
+        use serde::de::value::{Error, StrDeserializer};
+
+        let parse = |name| OcrMode::deserialize(StrDeserializer::<Error>::new(name));
+        assert!(matches!(OcrMode::default(), OcrMode::Auto));
+        assert!(matches!(parse("Auto"), Ok(OcrMode::Auto)));
+        assert!(matches!(parse("Accurate"), Ok(OcrMode::Accurate)));
+        assert!(parse("Fastest").is_err());
+    }
 
     #[test]
     fn model_directory_environment_precedence() {

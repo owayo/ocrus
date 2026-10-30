@@ -68,7 +68,7 @@ class OcrEngine:
         self,
         *,
         model_dir: Path | None = None,
-        mode: Literal["auto", "fastest", "accurate"] = "auto",
+        mode: Literal["auto", "accurate"] = "auto",
         charset: Literal["full", "jis"] = "full",
         dict_path: Path | None = None,
         threads: int | None = None,

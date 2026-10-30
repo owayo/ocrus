@@ -59,7 +59,7 @@ __all__ = [
 
 __version__: str = _native.__version__
 
-Mode = Literal["auto", "fastest", "accurate"]
+Mode = Literal["auto", "accurate"]
 Charset = Literal["full", "jis"]
 
 #: 画像として受け取れるもの。パス、エンコード済みバイト列、生ピクセル
@@ -94,8 +94,8 @@ class OcrEngine:
         Args:
             model_dir: モデルディレクトリ。既定は `OCRUS_MODEL_DIR`、
                 無ければ `~/.ocrus/models`。
-            mode: `auto` は画質から経路を決める。`fastest` は品質ゲートを飛ばして
-                バッチ推論、`accurate` は CCL レイアウト解析を使う。
+            mode: `auto` は各行をそのまま認識する。`accurate` は元画像と画線を
+                太らせた画像・細らせた画像の3通りで認識し、多数決を取る。
             charset: `jis` にすると JIS 文字集合の外のクラスを logit マスクで落とす。
                 日本語だけを扱うなら誤検出が減る。
             dict_path: 後処理で使う補正辞書 (`誤り<TAB>正しい` 形式)。

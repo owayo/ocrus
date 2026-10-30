@@ -144,8 +144,9 @@ pub enum OutputFormat {
 
 #[derive(Clone, Debug, clap::ValueEnum)]
 pub enum CliMode {
+    /// Recognize each line once (default)
     Auto,
-    Fastest,
+    /// Vote over three preprocessing variants per line
     Accurate,
 }
 
@@ -172,6 +173,36 @@ pub struct BenchArgs {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn recognize_accepts_auto_and_accurate_and_defaults_to_auto() {
+        for (extra, accurate) in [
+            (vec![], false),
+            (vec!["--mode", "auto"], false),
+            (vec!["--mode", "accurate"], true),
+        ] {
+            let cli =
+                Cli::try_parse_from(["ocrus", "recognize", "image.png"].into_iter().chain(extra))
+                    .unwrap();
+            let Commands::Recognize(args) = cli.command else {
+                panic!("expected recognition");
+            };
+            assert_eq!(matches!(args.mode, CliMode::Accurate), accurate);
+        }
+    }
+
+    #[test]
+    fn recognize_rejects_removed_fastest_mode() {
+        let error = Cli::try_parse_from(["ocrus", "recognize", "image.png", "--mode", "fastest"])
+            .err()
+            .expect("removed mode must be rejected before loading a model");
+        assert_eq!(error.kind(), clap::error::ErrorKind::InvalidValue);
+        assert!(
+            error
+                .to_string()
+                .contains("possible values: auto, accurate")
+        );
+    }
 
     #[test]
     fn failure_images_conflict_with_all_fonts() {
