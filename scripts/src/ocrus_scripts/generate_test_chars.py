@@ -121,6 +121,7 @@ def _generate_joyo_kanji() -> str:
 
     """
     import re
+    import sys
     import urllib.request
 
     existing = OUTPUT_DIR / "joyo_kanji.txt"
@@ -171,8 +172,9 @@ def _generate_joyo_kanji() -> str:
         if len(joyo) == 2136:
             return "".join(joyo[i] for i in range(1, 2137))
 
-    except Exception:
-        pass
+    except Exception as exc:
+        # 取得と解析のどの段階で失敗したかを残す。この後は既存ファイルへ退避する。
+        print(f"常用漢字一覧の取得に失敗しました: {exc}", file=sys.stderr)
 
     # Fallback: read existing file
     if existing.exists():
