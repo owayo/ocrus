@@ -22,6 +22,7 @@ flowchart LR
 | `ocrus-recognizer` | CTC 認識（Greedy + Beam Search、JIS 文字セット、辞書補正） |
 | `ocrus-nn` | 純 Rust 推論エンジン（.ocnn フォーマット、SIMD 演算、mmap モデルロード） |
 | `ocrus-engine` | OCR パイプライン本体（前処理 → レイアウト → 推論 → デコード） |
+| `ocrus-ffi` | C ABI。画素入力・所有権・キャンセル・panicの境界を管理 |
 | `ocrus-cli` | CLI エントリポイント（`ocrus-engine` の薄いラッパ） |
 | `ocrus-python` | PyO3 バインディング（maturin で `ocrus` wheel をビルド） |
 | `ocrus-dataset` | 訓練データ生成（フォントレンダリング、オーグメンテーション、フォントスタイルフィルタ） |

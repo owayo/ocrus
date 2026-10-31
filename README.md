@@ -45,7 +45,10 @@
 - **ファインチューニング**: PP-OCRv5 と PaddleOCR の訓練手順に対応します。
 - **対話型 TUI**: 文字認識に関連する操作をターミナルのメニューから実行できます。
 
-CLI と Python バインディングは `ocrus-engine` の認識パイプラインを共有します。処理の流れと全9クレートは [アーキテクチャ](docs/architecture.ja.md) を参照してください。
+CLI・Python・C ABIは `ocrus-engine` の認識パイプラインを共有します。処理の流れと全10クレートは [アーキテクチャ](docs/architecture.ja.md) を参照してください。
+
+C・Swift向けには、画素を直接渡してモデルを再利用できる `ocrus-ffi` を使えます。
+macOS向けXCFrameworkの生成とメモリ管理は [ネイティブ組み込み](docs/native.ja.md) を参照してください。
 
 ## 動作環境
 

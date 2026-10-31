@@ -12,7 +12,7 @@
 
 ## Architecture
 
-Cargo workspace with 9 crates:
+Cargo workspace with 10 crates:
 
 | Crate | Role |
 |-------|------|
@@ -25,6 +25,7 @@ Cargo workspace with 9 crates:
 | `ocrus-dataset` | Training data generation (font rendering, pre-rendered images, augmentation, font style filtering) |
 | `ocrus-cli` | CLI entry point (thin wrapper over `ocrus-engine`) |
 | `ocrus-python` | PyO3 bindings, built as the `ocrus` wheel with maturin (`python/`) |
+| `ocrus-ffi` | Versioned C ABI, static/shared libraries and macOS XCFramework |
 
 ## Dependency Graph
 
