@@ -99,10 +99,10 @@ fn otsu_threshold(gray: &Array2<u8>) -> u8 {
     best_threshold
 }
 
-/// Normalize padded light-on-dark lines so layout can crop their horizontal margins.
+/// Normalize padded or multi-line light-on-dark text before layout analysis.
 /// Both the image majority and its border must belong to Otsu's darker cluster.
 /// This keeps dark lettering on gray paper and black frames around white pages intact.
-/// Compact light-on-dark inputs are already recognized well; preserve their context.
+/// Compact single glyphs keep their context; four separate row bands identify a page.
 pub fn invert_padded_dark_background(gray: &mut Array2<u8>) {
     let (h, w) = gray.dim();
     if h == 0 || w == 0 {
@@ -121,8 +121,25 @@ pub fn invert_padded_dark_background(gray: &mut Array2<u8>) {
             right = right.max(x + 1);
         }
     }
-    if left >= right || w - (right - left) <= h.saturating_mul(2) {
+    if left >= right {
         return;
+    }
+    if w - (right - left) <= h.saturating_mul(2) {
+        // Compact single glyphs keep their original model input. Several bright
+        // row bands provide evidence of text lines even without wide margins.
+        let minimum = (w / 100).max(1);
+        let mut bands = 0;
+        let mut in_band = false;
+        for row in gray.rows() {
+            let has_ink = row.iter().filter(|&&v| v > threshold).take(minimum).count() == minimum;
+            if has_ink && !in_band {
+                bands += 1;
+            }
+            in_band = has_ink;
+        }
+        if bands < 4 {
+            return;
+        }
     }
     let mut border = 0usize;
     let mut dark_border = 0usize;
@@ -307,6 +324,23 @@ mod tests {
         let original = gray.clone();
         invert_padded_dark_background(&mut gray);
         assert_eq!(gray, original);
+    }
+
+    #[test]
+    fn multiline_dark_background_is_inverted_without_wide_padding() {
+        let mut gray = Array2::from_elem((200, 320), 16u8);
+        for start in [12, 52, 92, 132, 172] {
+            for y in start..start + 16 {
+                for x in 12..300 {
+                    if x % 16 < 8 {
+                        gray[[y, x]] = 230;
+                    }
+                }
+            }
+        }
+        let original = gray.clone();
+        invert_padded_dark_background(&mut gray);
+        assert_eq!(gray, original.mapv(|v| 255 - v));
     }
 
     #[test]

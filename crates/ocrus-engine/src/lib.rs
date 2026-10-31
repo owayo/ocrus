@@ -670,7 +670,9 @@ fn merge_strokes_of_one_glyph(
     width: u32,
     height: u32,
 ) -> Vec<ocrus_core::BBox> {
-    if boxes.len() < 2 || height == 0 {
+    // A few disconnected stroke bands may belong to one glyph. A page of many
+    // small text rows must never be collapsed just because its frame is square.
+    if !(2..=4).contains(&boxes.len()) || height == 0 {
         return boxes;
     }
     let frame_aspect = width as f32 / height as f32;
@@ -732,6 +734,29 @@ mod tests {
             let prepared = prepare_image(&img, &config);
             assert_eq!((prepared.width, prepared.height), (96, 32));
             assert!(prepared.lines.is_empty());
+        }
+    }
+
+    #[test]
+    fn terminal_sized_pages_preserve_small_text_rows_in_both_polarities() {
+        for dark in [false, true] {
+            let mut pixels =
+                image::GrayImage::from_pixel(1200, 800, image::Luma([if dark { 16 } else { 239 }]));
+            for line in 0..48 {
+                for y in 8 + line * 16..16 + line * 16 {
+                    for x in 12..252 {
+                        if x % 12 < 6 {
+                            pixels.put_pixel(x, y, image::Luma([if dark { 239 } else { 16 }]));
+                        }
+                    }
+                }
+            }
+            let prepared =
+                prepare_image(&DynamicImage::ImageLuma8(pixels), &EngineConfig::default());
+            assert_eq!(prepared.lines.len(), 48, "dark={dark}");
+            for (index, line) in prepared.lines.iter().enumerate() {
+                assert_eq!((line.bbox.y, line.bbox.height), (8 + index as u32 * 16, 8));
+            }
         }
     }
 
