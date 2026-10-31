@@ -102,7 +102,7 @@ fn otsu_threshold(gray: &Array2<u8>) -> u8 {
 /// Normalize padded or multi-line light-on-dark text before layout analysis.
 /// Both the image majority and its border must belong to Otsu's darker cluster.
 /// This keeps dark lettering on gray paper and black frames around white pages intact.
-/// Compact single glyphs keep their context; four separate row bands identify a page.
+/// Compact single glyphs keep their context; separate text rows identify a page.
 pub fn invert_padded_dark_background(gray: &mut Array2<u8>) {
     let (h, w) = gray.dim();
     if h == 0 || w == 0 {
@@ -124,22 +124,8 @@ pub fn invert_padded_dark_background(gray: &mut Array2<u8>) {
     if left >= right {
         return;
     }
-    if w - (right - left) <= h.saturating_mul(2) {
-        // Compact single glyphs keep their original model input. Several bright
-        // row bands provide evidence of text lines even without wide margins.
-        let minimum = (w / 100).max(1);
-        let mut bands = 0;
-        let mut in_band = false;
-        for row in gray.rows() {
-            let has_ink = row.iter().filter(|&&v| v > threshold).take(minimum).count() == minimum;
-            if has_ink && !in_band {
-                bands += 1;
-            }
-            in_band = has_ink;
-        }
-        if bands < 4 {
-            return;
-        }
+    if w - (right - left) <= h.saturating_mul(2) && !has_multiple_text_rows(gray, threshold, true) {
+        return;
     }
     let mut border = 0usize;
     let mut dark_border = 0usize;
@@ -162,6 +148,53 @@ pub fn invert_padded_dark_background(gray: &mut Array2<u8>) {
     if (dark_border as f64) >= border as f64 * 0.75 {
         gray.mapv_inplace(|v| 255 - v);
     }
+}
+
+/// Evidence for multiple text rows: most foreground bands contain at least three
+/// horizontally separated ink groups. A few disconnected strokes of one glyph
+/// do not suffice. Used for both polarity and isolated-glyph handling.
+pub fn has_multiple_text_rows(gray: &Array2<u8>, threshold: u8, bright: bool) -> bool {
+    let (height, width) = gray.dim();
+    let minimum = (width / 100).max(1);
+    let mut columns = vec![false; width];
+    let mut bands = 0;
+    let mut text_bands = 0;
+    let mut in_band = false;
+    for y in 0..=height {
+        let foreground = |v: u8| {
+            if bright {
+                v > threshold
+            } else {
+                v <= threshold
+            }
+        };
+        let has_ink = y < height
+            && gray
+                .row(y)
+                .iter()
+                .filter(|&&v| foreground(v))
+                .take(minimum)
+                .count()
+                == minimum;
+        if has_ink {
+            in_band = true;
+            for (x, column) in columns.iter_mut().enumerate() {
+                *column |= foreground(gray[[y, x]]);
+            }
+        } else if in_band {
+            bands += 1;
+            let groups = columns
+                .iter()
+                .fold((0, false), |(n, previous), &ink| {
+                    (n + usize::from(ink && !previous), ink)
+                })
+                .0;
+            text_bands += usize::from(groups >= 3);
+            columns.fill(false);
+            in_band = false;
+        }
+    }
+    text_bands >= 2 && text_bands * 2 > bands
 }
 
 /// Sauvola local adaptive binarization using integral images for speed.

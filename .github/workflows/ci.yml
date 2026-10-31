@@ -49,9 +49,10 @@ jobs:
       - name: Verify the C ABI on macOS
         if: runner.os == 'macOS'
         run: |
-          cargo build --locked --release -p ocrus-ffi
+          cargo test --locked -p ocrus-nn --features accelerate
+          cargo build --locked --release -p ocrus-ffi --features accelerate
           cc -I crates/ocrus-ffi/include crates/ocrus-ffi/tests/smoke.c \
-            target/release/libocrus_ffi.a -framework CoreFoundation -framework Security \
+            target/release/libocrus_ffi.a -framework CoreFoundation -framework Security -framework Accelerate \
             -liconv -lresolv -o /tmp/ocrus-ffi-smoke
           /tmp/ocrus-ffi-smoke
 

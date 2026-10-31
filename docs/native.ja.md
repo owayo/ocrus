@@ -19,7 +19,12 @@ bash scripts/build-xcframework.sh "$PWD/artifacts/OcrusFFI.xcframework"
 OCRUS_ARCHS="arm64 x86_64" bash scripts/build-xcframework.sh "$PWD/artifacts/OcrusFFI.xcframework"
 ```
 
-既定では実行中のMac向けにビルドします。SwiftPMの `binaryTarget` へ生成物を指定すると、
+既定では実行中のMac向けにビルドし、`accelerate` featureでOS標準のBLASを使います。
+追加の推論ランタイムは不要です。SwiftPMのリンク設定に `.linkedFramework("Accelerate")`、
+Cのリンクオプションに `-framework Accelerate` を追加してください。
+通常のCargoビルドではこのfeatureは無効で、従来のRust演算を使います。
+
+SwiftPMの `binaryTarget` へ生成物を指定すると、
 `import OcrusFFI` で呼べます。モデルは別に配置し、ディレクトリを作成関数へ渡します。
 
 ## 呼び出しの契約
@@ -31,7 +36,7 @@ OCRUS_ARCHS="arm64 x86_64" bash scripts/build-xcframework.sh "$PWD/artifacts/Ocr
   出力先はNULLで初期化し、出力先どうしを重ねないでください。
 - 同じエンジンへの認識呼び出しは直列にします。Swiftでは専用キューをexecutorにしたactorなどで
   ブロッキング処理を実行します。エンジンごとのrayonプールはグローバルプールを変更しません。
-- キャンセルは別スレッドから要求できます。進行中のモデル推論は完了を待ち、次の推論の前に
+- キャンセルは別スレッドから要求できます。最大4行の進行中の推論が完了してから
   中断します。認識とキャンセル要求の両方が終わるまでトークンを保持します。
 - Rustのunwindするpanicは境界で捕捉し、ステータス4を返します。そのエンジンは破棄してください。
   メモリ確保失敗など、プロセスをabortする障害は捕捉できません。
@@ -44,7 +49,7 @@ macOSでは生成した静的ライブラリに対して次を実行できます
 
 ```bash
 cc -I crates/ocrus-ffi/include crates/ocrus-ffi/tests/smoke.c \
-  target/release/libocrus_ffi.a -framework CoreFoundation -framework Security \
+  target/release/libocrus_ffi.a -framework CoreFoundation -framework Security -framework Accelerate \
   -liconv -lresolv -o /tmp/ocrus-ffi-smoke
 /tmp/ocrus-ffi-smoke "$HOME/.ocrus/models"
 ```

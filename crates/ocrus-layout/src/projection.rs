@@ -24,9 +24,6 @@ pub fn detect_lines_projection(binary: &Array2<u8>) -> Vec<BBox> {
     });
 
     // 前景のある行の連なりをまとめる。小画像でも文字行は2px以上とする。
-    // Canvas height does not determine glyph height (for example, a terminal
-    // containing dozens of small rows). Reject only isolated one-pixel noise.
-    let min_line_height = 2;
     let mut lines = Vec::new();
     let mut line_start = None;
 
@@ -36,12 +33,23 @@ pub fn detect_lines_projection(binary: &Array2<u8>) -> Vec<BBox> {
             line_start.get_or_insert(y);
         } else if let Some(start) = line_start.take() {
             let line_height = y - start;
-            if line_height >= min_line_height {
+            if line_height >= 2 {
                 lines.push(BBox::new(0, start as u32, w as u32, line_height as u32));
             }
         }
     }
 
+    // Page height is only an upper bound for the noise threshold: many small
+    // terminal rows must not be discarded. Estimate text size from the detected
+    // bands, retaining the old threshold when it is already smaller. This also
+    // keeps short, detached dots/strokes from becoming extra text rows.
+    if !lines.is_empty() {
+        let mut heights: Vec<_> = lines.iter().map(|line| line.height).collect();
+        let middle = heights.len() / 2;
+        let median = *heights.select_nth_unstable(middle).1;
+        let minimum = (h / 50).max(2).min((median as usize / 2).max(2));
+        lines.retain(|line| line.height as usize >= minimum);
+    }
     lines
 }
 
@@ -168,8 +176,13 @@ mod tests {
                     }
                 }
             }
-            // Isolated scan noise still must not become an extra line.
+            // One- and two-pixel specks must not become extra text rows.
             image[[height - 1, 24]] = 0;
+            for y in height - 4..height - 2 {
+                for x in 12..36 {
+                    image[[y, x]] = 0;
+                }
+            }
             let lines = detect_lines_projection(&image);
             assert_eq!(lines.len(), 48, "canvas height={height}");
             for (index, line) in lines.iter().enumerate() {

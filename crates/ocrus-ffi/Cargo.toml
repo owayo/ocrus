@@ -16,3 +16,6 @@ ocrus-engine = { workspace = true }
 image = { workspace = true }
 rayon = { workspace = true }
 serde_json = { workspace = true }
+
+[features]
+accelerate = ["ocrus-engine/accelerate"]

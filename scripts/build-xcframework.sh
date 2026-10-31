@@ -21,7 +21,7 @@ for arch in ${OCRUS_ARCHS:-$(uname -m)}; do
     *) echo "Unsupported macOS architecture: $arch" >&2; exit 1 ;;
   esac
   "${RUN[@]}" rustup target add --toolchain "$toolchain" "$target"
-  MACOSX_DEPLOYMENT_TARGET=11.0 RUSTC="$compiler" "${RUN[@]}" rustup run "$toolchain" cargo build --locked --release -p ocrus-ffi --target "$target"
+  MACOSX_DEPLOYMENT_TARGET=11.0 RUSTC="$compiler" "${RUN[@]}" rustup run "$toolchain" cargo build --locked --release -p ocrus-ffi --features accelerate --target "$target"
   target_dir="$("${RUN[@]}" cargo metadata --no-deps --format-version 1 | /usr/bin/python3 -c 'import json,sys; print(json.load(sys.stdin)["target_directory"])')"
   ARCHIVES+=("$target_dir/$target/release/libocrus_ffi.a")
 done

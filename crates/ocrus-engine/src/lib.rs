@@ -36,8 +36,8 @@ use ocrus_layout::{
 };
 use ocrus_nn::{Executor, Model, NdTensor};
 use ocrus_preproc::{
-    binarize_adaptive, invert_padded_dark_background, normalize_line, normalize_line_vertical,
-    thicken, thin, to_grayscale,
+    binarize_adaptive, has_multiple_text_rows, invert_padded_dark_background, normalize_line,
+    normalize_line_vertical, thicken, thin, to_grayscale,
 };
 use ocrus_recognizer::charset::Charset;
 use ocrus_recognizer::{
@@ -126,7 +126,7 @@ pub fn prepare_image(img: &DynamicImage, config: &EngineConfig) -> PreparedImage
     // two or three "lines", were recognized as separate fragments and concatenated into
     // nonsense. In a square-ish frame that the ink fills, everything found is one
     // character; a page of text has a frame much wider than it is tall.
-    let line_bboxes = merge_strokes_of_one_glyph(line_bboxes, width, height);
+    let line_bboxes = merge_strokes_of_one_glyph(line_bboxes, width, height, &binary);
     let line_bboxes = keep_frame_for_tiny_mark(line_bboxes, width, height);
     // Mixed layouts use the horizontal projection/normalization path above too.
     // Apply the same margin handling to that path or its short lines are squeezed.
@@ -324,8 +324,8 @@ impl OcrEngine {
         self.recognize_image_cancellable(img, || false)
     }
 
-    /// Recognize an image, checking cancellation between individual model runs.
-    /// An in-flight model run is allowed to finish; no partial result is returned.
+    /// Recognize an image, checking cancellation between bounded batches of lines.
+    /// In-flight runs finish before cancellation; no partial result is returned.
     pub fn recognize_image_cancellable(
         &self,
         img: &DynamicImage,
@@ -342,45 +342,28 @@ impl OcrEngine {
         let prepared = prepare_image(img, &self.config);
         let (width, height) = (prepared.width, prepared.height);
 
-        // 行ごとに推論する。各行の前処理バリアントは同じ順序で保持する。
-        let outputs = prepared
-            .lines
-            .iter()
-            .map(|line| {
-                line.inputs
-                    .iter()
-                    .map(|t| {
-                        check_cancelled()?;
-                        self.executor.run(t.clone())
-                    })
-                    .collect::<Result<Vec<_>>>()
-            })
-            .collect::<Result<Vec<_>>>()?;
-
         let mut lines = Vec::with_capacity(prepared.lines.len());
-        for (line, output) in prepared.lines.iter().zip(&outputs) {
+        // Warm constants once before parallel work; concurrent first-use decoding
+        // would otherwise materialize the same weights several times.
+        if let Some(first) = prepared.lines.first() {
             check_cancelled()?;
-            let bbox = &line.bbox;
-            let ruby = line
-                .ruby_bboxes
-                .iter()
-                .map(|rb| RubyAnnotation {
-                    ruby_text: String::new(),
-                    bbox: *rb,
-                    confidence: 0.0,
-                })
-                .collect();
-
-            let (text, confidence) = self.decode_voted(output);
-            let text = correct_small_kana(&text, bbox, height).unwrap_or(text);
-            let text = self.correct(text);
-
-            lines.push(TextLine {
-                text,
-                bbox: *bbox,
-                confidence,
-                ruby,
-            });
+            lines.push(self.recognize_prepared_line(first, height)?);
+        }
+        // Bound intermediate activations/logits to at most four lines. Decode
+        // each line immediately instead of retaining every page's logits.
+        let parallelism = self.config.num_threads.clamp(1, 4);
+        for batch in prepared
+            .lines
+            .get(1..)
+            .unwrap_or_default()
+            .chunks(parallelism)
+        {
+            check_cancelled()?;
+            let recognized = batch
+                .par_iter()
+                .map(|line| self.recognize_prepared_line(line, height))
+                .collect::<Result<Vec<_>>>()?;
+            lines.extend(recognized);
         }
 
         check_cancelled()?;
@@ -390,6 +373,30 @@ impl OcrEngine {
                 height,
                 lines,
             }],
+        })
+    }
+
+    fn recognize_prepared_line(&self, line: &PreparedLine, page_height: u32) -> Result<TextLine> {
+        let outputs = line
+            .inputs
+            .iter()
+            .map(|input| self.executor.run(input.clone()))
+            .collect::<Result<Vec<_>>>()?;
+        let (text, confidence) = self.decode_voted(&outputs);
+        let text = correct_small_kana(&text, &line.bbox, page_height).unwrap_or(text);
+        Ok(TextLine {
+            text: self.correct(text),
+            bbox: line.bbox,
+            confidence,
+            ruby: line
+                .ruby_bboxes
+                .iter()
+                .map(|bbox| RubyAnnotation {
+                    ruby_text: String::new(),
+                    bbox: *bbox,
+                    confidence: 0.0,
+                })
+                .collect(),
         })
     }
 
@@ -669,10 +676,11 @@ fn merge_strokes_of_one_glyph(
     boxes: Vec<ocrus_core::BBox>,
     width: u32,
     height: u32,
+    binary: &ndarray::Array2<u8>,
 ) -> Vec<ocrus_core::BBox> {
     // A few disconnected stroke bands may belong to one glyph. A page of many
     // small text rows must never be collapsed just because its frame is square.
-    if !(2..=4).contains(&boxes.len()) || height == 0 {
+    if !(2..=4).contains(&boxes.len()) || height == 0 || has_multiple_text_rows(binary, 0, false) {
         return boxes;
     }
     let frame_aspect = width as f32 / height as f32;
@@ -757,6 +765,26 @@ mod tests {
             for (index, line) in prepared.lines.iter().enumerate() {
                 assert_eq!((line.bbox.y, line.bbox.height), (8 + index as u32 * 16, 8));
             }
+        }
+    }
+
+    #[test]
+    fn widely_spaced_text_rows_do_not_merge_into_one_glyph() {
+        for dark in [false, true] {
+            let mut pixels =
+                image::GrayImage::from_pixel(1200, 800, image::Luma([if dark { 16 } else { 239 }]));
+            for top in [100, 300, 500] {
+                for y in top..top + 16 {
+                    for x in 12..300 {
+                        if x % 16 < 8 {
+                            pixels.put_pixel(x, y, image::Luma([if dark { 239 } else { 16 }]));
+                        }
+                    }
+                }
+            }
+            let prepared =
+                prepare_image(&DynamicImage::ImageLuma8(pixels), &EngineConfig::default());
+            assert_eq!(prepared.lines.len(), 3, "dark={dark}");
         }
     }
 

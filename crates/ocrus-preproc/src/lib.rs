@@ -5,7 +5,8 @@ pub mod morph;
 pub mod normalize;
 
 pub use binarize::{
-    binarize_adaptive, binarize_otsu, binarize_sauvola, invert_padded_dark_background,
+    binarize_adaptive, binarize_otsu, binarize_sauvola, has_multiple_text_rows,
+    invert_padded_dark_background,
 };
 pub use grayscale::to_grayscale;
 pub use jpeg::{is_jpeg, try_decode_jpeg};
