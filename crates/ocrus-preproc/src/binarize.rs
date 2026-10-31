@@ -99,10 +99,10 @@ fn otsu_threshold(gray: &Array2<u8>) -> u8 {
     best_threshold
 }
 
-/// Normalize padded light-on-dark lines so layout can crop their horizontal margins.
+/// Normalize padded or multi-line light-on-dark text before layout analysis.
 /// Both the image majority and its border must belong to Otsu's darker cluster.
 /// This keeps dark lettering on gray paper and black frames around white pages intact.
-/// Compact light-on-dark inputs are already recognized well; preserve their context.
+/// Compact single glyphs keep their context; separate text rows identify a page.
 pub fn invert_padded_dark_background(gray: &mut Array2<u8>) {
     let (h, w) = gray.dim();
     if h == 0 || w == 0 {
@@ -121,7 +121,10 @@ pub fn invert_padded_dark_background(gray: &mut Array2<u8>) {
             right = right.max(x + 1);
         }
     }
-    if left >= right || w - (right - left) <= h.saturating_mul(2) {
+    if left >= right {
+        return;
+    }
+    if w - (right - left) <= h.saturating_mul(2) && !has_multiple_text_rows(gray, threshold, true) {
         return;
     }
     let mut border = 0usize;
@@ -145,6 +148,53 @@ pub fn invert_padded_dark_background(gray: &mut Array2<u8>) {
     if (dark_border as f64) >= border as f64 * 0.75 {
         gray.mapv_inplace(|v| 255 - v);
     }
+}
+
+/// Evidence for multiple text rows: most foreground bands contain at least three
+/// horizontally separated ink groups. A few disconnected strokes of one glyph
+/// do not suffice. Used for both polarity and isolated-glyph handling.
+pub fn has_multiple_text_rows(gray: &Array2<u8>, threshold: u8, bright: bool) -> bool {
+    let (height, width) = gray.dim();
+    let minimum = (width / 100).max(1);
+    let mut columns = vec![false; width];
+    let mut bands = 0;
+    let mut text_bands = 0;
+    let mut in_band = false;
+    for y in 0..=height {
+        let foreground = |v: u8| {
+            if bright {
+                v > threshold
+            } else {
+                v <= threshold
+            }
+        };
+        let has_ink = y < height
+            && gray
+                .row(y)
+                .iter()
+                .filter(|&&v| foreground(v))
+                .take(minimum)
+                .count()
+                == minimum;
+        if has_ink {
+            in_band = true;
+            for (x, column) in columns.iter_mut().enumerate() {
+                *column |= foreground(gray[[y, x]]);
+            }
+        } else if in_band {
+            bands += 1;
+            let groups = columns
+                .iter()
+                .fold((0, false), |(n, previous), &ink| {
+                    (n + usize::from(ink && !previous), ink)
+                })
+                .0;
+            text_bands += usize::from(groups >= 3);
+            columns.fill(false);
+            in_band = false;
+        }
+    }
+    text_bands >= 2 && text_bands * 2 > bands
 }
 
 /// Sauvola local adaptive binarization using integral images for speed.
@@ -307,6 +357,23 @@ mod tests {
         let original = gray.clone();
         invert_padded_dark_background(&mut gray);
         assert_eq!(gray, original);
+    }
+
+    #[test]
+    fn multiline_dark_background_is_inverted_without_wide_padding() {
+        let mut gray = Array2::from_elem((200, 320), 16u8);
+        for start in [12, 52, 92, 132, 172] {
+            for y in start..start + 16 {
+                for x in 12..300 {
+                    if x % 16 < 8 {
+                        gray[[y, x]] = 230;
+                    }
+                }
+            }
+        }
+        let original = gray.clone();
+        invert_padded_dark_background(&mut gray);
+        assert_eq!(gray, original.mapv(|v| 255 - v));
     }
 
     #[test]

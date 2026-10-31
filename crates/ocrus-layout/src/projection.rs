@@ -24,7 +24,6 @@ pub fn detect_lines_projection(binary: &Array2<u8>) -> Vec<BBox> {
     });
 
     // 前景のある行の連なりをまとめる。小画像でも文字行は2px以上とする。
-    let min_line_height = (h / 50).max(2);
     let mut lines = Vec::new();
     let mut line_start = None;
 
@@ -34,12 +33,23 @@ pub fn detect_lines_projection(binary: &Array2<u8>) -> Vec<BBox> {
             line_start.get_or_insert(y);
         } else if let Some(start) = line_start.take() {
             let line_height = y - start;
-            if line_height >= min_line_height {
+            if line_height >= 2 {
                 lines.push(BBox::new(0, start as u32, w as u32, line_height as u32));
             }
         }
     }
 
+    // Page height is only an upper bound for the noise threshold: many small
+    // terminal rows must not be discarded. Estimate text size from the detected
+    // bands, retaining the old threshold when it is already smaller. This also
+    // keeps short, detached dots/strokes from becoming extra text rows.
+    if !lines.is_empty() {
+        let mut heights: Vec<_> = lines.iter().map(|line| line.height).collect();
+        let middle = heights.len() / 2;
+        let median = *heights.select_nth_unstable(middle).1;
+        let minimum = (h / 50).max(2).min((median as usize / 2).max(2));
+        lines.retain(|line| line.height as usize >= minimum);
+    }
     lines
 }
 
@@ -150,6 +160,34 @@ mod tests {
         assert_eq!((lines[0].y, lines[0].height), (6, 2));
         for shape in [(0, 0), (0, 16), (16, 0)] {
             assert!(detect_lines_projection(&Array2::zeros(shape)).is_empty());
+        }
+    }
+
+    #[test]
+    fn small_text_lines_are_not_filtered_by_canvas_height() {
+        for height in [800, 1600, 3200] {
+            let mut image = Array2::from_elem((height, 1200), 255u8);
+            for line in 0..48 {
+                for y in 8 + line * 16..16 + line * 16 {
+                    for x in 12..252 {
+                        if x % 12 < 6 {
+                            image[[y, x]] = 0;
+                        }
+                    }
+                }
+            }
+            // One- and two-pixel specks must not become extra text rows.
+            image[[height - 1, 24]] = 0;
+            for y in height - 4..height - 2 {
+                for x in 12..36 {
+                    image[[y, x]] = 0;
+                }
+            }
+            let lines = detect_lines_projection(&image);
+            assert_eq!(lines.len(), 48, "canvas height={height}");
+            for (index, line) in lines.iter().enumerate() {
+                assert_eq!((line.y, line.height), (8 + index as u32 * 16, 8));
+            }
         }
     }
 

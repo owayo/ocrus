@@ -1,3 +1,5 @@
+#[cfg(all(target_os = "macos", feature = "accelerate"))]
+mod accelerate;
 pub mod activation;
 pub mod batchnorm;
 pub mod binary;

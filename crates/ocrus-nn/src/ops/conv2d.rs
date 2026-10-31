@@ -17,6 +17,18 @@ fn gemm_rows(
     n: usize,
     bias: Option<&[f32]>,
 ) {
+    #[cfg(all(target_os = "macos", feature = "accelerate"))]
+    if super::accelerate::multiply(weight, col, out, k, n) {
+        if let Some(bias) = bias {
+            assert_eq!(bias.len(), out.len() / n);
+            for (row, &value) in out.chunks_exact_mut(n).zip(bias) {
+                for pixel in row {
+                    *pixel += value;
+                }
+            }
+        }
+        return;
+    }
     out.par_chunks_mut(n).enumerate().for_each(|(co, out_row)| {
         let b = bias.map_or(0.0, |bb| bb[co]);
         let w_row = &weight[co * k..(co + 1) * k];

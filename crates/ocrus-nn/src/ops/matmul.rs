@@ -100,6 +100,11 @@ fn gemm(a: &[f32], b: &[f32], c: &mut [f32], k: usize, n: usize) {
     /// registers while `b` is read as whole cache lines.
     const JB: usize = 64;
 
+    #[cfg(all(target_os = "macos", feature = "accelerate"))]
+    if super::accelerate::multiply(a, b, c, k, n) {
+        return;
+    }
+
     // Loop order is what matters: reading a column of `b` one element at a time (stride
     // `n`) misses cache on every access, so instead broadcast one element of `a` and walk
     // a *row* of `b` contiguously, keeping the partial sums in vector accumulators.
