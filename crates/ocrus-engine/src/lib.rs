@@ -19,6 +19,8 @@
 //! # Ok::<(), ocrus_core::OcrusError>(())
 //! ```
 
+mod spacing;
+
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
@@ -382,7 +384,30 @@ impl OcrEngine {
             .iter()
             .map(|input| self.executor.run(input.clone()))
             .collect::<Result<Vec<_>>>()?;
-        let (text, confidence) = self.decode_voted(&outputs);
+        let (mut text, confidence) = self.decode_voted(&outputs);
+        if text
+            .chars()
+            .filter(|&c| spacing::is_word_character(c))
+            .count()
+            >= 2
+        {
+            for (output, input) in outputs.iter().zip(&line.inputs) {
+                let timesteps = output.shape.get(1).copied().unwrap_or(0);
+                let classes = output.shape.get(2).copied().unwrap_or(0);
+                let spans = ocrus_recognizer::ctc_greedy::ctc_greedy_spans(
+                    &output.data,
+                    timesteps,
+                    classes,
+                    &self.charset,
+                    self.logit_mask.as_deref(),
+                );
+                if spans.iter().map(|s| s.character).collect::<String>() == text {
+                    text =
+                        spacing::restore_word_spaces(&text, &spans, input, timesteps, &line.bbox);
+                    break;
+                }
+            }
+        }
         let text = correct_small_kana(&text, &line.bbox, page_height).unwrap_or(text);
         Ok(TextLine {
             text: self.correct(text),
