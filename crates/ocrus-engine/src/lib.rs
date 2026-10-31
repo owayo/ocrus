@@ -128,7 +128,9 @@ pub fn prepare_image(img: &DynamicImage, config: &EngineConfig) -> PreparedImage
     // character; a page of text has a frame much wider than it is tall.
     let line_bboxes = merge_strokes_of_one_glyph(line_bboxes, width, height);
     let line_bboxes = keep_frame_for_tiny_mark(line_bboxes, width, height);
-    let line_bboxes = if orientation == TextOrientation::Horizontal {
+    // Mixed layouts use the horizontal projection/normalization path above too.
+    // Apply the same margin handling to that path or its short lines are squeezed.
+    let line_bboxes = if orientation != TextOrientation::Vertical {
         trim_horizontal_margins(&binary, line_bboxes)
     } else {
         line_bboxes
@@ -319,6 +321,24 @@ impl OcrEngine {
 
     /// Recognize an already-decoded image.
     pub fn recognize_image(&self, img: &DynamicImage) -> Result<OcrResult> {
+        self.recognize_image_cancellable(img, || false)
+    }
+
+    /// Recognize an image, checking cancellation between individual model runs.
+    /// An in-flight model run is allowed to finish; no partial result is returned.
+    pub fn recognize_image_cancellable(
+        &self,
+        img: &DynamicImage,
+        cancelled: impl Fn() -> bool,
+    ) -> Result<OcrResult> {
+        let check_cancelled = || {
+            if cancelled() {
+                Err(OcrusError::Runtime("recognition cancelled".into()))
+            } else {
+                Ok(())
+            }
+        };
+        check_cancelled()?;
         let prepared = prepare_image(img, &self.config);
         let (width, height) = (prepared.width, prepared.height);
 
@@ -329,13 +349,17 @@ impl OcrEngine {
             .map(|line| {
                 line.inputs
                     .iter()
-                    .map(|t| self.executor.run(t.clone()))
+                    .map(|t| {
+                        check_cancelled()?;
+                        self.executor.run(t.clone())
+                    })
                     .collect::<Result<Vec<_>>>()
             })
             .collect::<Result<Vec<_>>>()?;
 
         let mut lines = Vec::with_capacity(prepared.lines.len());
         for (line, output) in prepared.lines.iter().zip(&outputs) {
+            check_cancelled()?;
             let bbox = &line.bbox;
             let ruby = line
                 .ruby_bboxes
@@ -359,6 +383,7 @@ impl OcrEngine {
             });
         }
 
+        check_cancelled()?;
         Ok(OcrResult {
             pages: vec![Page {
                 width,
@@ -831,6 +856,24 @@ mod tests {
         }
     }
 
+    #[test]
+    fn mixed_orientation_uses_horizontal_margin_trimming() {
+        let mut pixels = image::GrayImage::from_pixel(1200, 240, image::Luma([255]));
+        for (top, bottom, right) in [(20, 52, 500), (100, 120, 380), (162, 192, 390)] {
+            for y in top..bottom {
+                for x in 24..right {
+                    pixels.put_pixel(x, y, image::Luma([0]));
+                }
+            }
+        }
+        let img = DynamicImage::ImageLuma8(pixels);
+        let binary = binarize_adaptive(&to_grayscale(&img));
+        assert_eq!(detect_orientation(&binary), TextOrientation::Mixed);
+        let prepared = prepare_image(&img, &EngineConfig::default());
+        assert_eq!(prepared.lines.len(), 3);
+        assert!(prepared.lines.iter().all(|line| line.bbox.width < 600));
+    }
+
     fn test_engine(mask: Option<Vec<bool>>) -> OcrEngine {
         // 恒等グラフだけのモデルで、実際の重みなしに入力検証とデコードを検証する。
         let metadata = br#"{"converter":"test","source":{"file":"test.onnx","sha256":""},"values":[{"name":"input"}],"tensors":[],"nodes":[],"inputs":[0],"outputs":[0]}"#;
@@ -864,6 +907,24 @@ mod tests {
     fn raw_image_dimensions_cannot_overflow() {
         let engine = test_engine(None);
         assert!(engine.recognize_raw(&[], u32::MAX, u32::MAX, 4).is_err());
+    }
+
+    #[test]
+    fn cancellation_is_checked_before_and_after_blank_preparation() {
+        let engine = test_engine(None);
+        let img =
+            DynamicImage::ImageLuma8(image::GrayImage::from_pixel(96, 32, image::Luma([255])));
+        assert!(engine.recognize_image_cancellable(&img, || true).is_err());
+        let calls = std::cell::Cell::new(0);
+        assert!(
+            engine
+                .recognize_image_cancellable(&img, || {
+                    calls.set(calls.get() + 1);
+                    calls.get() > 1
+                })
+                .is_err()
+        );
+        assert_eq!(calls.get(), 2);
     }
 
     #[test]

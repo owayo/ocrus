@@ -62,3 +62,5 @@ mise.local.toml
 /training_data*/
 /test_results/
 /output/dataset/
+/artifacts/
+*.ocnn

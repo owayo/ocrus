@@ -9,6 +9,7 @@ members = [
     "crates/ocrus-python",
     "crates/ocrus-dataset",
     "crates/ocrus-nn",
+    "crates/ocrus-ffi",
 ]
 resolver = "3"
 

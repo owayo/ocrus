@@ -1747,6 +1747,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocrus-ffi"
+version = "0.1.0"
+dependencies = [
+ "image 0.25.10",
+ "ocrus-core",
+ "ocrus-engine",
+ "rayon",
+ "serde_json",
+]
+
+[[package]]
 name = "ocrus-layout"
 version = "0.1.0"
 dependencies = [

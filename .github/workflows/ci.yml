@@ -46,6 +46,15 @@ jobs:
       - run: make setup
       - run: make ci
 
+      - name: Verify the C ABI on macOS
+        if: runner.os == 'macOS'
+        run: |
+          cargo build --locked --release -p ocrus-ffi
+          cc -I crates/ocrus-ffi/include crates/ocrus-ffi/tests/smoke.c \
+            target/release/libocrus_ffi.a -framework CoreFoundation -framework Security \
+            -liconv -lresolv -o /tmp/ocrus-ffi-smoke
+          /tmp/ocrus-ffi-smoke
+
   build:
     name: Build (${{ matrix.target }})
     needs: quality
