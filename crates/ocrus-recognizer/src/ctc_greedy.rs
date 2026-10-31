@@ -67,15 +67,7 @@ fn decode_argmax(
     let mut prev = None;
 
     for frame in frames.chunks_exact(num_classes) {
-        let mut best_idx = 0usize;
-        let mut best_val = f32::NEG_INFINITY;
-        for (idx, &v) in frame.iter().enumerate() {
-            let candidate = score(idx, v);
-            if candidate.total_cmp(&best_val).is_gt() {
-                best_idx = idx;
-                best_val = candidate;
-            }
-        }
+        let (best_idx, best_val) = frame_argmax(frame, &score);
         if best_val.is_finite() {
             total_confidence += best_val;
             count += 1;
@@ -101,6 +93,75 @@ fn decode_argmax(
     (result, avg_confidence)
 }
 
+/// Time interval occupied by one collapsed CTC token (end is exclusive).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CharacterSpan {
+    pub character: char,
+    pub start: usize,
+    pub end: usize,
+}
+
+/// Character positions using the same finite-score, tie and mask rules as greedy decoding.
+pub fn ctc_greedy_spans(
+    logits: &[f32],
+    timesteps: usize,
+    num_classes: usize,
+    charset: &Charset,
+    mask: Option<&[bool]>,
+) -> Vec<CharacterSpan> {
+    let Some(frames) = validated_frames(logits, timesteps, num_classes) else {
+        return Vec::new();
+    };
+    if let Some(mask) = mask {
+        assert_eq!(
+            mask.len(),
+            num_classes,
+            "mask length must equal num_classes"
+        );
+    }
+    let mut spans: Vec<CharacterSpan> = Vec::new();
+    let mut previous = None;
+    for (time, frame) in frames.chunks_exact(num_classes).enumerate() {
+        let (index, _) = frame_argmax(frame, &|index, value| {
+            if mask.is_none_or(|m| m[index]) {
+                sanitize_logit(value)
+            } else {
+                f32::NEG_INFINITY
+            }
+        });
+        if previous == Some(index) {
+            if index != charset.blank_index()
+                && charset.index_to_char(index).is_some()
+                && let Some(span) = spans.last_mut()
+            {
+                span.end = time + 1;
+            }
+        } else if index != charset.blank_index()
+            && let Some(character) = charset.index_to_char(index)
+        {
+            spans.push(CharacterSpan {
+                character,
+                start: time,
+                end: time + 1,
+            });
+        }
+        previous = Some(index);
+    }
+    spans
+}
+
+#[inline]
+fn frame_argmax(frame: &[f32], score: &impl Fn(usize, f32) -> f32) -> (usize, f32) {
+    let mut best = (0, f32::NEG_INFINITY);
+    for (index, &value) in frame.iter().enumerate() {
+        let candidate = score(index, value);
+        if candidate.total_cmp(&best.1).is_gt() {
+            best = (index, candidate);
+        }
+    }
+    best
+}
+
 fn sanitize_logit(v: f32) -> f32 {
     if v.is_finite() { v } else { f32::NEG_INFINITY }
 }
@@ -109,6 +170,47 @@ fn sanitize_logit(v: f32) -> f32 {
 mod tests {
     use super::*;
     use crate::charset::Charset;
+
+    #[test]
+    fn spans_preserve_collapsed_tokens_spaces_and_masking() {
+        let charset = Charset::from_chars(&['a', 'b', ' ']);
+        let indices = [1, 1, 0, 1, 3, 3, 2, 2];
+        let logits: Vec<f32> = indices
+            .iter()
+            .flat_map(|&token| (0..4).map(move |i| if i == token { 1.0 } else { -1.0 }))
+            .collect();
+        let spans = ctc_greedy_spans(&logits, 8, 4, &charset, None);
+        assert_eq!(
+            spans.iter().map(|s| s.character).collect::<String>(),
+            ctc_greedy_decode(&logits, 8, 4, &charset).0
+        );
+        assert_eq!(
+            spans.iter().map(|s| (s.start, s.end)).collect::<Vec<_>>(),
+            [(0, 2), (3, 4), (4, 6), (6, 8)]
+        );
+        let mask = [true, true, true, false];
+        let spans = ctc_greedy_spans(&logits, 8, 4, &charset, Some(&mask));
+        assert_eq!(
+            spans.iter().map(|s| s.character).collect::<String>(),
+            ctc_greedy_decode_masked(&logits, 8, 4, &charset, &mask).0
+        );
+    }
+
+    #[test]
+    fn unknown_classes_do_not_extend_the_previous_character() {
+        let charset = Charset::from_chars(&['a']);
+        let spans = ctc_greedy_spans(&[0., 1., 0., 0., 0., 1., 0., 0., 1.], 3, 3, &charset, None);
+        assert_eq!(
+            spans,
+            [CharacterSpan {
+                character: 'a',
+                start: 0,
+                end: 1
+            }]
+        );
+        assert!(ctc_greedy_spans(&[f32::NAN; 4], 2, 2, &charset, None).is_empty());
+        assert!(ctc_greedy_spans(&[], 1, 2, &charset, None).is_empty());
+    }
 
     #[test]
     fn test_ctc_greedy_simple() {
